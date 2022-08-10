@@ -1,0 +1,150 @@
+import { React, useRef, useState, useEffects } from "react";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import {
+  CButton,
+  CCard,
+  CCardBody,
+  CCardGroup,
+  CCol,
+  CContainer,
+  CForm,
+  CFormInput,
+  CInputGroup,
+  CInputGroupText,
+  CRow,
+  CAlert,
+} from "@coreui/react";
+import CIcon from "@coreui/icons-react";
+import { cilLockLocked, cilUser } from "@coreui/icons";
+import axios from "axios";
+
+const Login = () => {
+  /* State Hook */
+
+  const [token, setToken] = useState("");
+  const { register, handleSubmit } = useForm();
+  const baseUrl = "http://52.66.240.197/api/v1";
+  const onFormSubmit = (data) => {
+    axios.post(baseUrl+"/login",data)
+    .then((response)=>{
+      console.log(response);
+      setToken(response.data.token);
+      localStorage.setItem("token", response.data.token);
+    })
+    .catch((error)=>{
+      setVisible(true);
+    })
+    console.log(data);
+  };
+  const onErrors = (errors) => console.error(errors);
+
+  const [visible, setVisible] = useState(false);
+
+  const registerOptions = {
+    email: { required: "Email is required" },
+    password: {
+      required: "Password is required",
+      minLength: {
+        value: 8,
+        message: "Password must have at least 8 characters",
+      },
+    },
+  };
+
+  return (
+    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+      <CContainer>
+        <CRow className="justify-content-center">
+          <CCol md={8}>
+            <CCardGroup>
+              <CCard className="p-4">
+                <CCardBody>
+                  <CAlert
+                    color="danger"
+                    dismissible
+                    visible={visible}
+                    onClose={() => setVisible(false)}
+                  >
+                    Invalid Logins
+                  </CAlert>
+                  <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
+                    <h1>Login</h1>
+                    <p className="text-medium-emphasis">
+                      Sign In to your account
+                    </p>
+                    <CInputGroup className="mb-3">
+                      <CInputGroupText>
+                        <CIcon icon={cilUser} />
+                      </CInputGroupText>
+                      <CFormInput
+                        placeholder="example@example.com"
+                        autoComplete="email"
+                        required
+                        type="email"
+                        // onChange={()=>{setUsername(this.value)}}
+                        name="email"
+                        {...register("email", registerOptions.username)}
+                      />
+                    </CInputGroup>
+                    <CInputGroup className="mb-4">
+                      <CInputGroupText>
+                        <CIcon icon={cilLockLocked} />
+                      </CInputGroupText>
+                      <CFormInput
+                        type="password"
+                        placeholder="Password"
+                        autoComplete="current-password"
+                        required
+                        {...register("password", registerOptions.password)}
+                      />
+                    </CInputGroup>
+                    <CRow>
+                      <CCol xs={6}>
+                        <CButton type="submit" color="primary" className="px-4">
+                          Login
+                        </CButton>
+                      </CCol>
+                      <CCol xs={6} className="text-right">
+                        <CButton color="link" className="px-0">
+                          Forgot password?
+                        </CButton>
+                      </CCol>
+                    </CRow>
+                  </CForm>
+                </CCardBody>
+              </CCard>
+              <CCard
+                className="text-white bg-primary py-5"
+                style={{ width: "44%" }}
+              >
+                <CCardBody className="text-center">
+                  <div>
+                    <h2>Sign up</h2>
+                    <p>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua.
+                    </p>
+                    <Link to="/register">
+                      <CButton
+                        color="primary"
+                        className="mt-3"
+                        active
+                        tabIndex={-1}
+                      >
+                        Register Now!
+                      </CButton>
+                    </Link>
+                  </div>
+                </CCardBody>
+              </CCard>
+            </CCardGroup>
+          </CCol>
+        </CRow>
+      </CContainer>
+    </div>
+  );
+};
+
+export default Login;
