@@ -21,7 +21,7 @@ const Register = () => {
 
   const [token, setToken] = useState("");
   const { register, handleSubmit } = useForm();
-  const baseUrl = "http://52.66.240.197/api/v1";
+  const baseUrl = "http://localhost:8800/api/v1";
   const onFormSubmit = (data) => {
     axios.post(baseUrl+"/register",data)
     .then((response)=>{
@@ -74,12 +74,26 @@ const Register = () => {
                     <CIcon icon={cilUser} />
                     </CInputGroupText>
                     <CFormInput
-                        placeholder="Fullname"
+                        placeholder="First Name"
+                        autoComplete="name"
+                        required
+                        type="text"
+                        // onChange={()=>{setUsername(this.value)}}
+                        name="name"
+                        {...register("first_name", registerOptions.username)}
+                      />
+                  </CInputGroup>
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText>
+                    <CIcon icon={cilUser} />
+                    </CInputGroupText>
+                    <CFormInput
+                        placeholder="Last Name"
                         autoComplete="name"
                         required
                         type="name"
                         // onChange={()=>{setUsername(this.value)}}
-                        name="name"
+                        name="last_name"
                         {...register("name", registerOptions.username)}
                       />
                   </CInputGroup>
