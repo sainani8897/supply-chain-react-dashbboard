@@ -3,6 +3,7 @@ import CIcon from '@coreui/icons-react'
 import {
   cilBell,
   cilCalculator,
+  cilCart,
   cilChartPie,
   cilCursor,
   cilDescription,
@@ -10,8 +11,10 @@ import {
   cilNotes,
   cilPencil,
   cilPuzzle,
+  cilShareBoxed,
   cilSpeedometer,
   cilStar,
+  cilTags,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -33,14 +36,14 @@ const new_nav = [
   {
     component: CNavItem,
     name: 'Products',
-    to: '/theme/colors',
-    icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
+    to: '/products',
+    icon: <CIcon icon={cilTags} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
     name: 'Cateogry',
-    to: '/theme/typography',
-    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+    to: '/category',
+    icon: <CIcon icon={cilShareBoxed} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,

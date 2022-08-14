@@ -8,6 +8,8 @@ const loading = (
   </div>
 )
 
+/* Auth Guard */
+import AuthGuard from './Auth/AuthGaurd'
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
@@ -27,7 +29,10 @@ class App extends Component {
             <Route exact path="/register" name="Register Page" element={<Register />} />
             <Route exact path="/404" name="Page 404" element={<Page404 />} />
             <Route exact path="/500" name="Page 500" element={<Page500 />} />
+            {/* <Route path="*" name="Home" element={AuthGuard(DefaultLayout)} /> */}
             <Route path="*" name="Home" element={<DefaultLayout />} />
+            {/* <Route path="*" name="Home" element={AuthGuard(DefaultLayout)} /> */}
+            {/* <Route path="*" name="Home" element={<AuthGuard Component={DefaultLayout} />} /> */}
           </Routes>
         </Suspense>
       </HashRouter>

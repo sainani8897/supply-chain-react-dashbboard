@@ -2,10 +2,9 @@ import React,{ useState } from 'react'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
 
 const DefaultLayout = () => {
-  /* const [token, setToken] = useState();
-  if(!token) {
-    return <Login  />
-  } */
+  
+  
+
   return (
     <div>
       <AppSidebar />
