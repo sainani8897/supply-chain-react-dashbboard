@@ -28,8 +28,15 @@ import {
   CFormTextarea,
   CToast,
   CToastBody,
-  CToastClose
+  CModalFooter,
+  CToastClose,
+  CPopover,
+  CTooltip,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import {
+  cilBell, cilTrash,
+} from '@coreui/icons'
 import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
 import axios from 'axios';
@@ -38,6 +45,7 @@ const Category = () => {
   const columns = ["#", "class", "Heading", "Heading"];
   const items = [];
   const [visibleXL, setVisibleXL] = useState(false)
+  const [delModal, setDelVisible] = useState(false)
   const [formAction, setFormAction] = useState('Add');
   const [data, setData] = useState([]);
   const [toast, setToast] = useState({ visible: false, color: "primary", message: "Oops something went wrong!" });
@@ -49,10 +57,10 @@ const Category = () => {
 
   /* Form */
   const onFormSubmit = (data) => {
-    if (formAction=='Add') {
+    if (formAction == 'Add') {
       create(data);
     }
-    else{
+    else {
       updateData(data)
     }
   };
@@ -124,6 +132,13 @@ const Category = () => {
     setValue('_id', data._id)
   };
 
+  /* Delete  */
+  const onDelete = (data) => {
+    console.log(data);
+    setDelVisible(true);
+  }
+
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -168,7 +183,7 @@ const Category = () => {
                     <CTableDataCell>{category.status}</CTableDataCell>
                     <CTableDataCell>
                       <CButton color="info" onClick={() => onEdit(category)} className="me-md-2">Edit</CButton>
-                      <CButton color="danger" className="me-md-2">Delete</CButton>
+                      <CButton color="danger" onClick={() => onDelete(category)} className="me-md-2">Delete</CButton>
                     </CTableDataCell>
                   </CTableRow>
                 )}
@@ -218,6 +233,28 @@ const Category = () => {
 
               </CModalBody>
             </CModal>
+
+            <CModal alignment="center" visible={delModal} onClose={() => setDelVisible(false)}>
+              <CModalHeader>
+                <CModalTitle>Modal title</CModalTitle>
+              </CModalHeader>
+              <CModalBody className='text-center'>
+              <CIcon icon={cilTrash} size="xl"/>
+              {/* <CIcon icon={cilPencil} customClassName="nav-icon" /> */}
+                <h5>Are you Sure?</h5>
+                <p>
+                 This Action cannot be undone!
+                </p>
+                
+              </CModalBody>
+              <CModalFooter>
+                <CButton color="secondary" onClick={() => setDelVisible(false)}>
+                  Close
+                </CButton>
+                <CButton color="primary">Save changes</CButton>
+              </CModalFooter>
+            </CModal>
+
             {/* Modal ends Here  */}
             {/* </DocsExample> */}
           </CCardBody>
