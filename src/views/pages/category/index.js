@@ -48,8 +48,10 @@ const Category = () => {
   const [delModal, setDelVisible] = useState(false)
   const [formAction, setFormAction] = useState('Add');
   const [data, setData] = useState([]);
+  const [categoryData, setCategory] = useState({});
   const [toast, setToast] = useState({ visible: false, color: "primary", message: "Oops something went wrong!" });
   const addForm = () => {
+    reset({ sort: "", category_name: "", parent_id: "" }); 
     setFormAction('Add');
     setVisibleXL(true)
   }
@@ -74,6 +76,7 @@ const Category = () => {
         reset({ sort: "", category_name: "", parent_id: "" }); /* Empty the Form */
         setVisibleXL(false) /* Close the Pop Here */
         setToast({ visible: true, color: "success", message: response.data.message ?? "Success" }) /* Toast */
+        getData();
       })
       .catch((error, response) => {
         console.log(response.data);
@@ -89,6 +92,7 @@ const Category = () => {
         reset({ sort: "", category_name: "", parent_id: "" }); /* Empty the Form */
         setVisibleXL(false) /* Close the Pop Here */
         setToast({ visible: true, color: "success", message: response.data.message ?? "Success" }) /* Toast */
+        getData();
       })
       .catch((error, response) => {
         console.log(response.data);
@@ -108,9 +112,28 @@ const Category = () => {
     }
   };
 
+  const deleteAction = (data) => {
+    axios.delete(process.env.REACT_APP_API_URL + "/categories",
+      { headers: { Authorization: localStorage.getItem('token') ?? null }, data: { _id: [data._id] } })
+      .then((response) => {
+        /* Empty the Form */
+        setDelVisible(false) /* Close the Pop Here */
+        setToast({ visible: true, color: "success", message: response.data.message ?? "Deleted Successfully" }) /* Toast */
+        getData();
+      })
+      .catch((error, response) => {
+        console.log(response.data);
+        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+      })
+  }
+
   /* Get Data */
   useEffect(() => {
-    axios
+    getData();
+  }, [])
+
+  const getData = async ()=>{
+    return await axios
       .get(process.env.REACT_APP_API_URL + "/categories", { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setData(res.data.data);
@@ -118,7 +141,7 @@ const Category = () => {
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
-  }, [])
+  }
 
   /* Edit Form */
   const onEdit = (data) => {
@@ -134,7 +157,7 @@ const Category = () => {
 
   /* Delete  */
   const onDelete = (data) => {
-    console.log(data);
+    setCategory(data);
     setDelVisible(true);
   }
 
@@ -145,7 +168,7 @@ const Category = () => {
         <CToast autohide={true} delay={2000} visible={toast.visible} color={toast.color} className="text-white align-items-center float-end" >
           <div className="d-flex">
             <CToastBody>{toast.message}</CToastBody>
-            <CToastClose className="me-2 m-auto" white />
+            <CToastClose className="me-2 m-auto"/>
           </div>
         </CToast>
       </CCol>
@@ -236,22 +259,22 @@ const Category = () => {
 
             <CModal alignment="center" visible={delModal} onClose={() => setDelVisible(false)}>
               <CModalHeader>
-                <CModalTitle>Modal title</CModalTitle>
+                {/* <CModalTitle>Modal title</CModalTitle> */}
               </CModalHeader>
               <CModalBody className='text-center'>
-              <CIcon icon={cilTrash} size="xl"/>
-              {/* <CIcon icon={cilPencil} customClassName="nav-icon" /> */}
-                <h5>Are you Sure?</h5>
+                <CIcon size={'4xl'} icon={cilTrash} />
+                {/* <CIcon icon={cilPencil} customClassName="nav-icon" /> */}
+                <h3 className='mt-4 mb-4'>Are you Sure? </h3>
                 <p>
-                 This Action cannot be undone!
+                  Do you really want to delete these records? This process cannot be undone.
                 </p>
-                
+
               </CModalBody>
               <CModalFooter>
                 <CButton color="secondary" onClick={() => setDelVisible(false)}>
                   Close
                 </CButton>
-                <CButton color="primary">Save changes</CButton>
+                <CButton color="danger" onClick={() => { deleteAction(categoryData) }} variant="ghost">Yes Continue</CButton>
               </CModalFooter>
             </CModal>
 
