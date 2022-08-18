@@ -35,7 +35,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBell, cilTrash,
+  cilBell, cilPencil, cilTrash,
 } from '@coreui/icons'
 import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
@@ -51,7 +51,7 @@ const Category = () => {
   const [categoryData, setCategory] = useState({});
   const [toast, setToast] = useState({ visible: false, color: "primary", message: "Oops something went wrong!" });
   const addForm = () => {
-    reset({ sort: "", category_name: "", parent_id: "" }); 
+    reset({ sort: "", category_name: "", parent_id: "" });
     setFormAction('Add');
     setVisibleXL(true)
   }
@@ -76,7 +76,7 @@ const Category = () => {
         reset({ sort: "", category_name: "", parent_id: "" }); /* Empty the Form */
         setVisibleXL(false) /* Close the Pop Here */
         setToast({ visible: true, color: "success", message: response.data.message ?? "Success" }) /* Toast */
-        getData();
+        reload();
       })
       .catch((error, response) => {
         console.log(response.data);
@@ -92,7 +92,7 @@ const Category = () => {
         reset({ sort: "", category_name: "", parent_id: "" }); /* Empty the Form */
         setVisibleXL(false) /* Close the Pop Here */
         setToast({ visible: true, color: "success", message: response.data.message ?? "Success" }) /* Toast */
-        getData();
+        reload();
       })
       .catch((error, response) => {
         console.log(response.data);
@@ -119,7 +119,7 @@ const Category = () => {
         /* Empty the Form */
         setDelVisible(false) /* Close the Pop Here */
         setToast({ visible: true, color: "success", message: response.data.message ?? "Deleted Successfully" }) /* Toast */
-        getData();
+        reload();
       })
       .catch((error, response) => {
         console.log(response.data);
@@ -129,10 +129,10 @@ const Category = () => {
 
   /* Get Data */
   useEffect(() => {
-    getData();
+    reload();
   }, [])
 
-  const getData = async ()=>{
+  const reload = async () => {
     return await axios
       .get(process.env.REACT_APP_API_URL + "/categories", { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
@@ -168,13 +168,13 @@ const Category = () => {
         <CToast autohide={true} delay={2000} visible={toast.visible} color={toast.color} className="text-white align-items-center float-end" >
           <div className="d-flex">
             <CToastBody>{toast.message}</CToastBody>
-            <CToastClose className="me-2 m-auto"/>
+            <CToastClose className="me-2 m-auto" />
           </div>
         </CToast>
       </CCol>
 
       <CCol xs={12}>
-        <CButton color="info" onClick={() => { addForm() }} className="mb-4">Add Categories</CButton>
+        <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Categories</CButton>
         <CCard className="mb-4">
           <CCardHeader>
             <strong>Categories</strong>
@@ -205,8 +205,18 @@ const Category = () => {
                     <CTableDataCell>{category.slug}</CTableDataCell>
                     <CTableDataCell>{category.status}</CTableDataCell>
                     <CTableDataCell>
-                      <CButton color="info" onClick={() => onEdit(category)} className="me-md-2">Edit</CButton>
-                      <CButton color="danger" onClick={() => onDelete(category)} className="me-md-2">Delete</CButton>
+                      <CTooltip
+                        content="Edit"
+                        placement="top"
+                      >
+                        <CButton color="info" onClick={() => onEdit(category)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilPencil} /></CButton>
+                      </CTooltip>
+                      <CTooltip
+                        content="Delete"
+                        placement="top"
+                      >
+                        <CButton color="danger" onClick={() => onDelete(category)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilTrash} /></CButton>
+                      </CTooltip>
                     </CTableDataCell>
                   </CTableRow>
                 )}
@@ -246,15 +256,16 @@ const Category = () => {
                       </CFormSelect>
                     </CCol>
 
-                    <CCol xs={12} className="mt-4">
-                      <input type="hidden"  {...register("_id", categoryOptions._id)}></input>
-                      <CButton type="submit" className="me-md-2" >Submit</CButton>
-                      <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
-                    </CCol>
+
                   </CForm>
                 </CCol>
 
               </CModalBody>
+              <CModalFooter className='mt-4'>
+                <input type="hidden"  {...register("_id", categoryOptions._id)}></input>
+                <CButton type="submit" className="me-md-2" >Submit</CButton>
+                <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
+              </CModalFooter>
             </CModal>
 
             <CModal alignment="center" visible={delModal} onClose={() => setDelVisible(false)}>
