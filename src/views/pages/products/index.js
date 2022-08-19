@@ -200,27 +200,27 @@ const Category = () => {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {data.docs?.map((category, index) =>
-                  <CTableRow key={category.id}>
+                {data.docs?.map((product, index) =>
+                  <CTableRow key={product.id}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{category.name}</CTableDataCell>
-                    <CTableDataCell>{category.sku}</CTableDataCell>
-                    <CTableDataCell>{category.qty}</CTableDataCell>
-                    <CTableDataCell>{category.cost}</CTableDataCell>
-                    <CTableDataCell>{category.sell_price ?? 0.00}</CTableDataCell>
-                    <CTableDataCell>{category.status}</CTableDataCell>
+                    <CTableDataCell>{product.name}</CTableDataCell>
+                    <CTableDataCell>{product.sku}</CTableDataCell>
+                    <CTableDataCell>{product.qty}</CTableDataCell>
+                    <CTableDataCell>{product.cost}</CTableDataCell>
+                    <CTableDataCell>{product.sell_price ?? 0.00}</CTableDataCell>
+                    <CTableDataCell>{product.status}</CTableDataCell>
                     <CTableDataCell>
                       <CTooltip
                         content="Edit"
                         placement="top"
                       >
-                        <CButton color="info" onClick={() => onEdit(category)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilPencil} /></CButton>
+                        <CButton color="info" onClick={() => onEdit(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilPencil} /></CButton>
                       </CTooltip>
                       <CTooltip
                         content="Delete"
                         placement="top"
                       >
-                        <CButton color="danger" onClick={() => onDelete(category)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilTrash} /></CButton>
+                        <CButton color="danger" onClick={() => onDelete(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilTrash} /></CButton>
                       </CTooltip>
                     </CTableDataCell>
                   </CTableRow>
@@ -230,65 +230,66 @@ const Category = () => {
 
             {/* Modal start Here */}
             <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
-              <CModalHeader>
-                <CModalTitle>{formAction} Products</CModalTitle>
-              </CModalHeader>
-              <CModalBody>
+              <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
+                <CModalHeader>
+                  <CModalTitle>{formAction} Products</CModalTitle>
+                </CModalHeader>
+                <CModalBody>
+                  <CCol xs={12}>
+                    <CRow className="row g-3">
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputEmail4" label="Name" {...register("name", options.name)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputPassword4" label="sku" {...register("sku", options.sku)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputEmail4" label="Serial Numbers"  {...register("serial_number", options.serial_number)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="qty" label="Qty" {...register("qty", options.qty)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="cost" label="Cost Price" {...register("cost", options.cost)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="cost" label="Sell Price" {...register("sell_price", options.sell_price)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" label="Category">
+                          <option>Choose...</option>
+                          <option>...</option>
+                        </CFormSelect>
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput id="inputCity" label="Units" />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" label="Vendor">
+                          <option>Choose...</option>
+                          <option>...</option>
+                        </CFormSelect>
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormSelect name='status' id="inputState" label="Status" {...register("status", options.status)}>
+                          <option>Choose...</option>
+                          <option>Active</option>
+                          <option>In-Active</option>
+                        </CFormSelect>
+                      </CCol>
 
-                <CCol xs={12}>
-                  <CForm className="row g-3" onSubmit={handleSubmit(onFormSubmit, onErrors)}>
-                    <CCol md={6}>
-                      <CFormInput type="text" id="inputEmail4" label="Name" {...register("name", options.name)}/>
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormInput type="text" id="inputPassword4" label="sku" {...register("sku", options.sku)}/>
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormInput type="text" id="inputEmail4" label="Serial Numbers"  {...register("serial_number", options.serial_number)}/>
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormInput type="text" id="qty" label="Qty" {...register("qty", options.qty)}/>
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormInput type="text" id="cost" label="Cost Price" {...register("cost", options.cost)}/>
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormInput type="text" id="cost" label="Sell Price" {...register("sell_price", options.sell_price)}/>
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormSelect id="inputState" label="Category">
-                        <option>Choose...</option>
-                        <option>...</option>
-                      </CFormSelect>
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormInput id="inputCity" label="Units" />
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormSelect id="inputState" label="Vendor">
-                        <option>Choose...</option>
-                        <option>...</option>
-                      </CFormSelect>
-                    </CCol>
-                    <CCol md={6}>
-                      <CFormSelect id="inputState" label="Status">
-                        <option>Choose...</option>
-                        <option>Active</option>
-                        <option>In-Active</option>
-                      </CFormSelect>
-                    </CCol>
-                    <CCol xs={12}>
-                      <CFormTextarea rows="6" id="inputAddress" label="Description" {...register("description", options.description)} placeholder="Max 250 chars" ></CFormTextarea>
-                    </CCol>
-                  </CForm>
-                </CCol>
-
-              </CModalBody>
-              <CModalFooter className='mt-4'>
-                <input type="hidden"  {...register("_id", options._id)}></input>
-                <CButton type="submit" className="me-md-2" >Submit</CButton>
-                <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
-              </CModalFooter>
+                      <CCol xs={12}>
+                        <CFormTextarea rows="6" id="inputAddress" label="Description" {...register("description", options.description)} placeholder="Max 250 chars" ></CFormTextarea>
+                      </CCol>
+                    </CRow>
+                  </CCol>
+                </CModalBody>
+                <CModalFooter className='mt-4'>
+                  <input type="hidden"  {...register("_id", options._id)}></input>
+                  <CButton type="submit" className="me-md-2" >Submit</CButton>
+                  <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
+                </CModalFooter>
+              </CForm>
             </CModal>
 
             <CModal alignment="center" visible={delModal} onClose={() => setDelVisible(false)}>
