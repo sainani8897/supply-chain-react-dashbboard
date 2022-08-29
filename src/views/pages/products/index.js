@@ -48,7 +48,8 @@ const Category = () => {
   const [delModal, setDelVisible] = useState(false)
   const [formAction, setFormAction] = useState('Add');
   const [data, setData] = useState([]);
-  const [categoryData, setCategory] = useState({});
+  const [categories, setCategory] = useState({});
+  const [productData, setProduct] = useState({});
   const [toast, setToast] = useState({ visible: false, color: "primary", message: "Oops something went wrong!" });
   const addForm = () => {
     reset({ sort: "", category_name: "", parent_id: "" });
@@ -130,6 +131,7 @@ const Category = () => {
   /* Get Data */
   useEffect(() => {
     reload();
+    getCategory();
   }, [])
 
   const reload = async () => {
@@ -142,6 +144,18 @@ const Category = () => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
   }
+
+  const getCategory = async () => {
+    return await axios
+      .get(process.env.REACT_APP_API_URL + "/categories", { headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((res) => {
+        setCategory(res.data.data);
+        console.log(data);
+      }).catch((err) => {
+        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+      })
+  }
+
 
   /* Edit Form */
   const onEdit = (data) => {
@@ -158,7 +172,7 @@ const Category = () => {
 
   /* Delete  */
   const onDelete = (data) => {
-    setCategory(data);
+    setProduct(data);
     setDelVisible(true);
   }
 
@@ -178,7 +192,7 @@ const Category = () => {
         <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Products</CButton>
         <CCard className="mb-4">
           <CCardHeader>
-            <strong>Products</strong>
+            Products
           </CCardHeader>
           <CCardBody>
             {/* <p className="text-medium-emphasis small">
@@ -257,8 +271,10 @@ const Category = () => {
                       </CCol>
                       <CCol md={6}>
                         <CFormSelect id="inputState" label="Category">
-                          <option>Choose...</option>
-                          <option>...</option>
+                          <option value="">Choose...</option>
+                          {categories.docs?.map((category, index) => {
+                            return <option key={index} value={category._id}>{category.category_name}</option>
+                          })};
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
@@ -309,7 +325,7 @@ const Category = () => {
                 <CButton color="secondary" onClick={() => setDelVisible(false)}>
                   Close
                 </CButton>
-                <CButton color="danger" onClick={() => { deleteAction(categoryData) }} variant="ghost">Yes Continue</CButton>
+                <CButton color="danger" onClick={() => { deleteAction(productData) }} variant="ghost">Yes Continue</CButton>
               </CModalFooter>
             </CModal>
 

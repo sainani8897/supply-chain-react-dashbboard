@@ -177,7 +177,7 @@ const Category = () => {
         <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Categories</CButton>
         <CCard className="mb-4">
           <CCardHeader>
-            <strong>Categories</strong>
+            Categories
           </CCardHeader>
           <CCardBody>
             {/* <p className="text-medium-emphasis small">

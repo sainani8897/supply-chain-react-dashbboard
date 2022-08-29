@@ -1,7 +1,7 @@
 import { React, useRef, useState, useEffects } from "react";
 import { useForm } from "react-hook-form";
 import { Link,useNavigate } from "react-router-dom";
-import useAuth from "../../../Auth/useAuth";
+import {useAuth} from "../../../Auth/userAuth";
 import {
   CButton,
   CCard,
@@ -26,9 +26,11 @@ const Login = () => {
   const [token, setToken] = useState("");
   const { register, handleSubmit } = useForm();
   const baseUrl = process.env.REACT_APP_API_URL;
+  const auth = useAuth();
   let navigate = useNavigate();
   const onFormSubmit = (data) => {
-    axios.post(baseUrl+"/login",data)
+    auth.signin(data);
+    /* axios.post(baseUrl+"/login",data)
     .then((response)=>{
       const token = "Bearer "+response.data.token
       setToken(token);
@@ -39,7 +41,7 @@ const Login = () => {
       console.log(error);
       setVisible(true);
     })
-    console.log(data);
+    console.log(data); */
   };
   const onErrors = (errors) => console.error(errors);
 
