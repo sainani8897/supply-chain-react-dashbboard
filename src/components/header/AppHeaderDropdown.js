@@ -1,4 +1,6 @@
 import React from 'react'
+import useLogout from "../../hooks/useLogout";
+import { auth } from 'src/hooks/useAuth';
 import {
   CAvatar,
   CBadge,
@@ -25,6 +27,15 @@ import CIcon from '@coreui/icons-react'
 import avatar8 from './../../assets/images/avatars/8.jpg'
 
 const AppHeaderDropdown = () => {
+  
+  const logout = useLogout();
+  
+  const signOut = async () => {
+    console.log("Clicked!!")
+    await logout();
+    navigate('/linkpage');
+  }
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
@@ -84,9 +95,9 @@ const AppHeaderDropdown = () => {
           </CBadge>
         </CDropdownItem>
         <CDropdownDivider />
-        <CDropdownItem href="#">
-          <CIcon icon={cilLockLocked} className="me-2" />
-          Lock Account
+        <CDropdownItem href="#" onClick={() => signOut()}>
+          <CIcon icon={cilLockLocked}  className="me-2" />
+          Logout
         </CDropdownItem>
       </CDropdownMenu>
     </CDropdown>

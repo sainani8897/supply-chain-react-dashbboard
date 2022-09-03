@@ -1,6 +1,7 @@
 import React, { Component, Suspense } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
-import {AuthProvider} from "./Auth/userAuth";
+import { AuthProvider } from './context/AuthProvider';
+import  PersistLogin from './components/Auth/PresistentLogin'
 import './scss/style.scss'
 
 const loading = (
@@ -14,6 +15,9 @@ import AuthGuard from './Auth/AuthGaurd'
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 import { ProtectedRoute } from "./components/Auth/ProtectedRoute";
+import RequireAuth from "./components/Auth/RequireAuth";
+
+
 
 // Pages
 const Login = React.lazy(() => import('./views/pages/login/Login'))
@@ -36,11 +40,16 @@ class App extends Component {
             {/* <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute> */}
-            <Route path="*" name="Home" element={<DefaultLayout />} />
+            <Route element={<PersistLogin />}>
+              <Route element={<RequireAuth />}>
+              <Route path="*" name="Home" element={<DefaultLayout />} />
+              </Route>
+            </Route>
             {/* <Route path="*" name="Home" element={AuthGuard(DefaultLayout)} /> */}
             {/* <Route path="*" name="Home" element={<AuthGuard Component={DefaultLayout} />} /> */}
           </Routes>
           </AuthProvider>
+
         </Suspense>
       </HashRouter>
     )

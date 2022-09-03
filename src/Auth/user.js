@@ -9,12 +9,25 @@ function user(token) {
 }
 
 export const useLocalStorage = (keyName, defaultValue) => {
-  const [storedValue, setStoredValue] = useState(() => {
+  const [storedValue, setStoredValue] = useState( () => {
     try {
-      // const value = window.localStorage.getItem(keyName);
-      const value = user('121212');
+      // const navigate = useNavigate();
+      const baseUrl = process.env.REACT_APP_API_URL;
+      const token = localStorage.getItem('token');
+      let userData = null;
+      
+      if (token) {
+         axios.get(baseUrl + "/profile", { headers: { Authorization: token ?? null } })
+        .then(({ data }) => {
+          console.log("i was here");
+          userData = data
+        });
+      }
+
+      const value =  userData;
       if (value) {
-        return JSON.parse(value);
+        console.log(value);
+        return value;
       } else {
         window.localStorage.setItem(keyName, JSON.stringify(defaultValue));
         return defaultValue;

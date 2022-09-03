@@ -1,19 +1,18 @@
 import React,{ useState } from 'react'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
-import { useAuth } from "../Auth/userAuth"
 import { Navigate } from "react-router-dom";
 
 const DefaultLayout = () => {
   
-  const {user}  = useAuth();
+ /*  const {authed}  = useAuth();
+  console.log(authed);
 
-  if (!user) {
-    // console.log(user);
+  if (!authed) {
+    console.log(authed,"iii");
     return <Navigate to="/login" />;
   }
   else
-    console.log(user);
-  
+    console.log(authed); */
 
   return (
     <div>

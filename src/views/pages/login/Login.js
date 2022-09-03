@@ -1,7 +1,7 @@
-import { React, useRef, useState, useEffects } from "react";
+import { React, useRef, useState, useEffect, userRef } from "react";
+import useAuth from "../../../hooks/useAuth";
 import { useForm } from "react-hook-form";
-import { Link,useNavigate } from "react-router-dom";
-import {useAuth} from "../../../Auth/userAuth";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   CButton,
   CCard,
@@ -26,25 +26,44 @@ const Login = () => {
   const [token, setToken] = useState("");
   const { register, handleSubmit } = useForm();
   const baseUrl = process.env.REACT_APP_API_URL;
-  const auth = useAuth();
-  let navigate = useNavigate();
-  const onFormSubmit = (data) => {
-    auth.signin(data);
-    /* axios.post(baseUrl+"/login",data)
-    .then((response)=>{
-      const token = "Bearer "+response.data.token
-      setToken(token);
-      localStorage.setItem("token", token);
-      navigate("/dashboard");
-    })
-    .catch((error)=>{
-      console.log(error);
-      setVisible(true);
-    })
-    console.log(data); */
-  };
-  const onErrors = (errors) => console.error(errors);
+  const { setAuth } = useAuth();
+  const { auth } = useAuth;
 
+  const userRef = useRef();
+  const errRef = useRef();
+
+  const [user, setUser] = useState('');
+  const [pwd, setPwd] = useState('');
+  const [errMsg, setErrMsg] = useState('');
+
+
+  useEffect(() => {
+    setErrMsg('');
+  }, [user, pwd])
+
+  let navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
+
+  const onFormSubmit = (data) => {
+    return axios.post(baseUrl + "/login", data, {
+      headers: { 'Content-Type': 'application/json' },
+      withCredentials: true
+    })
+      .then(({ data }) => {
+        const token = "Bearer " + data.token
+        setAuth({ user: data.user,token:data.token,auth:data });
+        localStorage.setItem("token", token);
+        localStorage.setItem("refresh_token", data.user.refresh_token);
+        navigate(from, { replace: true });
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+
+  };
+
+  const onErrors = (errors) => console.error(errors);
   const [visible, setVisible] = useState(false);
 
   const registerOptions = {

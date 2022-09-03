@@ -47,20 +47,16 @@ export const useAuth = () => {
 
 /* Use Provider Aut */
 function useProvideAuth() {
+  
   const navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem('token');
   let userData = null;
   
-  if (token) {
-    axios.get(baseUrl + "/profile", { headers: { Authorization: token ?? null } })
-    .then(({ data }) => {
-      console.log("i was here");
-      userData = data
-    });
-  }
-  console.log(1);
-  const [user, setUser] = useState(userData);
+  
+
+  // console.log(useLocalStorage('user',null));
+  const [user, setUser] = useLocalStorage('user',userData);
   
   // Wrap any Firebase methods we want to use making sure ...
   // ... to save the user to state.
@@ -84,7 +80,21 @@ function useProvideAuth() {
     return { user: "email", password: "q12112" };
   };
   const signout = () => {
-    return setUser(false)
+    // return setUser(false)
+    console.log("logout was called");
+    return axios.post(baseUrl + "/logout", data)
+      .then(({ data }) => {
+        const token = "Bearer " + data.token
+        // setToken(token);
+        console.log(data);
+        setUser(false);
+        localStorage.removeItem("token");
+        navigate("/login");
+      })
+      .catch((error) => {
+        console.log(error);
+        // setVisible(true);
+      })
   };
   const sendPasswordResetEmail = (email) => {
     return true;

@@ -1,16 +1,44 @@
-import * as React from "react";
-
+import React,{ useState }  from "react";
+import axios from "axios";
 const authContext = React.createContext();
 
-function useAuth() {
-  const [authed, setAuthed] = React.useState(false);
+export function useAuth() {
+  const [authed, setAuthed] = useState(false);
+  const [user, setUser] = useState(null);
+  const baseUrl = process.env.REACT_APP_API_URL;
+
+ /*  React.useEffect( ()=>{
+    console.log('token from user useEffect', authed , '***');
+    if (!authed) {
+      console.log('user will become null');
+      setUser({});
+    } else {
+      console.log(' useEffect ');
+      setUser({});
+    }
+  }, [user]); */
 
   return {
     authed,
-    login() {
-      return new Promise((res) => {
+    user,
+    login(data) {
+      return new Promise((resolve, reject) => {
         setAuthed(true);
-        res();
+        console.log("Login called");
+        axios.post(baseUrl + "/login", data)
+          .then(({ data }) => {
+            const token = "Bearer " + data.token
+            setAuthed(true);
+            setUser(data.user);
+            console.log(authed,"ooo");
+            localStorage.setItem("token", token);
+            resolve(data);
+          })
+          .catch((error) => {
+            console.log(error);
+            reject(ersetAuthedror);
+          })
+
       });
     },
     logout() {
@@ -22,10 +50,15 @@ function useAuth() {
   };
 }
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children }) 
+{
   const auth = useAuth();
-
-  return <authContext.Provider value={auth}>{children}</authContext.Provider>;
+  const value = React.useMemo(
+    () => (auth),
+    [user]
+  );
+  console.log(value);
+  return <authContext.Provider value={{auth,setAuthed}}>{children}</authContext.Provider>;
 }
 
 export default function AuthConsumer() {
