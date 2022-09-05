@@ -1,7 +1,9 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
+  cilBarChart,
   cilBell,
+  cilBritishPound,
   cilCalculator,
   cilCart,
   cilChartPie,
@@ -69,6 +71,107 @@ const new_nav = [
       {
         component: CNavItem,
         name: 'Vendors',
+        to: '/base/breadcrumbs',
+      },
+    ],
+  },
+  {
+    component: CNavTitle,
+    name: 'Sales & Purchases',
+  },
+  {
+    component: CNavGroup,
+    name: 'Sales',
+    to: '/base',
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Customers',
+        to: '/customers',
+      },
+      {
+        component: CNavItem,
+        name: 'Sales Orders',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Packages',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Shipments',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Delivery Challans',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Invoices',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Payments Received',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Sales Return',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Credit Notes',
+        to: '/base/breadcrumbs',
+      },
+
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Purchases',
+    to: '/base',
+    icon: <CIcon icon={cilBarChart} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Vendors',
+        to: '/base/accordion',
+      },
+      {
+        component: CNavItem,
+        name: 'Expenses',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Purshase Order',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Purchase Receives',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Bills',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Payments Made',
+        to: '/base/breadcrumbs',
+      },
+      {
+        component: CNavItem,
+        name: 'Vendor Credits',
         to: '/base/breadcrumbs',
       },
     ],
