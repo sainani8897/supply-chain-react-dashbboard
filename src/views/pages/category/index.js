@@ -120,15 +120,7 @@ const Category = () => {
     parent_id: {
       required: "Parent Id"
     },
-    contact_persons:[
-      {
-        saluation:'',
-        fname:'',
-        lname:'',
-        email:'',
-        phone:'',
-      },
-    ]
+    contact_persons: []
 
   };
 
@@ -183,25 +175,26 @@ const Category = () => {
 
   /* Add More */
   function addMoreContactPersons() {
-    // const cp = customerOptions.contact_persons
-    // customerOptions.contact_persons = [...cp, { saluation: "", fname: "", lname: '' }]
-    // console.log(customerOptions.contact_persons);
     setContacts([...contactPersons, { saluation: "", fname: "", lname: '' }]);
   }
 
   function removeContactPersonal(remInd) {
     const cps = contactPersons;
     console.log(remInd);
-    if (contactPersons.length <=1) {
-      return ;
+    if (contactPersons.length <= 1) {
+      return;
     }
-    const remEle = cps.filter(function (index,ele) {
-      console.log(ele,remInd);
-      return remInd !=  ele
+    const remEle = cps.filter(function (index, ele) {
+      console.log(ele, remInd);
+      return remInd != ele
     });
     console.log(cps);
     setContacts(remEle);
-   
+
+  }
+
+  function basicDetailsForm(type = 1) {
+    setActiveKey(type);
   }
 
   return (
@@ -366,6 +359,12 @@ const Category = () => {
                             <option>In-Active</option>
                           </CFormSelect>
                         </CCol>
+                        <CCol md={12}>
+                          <div className="me-md-2 mt-4 float-end ">
+                            <CButton type="button" disabled className="me-md-2 " color="info">Prev</CButton>
+                            <CButton type="button" className="me-md-2 " onClick={() => basicDetailsForm(2)} color="info">Next</CButton>
+                          </div>
+                        </CCol>
                       </CForm>
                     </CTabPane>
 
@@ -408,6 +407,12 @@ const Category = () => {
                         </CCol>
                         <CCol md={6}>
                           <CFormInput type="text" placeholder='https://www.example.com/' name='website_url' id="website_url" label="Website" {...register("facebook", customerOptions.website_url)} />
+                        </CCol>
+                        <CCol md={12}>
+                          <div className="me-md-2 mt-4 float-end ">
+                            <CButton type="button" className="me-md-2 " onClick={() => basicDetailsForm(1)} color="info">Prev</CButton>
+                            <CButton type="button" className="me-md-2 " onClick={() => basicDetailsForm(3)} color="info">Next</CButton>
+                          </div>
                         </CCol>
                       </div>
                     </CTabPane>
@@ -462,6 +467,12 @@ const Category = () => {
                         <CCol md={6}>
                           <CFormInput type="text" name='ship_country' id="inputship_Country" label="Country" {...register("ship_country", customerOptions.country)} />
                         </CCol>
+                        <CCol md={12}>
+                          <div className="me-md-2 mt-4 float-end ">
+                            <CButton type="button" className="me-md-2 " onClick={() => basicDetailsForm(2)} color="info">Prev</CButton>
+                            <CButton type="button" className="me-md-2 " onClick={() => basicDetailsForm(5)} color="info">Next</CButton>
+                          </div>
+                        </CCol>
                       </div>
 
                     </CTabPane>
@@ -486,12 +497,12 @@ const Category = () => {
                             <CIcon size={'sm'} icon={cilPlus} />
                             <a href="javascript:void(0)" onClick={() => addMoreContactPersons()}>Add More</a>
                           </div>
-                          {contactPersons?.map((element,index) => {
+                          {contactPersons?.map((element, index) => {
                             console.log(customerOptions);
                             return (
                               <div className="row g-3">
                                 <CCol md={1}>
-                                  <CFormSelect name={`saluation_${index}`} id="inputSal" label="Saluation" {...register("contact_saluation", customerOptions.contact_persons[index]?.saluation)} >
+                                  <CFormSelect name={`contact_saluation[${index}]`} id="inputSal" label="Saluation" {...register(`contact_saluation[${index}]`, customerOptions.contact_persons[index]?.saluation)} >
                                     <option>Choose...</option>
                                     <option>Mr.</option>
                                     <option>Mrs.</option>
@@ -516,6 +527,14 @@ const Category = () => {
 
                               </div>)
                           })}
+                          <div className='row g-3'>
+                            <CCol md={12}>
+                              <div className="me-md-2 mt-4 float-end ">
+                                <CButton type="button" className="me-md-2 " onClick={() => basicDetailsForm(3)} color="info">Prev</CButton>
+                                <CButton type="button" className="me-md-2 " onClick={() => basicDetailsForm(4)} color="info">Next</CButton>
+                              </div>
+                            </CCol>
+                          </div>
                         </div>
                       </div>
                     </CTabPane>
