@@ -571,7 +571,7 @@ const Customer = () => {
 
                       </CTabPane>
                       <CTabPane role="tabpanel" aria-labelledby="notes-tab" visible={activeKey === 4}>
-                        <div className="row g-3">
+                        <div className="row g-3 mt-2 px-2">
                           <CCol md={12}>
                             <CFormTextarea
                               id="notes"

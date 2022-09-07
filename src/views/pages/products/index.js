@@ -32,6 +32,12 @@ import {
   CToastClose,
   CPopover,
   CTooltip,
+  CDropdown,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
+  CDropdownDivider,
+  CFormFloating
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
@@ -250,27 +256,54 @@ const Category = () => {
                 </CModalHeader>
                 <CModalBody>
                   <CCol xs={12}>
-                    <CRow className="row g-3">
+                    <CRow className="row g-3 px-3 mt-1 mb-5">
+                      <fieldset className="row mb-1">
+                        <legend className="col-form-label col-sm-2 pt-0">Item Type</legend>
+                        <CCol sm={10} >
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="option1" label="Product" />
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="option2" label="Service" />
+                        </CCol>
+                      </fieldset>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" label="Name" {...register("name", options.name)} />
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Name" {...register("name", options.name)} />
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputPassword4" label="sku" {...register("sku", options.sku)} />
+                        <CFormInput type="text" id="inputPassword4" floatingLabel="sku" {...register("sku", options.sku)} />
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" label="Serial Numbers"  {...register("serial_number", options.serial_number)} />
+                        <CFormSelect id="inputState" floatingLabel="Units of Measurement">
+                          <option value="">--Units--</option>
+                          <option value="box">Box</option>
+                          <option value="pcs">Pcs</option>
+                          <option value="dz">Dozens</option>
+                          <option value='cm'>Cm</option>
+                          <option value='km'>Kilometers</option>
+                          <option value='kg'>Kilograms</option>
+                          <option value='gms'>grams</option>
+                          <option value='ltrs'>Liters</option>
+                          <option value='mg'>miligrams</option>
+                          <option value='m'>meters</option>
+                          <option value='lbs'>pounds</option>
+                          <option value='mi'>miles</option>
+                          <option value='ft'>feet</option>
+                        </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="qty" label="Qty" {...register("qty", options.qty)} />
+                        <CFormSelect id="inputState" floatingLabel="Eligible for retrun">
+                          <option value="">Choose..</option>
+                          <option value="true">Yes</option>
+                          <option value="false">No</option>
+
+                        </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="cost" label="Cost Price" {...register("cost", options.cost)} />
+                        <CFormSelect id="inputState" floatingLabel="Vendor">
+                          <option>Choose...</option>
+                          <option>...</option>
+                        </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="cost" label="Sell Price" {...register("sell_price", options.sell_price)} />
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" label="Category">
+                        <CFormSelect id="inputState" floatingLabel="Category">
                           <option value="">Choose...</option>
                           {categories.docs?.map((category, index) => {
                             return <option key={index} value={category._id}>{category.category_name}</option>
@@ -278,16 +311,7 @@ const Category = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput id="inputCity" label="Units" />
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" label="Vendor">
-                          <option>Choose...</option>
-                          <option>...</option>
-                        </CFormSelect>
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormSelect name='status' id="inputState" label="Status" {...register("status", options.status)}>
+                        <CFormSelect name='status' id="inputState" floatingLabel="Status" aria-label="Works with selects" {...register("status", options.status)}>
                           <option>Choose...</option>
                           <option>Active</option>
                           <option>In-Active</option>
@@ -295,8 +319,77 @@ const Category = () => {
                       </CCol>
 
                       <CCol xs={12}>
-                        <CFormTextarea rows="6" id="inputAddress" label="Description" {...register("description", options.description)} placeholder="Max 250 chars" ></CFormTextarea>
+                        <CFormTextarea rows="6" id="inputAddress" floatingLabel="Description" {...register("description", options.description)} style={{ height: '200px' }} placeholder="Max 250 chars" ></CFormTextarea>
                       </CCol>
+
+                      <h5>Dimensions</h5>
+                      <CCol md={2}>
+                        <CFormInput type="number" id="dimesion_length" floatingLabel="Length"  {...register("length", options.length)} />
+                      </CCol>
+
+                      <CCol md={2}>
+                        <CFormInput type="number" id="dimesion_height" floatingLabel="Width"  {...register("height", options.height)} />
+                      </CCol>
+                      <CCol md={2}>
+                        <CFormInput type="number" id="dimesion_width" floatingLabel="Height"  {...register("width", options.width)} />
+                      </CCol>
+                      <CCol md={3}>
+                        <CFormSelect name='status' id="inputState" floatingLabel="units" {...register("weight_unit", options.weight_unit)}>
+                          <option>cm</option>
+                          <option>inc</option>
+                          <option>m</option>
+                        </CFormSelect>
+                      </CCol>
+                      <CCol md={4}>
+                        <CFormInput type="number" id="dimesion_width" floatingLabel="Weight"  {...register("width", options.weight)} />
+                      </CCol>
+                      <CCol md={2}>
+                        <CFormSelect name='status' id="inputState" floatingLabel="units" {...register("weight_unit", options.weight_unit)}>
+                          <option>cm</option>
+                          <option>inc</option>
+                          <option>m</option>
+                        </CFormSelect>
+                      </CCol>
+                      
+                      <h5>Item Information</h5>
+
+                      <CCol md={6}>
+                        <CFormInput type="text" id="brand" floatingLabel="Brand"  {...register("brand", options.brand)} />
+                      </CCol>
+
+                      <CCol md={6}>
+                        <CFormInput type="text" id="manufacture" floatingLabel="Manufacturer"  {...register("manufacturer", options.manufacturer)} />
+                      </CCol>
+                      
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Serial Numbers (MPN)"  {...register("serial_number", options.serial_number)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="upc" floatingLabel="UPC"  {...register("upc", options.upc)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="ean" floatingLabel="EAN"  {...register("ean", options.ean)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="isbn" floatingLabel="ISBN"  {...register("isbn", options.isbn)} />
+                      </CCol>
+
+                      <h5>Sales & Purshase Information</h5>
+
+                      <CCol md={6}>
+                        <CFormInput type="text" id="cost" floatingLabel="Sell Price" {...register("sell_price", options.sell_price)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="cost" floatingLabel="Cost Price" {...register("cost", options.cost)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="qty" floatingLabel="Qty" {...register("qty", options.qty)} />
+                      </CCol>
+                     
+                      <CCol md={6}>
+                        <CFormInput id="inputCity" floatingLabel="Units" />
+                      </CCol>
+                     
                     </CRow>
                   </CCol>
                 </CModalBody>
