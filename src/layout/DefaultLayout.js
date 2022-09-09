@@ -1,6 +1,7 @@
 import React,{ useState } from 'react'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
 import { Navigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const DefaultLayout = () => {
   

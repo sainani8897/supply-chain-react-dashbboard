@@ -1,5 +1,6 @@
 import { React, useState, useEffect } from 'react'
 import { useForm } from "react-hook-form";
+import { toast }  from "react-toastify";
 import {
   CCard,
   CCardBody,
@@ -56,7 +57,6 @@ const Category = () => {
   const [data, setData] = useState([]);
   const [categories, setCategory] = useState({});
   const [productData, setProduct] = useState({});
-  const [toast, setToast] = useState({ visible: false, color: "primary", message: "Oops something went wrong!" });
   const addForm = () => {
     reset({ sort: "", category_name: "", parent_id: "" });
     setFormAction('Add');
@@ -82,12 +82,11 @@ const Category = () => {
       .then((response) => {
         reset({ sort: "", category_name: "", parent_id: "" }); /* Empty the Form */
         setVisibleXL(false) /* Close the Pop Here */
-        setToast({ visible: true, color: "success", message: response.data.message ?? "Success" }) /* Toast */
+        toast.success(response.data.message ?? "Success" )
         reload();
       })
       .catch((error, response) => {
-        console.log(response.data);
-        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+        toast.error(response.data.message ?? "Opps something went wrong!" )
       })
   }
 
@@ -96,14 +95,14 @@ const Category = () => {
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
+        toast.success(response.data.message ?? "Success" )
         reset({ sort: "", category_name: "", parent_id: "" }); /* Empty the Form */
         setVisibleXL(false) /* Close the Pop Here */
-        setToast({ visible: true, color: "success", message: response.data.message ?? "Success" }) /* Toast */
         reload();
       })
       .catch((error, response) => {
         console.log(response.data);
-        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+        toast.error(response.data.message ?? "Opps something went wrong!" )
       })
   }
 
@@ -123,14 +122,13 @@ const Category = () => {
     axios.delete(process.env.REACT_APP_API_URL + "/Products",
       { headers: { Authorization: localStorage.getItem('token') ?? null }, data: { _id: [data._id] } })
       .then((response) => {
+        toast.success(response.data.message ?? "Success" )
         /* Empty the Form */
         setDelVisible(false) /* Close the Pop Here */
-        setToast({ visible: true, color: "success", message: response.data.message ?? "Deleted Successfully" }) /* Toast */
         reload();
       })
       .catch((error, response) => {
-        console.log(response.data);
-        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+        toast.error(response.data.message ?? "Opps something went wrong!" )
       })
   }
 

@@ -16,6 +16,8 @@ import AuthGuard from './Auth/AuthGaurd'
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 import { ProtectedRoute } from "./components/Auth/ProtectedRoute";
 import RequireAuth from "./components/Auth/RequireAuth";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 
@@ -31,6 +33,7 @@ class App extends Component {
       <HashRouter>
         <Suspense fallback={loading}>
         <AuthProvider>
+        <ToastContainer />
           <Routes>
             <Route exact path="/login" name="Login Page" element={<Login />} />
             <Route exact path="/register" name="Register Page" element={<Register />} />
