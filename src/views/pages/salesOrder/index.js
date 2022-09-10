@@ -1,7 +1,9 @@
 import { React, useState, useEffect } from 'react'
 import { useForm } from "react-hook-form";
-import { toast }  from "react-toastify";
+import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
+import Pagination from "react-bootstrap-4-pagination";
+
 import {
   CCard,
   CCardBody,
@@ -49,8 +51,7 @@ import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
 import axios from 'axios';
 
-const Product = () => {
-  const columns = ["#", "class", "Heading", "Heading"];
+const SalesOrder = () => {
   const items = [];
   const [visibleXL, setVisibleXL] = useState(false)
   const [delModal, setDelVisible] = useState(false)
@@ -61,12 +62,24 @@ const Product = () => {
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
 
+  let paginationConfig = {
+    totalPages: 1,
+    currentPage: 1,
+    showMax: 5,
+    size: "sm",
+    threeDots: true,
+    prevNext: true,
+    onClick: function (page) {
+      console.log(page);
+    }
+  };
+
   const addForm = () => {
     resetForm()
     setFormAction('Add');
     setVisibleXL(true)
   }
-  const { register, handleSubmit, reset, setValue , formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
 
   /* Form */
   const onFormSubmit = (data) => {
@@ -98,12 +111,12 @@ const Product = () => {
       .then((response) => {
         setVisibleXL(false) /* Close the Pop Here */
         reload();
-        toast.success(response.data.message ?? "Success" )
+        toast.success(response.data.message ?? "Success")
       })
       .catch((error) => {
         const data = error.response.data
         const errObj = data.error.errors;
-        toast.error(error.response.data.message ?? "Opps something went wrong!" )
+        toast.error(error.response.data.message ?? "Opps something went wrong!")
         validationAlertPop({ err: error.response.data });
       })
   }
@@ -115,18 +128,18 @@ const Product = () => {
       .then((response) => {
         reload();
         setVisibleXL(false) /* Close the Pop Here */
-        toast.success(response.data.message ?? "Success" )
+        toast.success(response.data.message ?? "Success")
       })
       .catch((error, response) => {
         console.log(response.data);
-        toast.error(response.data.message ?? "Opps something went wrong!" )
+        toast.error(response.data.message ?? "Opps something went wrong!")
       })
   }
 
   const onErrors = (errors) => {
     validationAlertPop(errors);
   };
-  
+
   const options = {
     name: { required: "Product name is required" },
     status: {
@@ -141,13 +154,13 @@ const Product = () => {
     axios.delete(process.env.REACT_APP_API_URL + "/Products",
       { headers: { Authorization: localStorage.getItem('token') ?? null }, data: { _id: [data._id] } })
       .then((response) => {
-        toast.success(response.data.message ?? "Success" )
+        toast.success(response.data.message ?? "Success")
         /* Empty the Form */
         setDelVisible(false) /* Close the Pop Here */
         reload();
       })
       .catch((error, response) => {
-        toast.error(response.data.message ?? "Opps something went wrong!" )
+        toast.error(response.data.message ?? "Opps something went wrong!")
       })
   }
 
@@ -162,6 +175,8 @@ const Product = () => {
       .get(process.env.REACT_APP_API_URL + "/Products", { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setData(res.data.data);
+        const pgdata = res.data.data;
+        paginationConfig.currentPage = pgdata.page
         console.log(data);
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
@@ -237,10 +252,10 @@ const Product = () => {
       </CCol>
 
       <CCol xs={12}>
-        <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Products</CButton>
+        <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Sales Order</CButton>
         <CCard className="mb-4">
           <CCardHeader>
-            Products
+            Sales Order
           </CCardHeader>
           <CCardBody>
             {/* <p className="text-medium-emphasis small">
@@ -288,92 +303,75 @@ const Product = () => {
                   </CTableRow>
                 )}
               </CTableBody>
+
             </CTable>
+            <div className='mt-2 px-2 float-end'>
+              <Pagination
+                threeDots
+                totalPages={data.totalPages}
+                currentPage={data.page}
+                showMax={7}
+                prevNext
+                activeBgColor="#fffff"
+                activeBorderColor="#7bc9c9"
+                onClick = {(page) => {
+                  console.log(page);
+                  return false;
+                }}
+              />
+            </div>
 
             {/* Modal start Here */}
             <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
               <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                 <CModalHeader>
-                  <CModalTitle>{formAction} Products</CModalTitle>
+                  <CModalTitle>{formAction} Sales Order</CModalTitle>
                 </CModalHeader>
                 <CModalBody>
                   <CCol xs={12}>
                     <CRow className="row g-3 px-3 mt-1 mb-5">
-                      <ValidationAlert validate={{visible:validationAlert,errorObjData}} />
-                      <fieldset className="row mb-1">
+                      <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
+                      {/* <fieldset className="row mb-1">
                         <legend className="col-form-label col-sm-2 pt-0">Item Type</legend>
                         <CCol sm={10} >
                           <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="product" label="Product" {...register("type",{required:true})} />
                           <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="service" label="Service" {...register("type",{required:true})} />
                           {errors.type && <div className='invalid-validation-css'>This field is required</div>}
                         </CCol>
-                      </fieldset>
+                      </fieldset> */}
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Name" {...register("name", options.name)} />
-                        {errors.name && <div className='invalid-validation-css'>This field is required</div>}
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput type="text" id="inputPassword4" floatingLabel="sku" {...register("sku", options.sku)} />
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Units of Measurement" {...register("units_of_measurement")}>
-                          <option value="">--Units--</option>
-                          <option value="box">Box</option>
-                          <option value="pcs">Pcs</option>
-                          <option value="dz">Dozens</option>
-                          <option value='cm'>Cm</option>
-                          <option value='km'>Kilometers</option>
-                          <option value='kg'>Kilograms</option>
-                          <option value='gms'>grams</option>
-                          <option value='ltrs'>Liters</option>
-                          <option value='mg'>miligrams</option>
-                          <option value='m'>meters</option>
-                          <option value='lbs'>pounds</option>
-                          <option value='mi'>miles</option>
-                          <option value='ft'>feet</option>
-                        </CFormSelect>
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Eligible for retrun" {...register("is_returnable")}>
-                          <option value="">Choose..</option>
-                          <option value="true">Yes</option>
-                          <option value="false">No</option>
-
-                        </CFormSelect>
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Vendor">
-                          <option>Choose...</option>
-                          <option>...</option>
-                        </CFormSelect>
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Category" {...register("category_id", options.category_id)}>
-                          <option value="">Choose...</option>
+                        <CFormSelect id="inputState" floatingLabel="Customer" {...register("customer_id", options.category_id)}>
+                          <option value="">...</option>
                           {categories.docs?.map((category, index) => {
                             return <option key={index} value={category._id}>{category.category_name}</option>
                           })};
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Track Inventory" {...register("track_inventory")}>
-                          <option value="true">Yes</option>
-                          <option value="false">No</option>
-                        </CFormSelect>
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Sales Order#" {...register("sales_order", options.sales_order)} />
+                        {errors.sales_order && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect name='status' id="inputState" floatingLabel="Status" aria-label="Works with selects" {...register("status", options.status)}>
-                          <option>Choose...</option>
-                          <option>Active</option>
-                          <option>In-Active</option>
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Reference#" {...register("reference", options.reference)} />
+                        {errors.reference && <div className='invalid-validation-css'>This field is required</div>}
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Sales Order Date" {...register("so_date", options.so_date)} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment_date", options.shipment_date)} />
+                      </CCol>
+
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" floatingLabel="Sales Executive" {...register("customer_id", options.category_id)}>
+                          <option value="">...</option>
+                          {categories.docs?.map((category, index) => {
+                            return <option key={index} value={category._id}>{category.category_name}</option>
+                          })};
                         </CFormSelect>
                       </CCol>
 
-                      <CCol xs={12}>
-                        <CFormTextarea rows="6" id="inputAddress" floatingLabel="Description" {...register("description", options.description)} style={{ height: '200px' }} placeholder="Max 250 chars" ></CFormTextarea>
-                      </CCol>
-
-                      <h5>Dimensions</h5>
+                      <h5>Item Details</h5>
                       <CCol md={2}>
                         <CFormInput type="number" id="dimesion_length" floatingLabel="Length"  {...register("length", options.length)} />
                       </CCol>
@@ -401,7 +399,7 @@ const Product = () => {
                           <option>m</option>
                         </CFormSelect>
                       </CCol>
-                      
+
                       <h5>Item Information</h5>
 
                       <CCol md={6}>
@@ -411,10 +409,10 @@ const Product = () => {
                       <CCol md={6}>
                         <CFormInput type="text" id="manufacture" floatingLabel="Manufacturer"  {...register("manufacturer", options.manufacturer)} />
                       </CCol>
-                      
+
                       <CCol md={6}>
                         <CFormInput type="text" id="inputEmail4" floatingLabel="Serial Numbers (MPN)"  {...register("serial_number", options.serial_number)} />
-                          {errors.serial_number && <div className='invalid-validation-css'>This field is required</div>}
+                        {errors.serial_number && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
                         <CFormInput type="text" id="upc" floatingLabel="UPC"  {...register("upc", options.upc)} />
@@ -438,11 +436,11 @@ const Product = () => {
                         <CFormInput type="text" id="qty" floatingLabel="Qty" {...register("qty", options.qty)} />
                         {errors.qty && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
-                     
+
                       <CCol md={6}>
                         <CFormInput id="inputCity" floatingLabel="Units" />
                       </CCol>
-                     
+
                     </CRow>
                   </CCol>
                 </CModalBody>
@@ -484,4 +482,4 @@ const Product = () => {
   )
 }
 
-export default Product
+export default SalesOrder

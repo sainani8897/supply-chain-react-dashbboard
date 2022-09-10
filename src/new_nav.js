@@ -93,7 +93,7 @@ const new_nav = [
       {
         component: CNavItem,
         name: 'Sales Orders',
-        to: '/base/breadcrumbs',
+        to: '/sales-orders',
       },
       {
         component: CNavItem,
