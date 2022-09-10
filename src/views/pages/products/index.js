@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from 'react'
 import { useForm } from "react-hook-form";
 import { toast }  from "react-toastify";
+import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import {
   CCard,
   CCardBody,
@@ -48,7 +49,7 @@ import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
 import axios from 'axios';
 
-const Category = () => {
+const Product = () => {
   const columns = ["#", "class", "Heading", "Heading"];
   const items = [];
   const [visibleXL, setVisibleXL] = useState(false)
@@ -57,12 +58,15 @@ const Category = () => {
   const [data, setData] = useState([]);
   const [categories, setCategory] = useState({});
   const [productData, setProduct] = useState({});
+  const [errorObjData, setErrorObj] = useState([]);
+  const [validationAlert, setValidationAlert] = useState(false)
+
   const addForm = () => {
-    reset({ sort: "", category_name: "", parent_id: "" });
+    resetForm()
     setFormAction('Add');
     setVisibleXL(true)
   }
-  const { register, handleSubmit, reset, setValue } = useForm();
+  const { register, handleSubmit, reset, setValue , formState: { errors } } = useForm();
 
   /* Form */
   const onFormSubmit = (data) => {
@@ -74,19 +78,33 @@ const Category = () => {
     }
   };
 
+  const validationAlertPop = (errorObj) => {
+    setValidationAlert(true);
+    const err = [];
+    for (const key in errorObj) {
+      if (Object.hasOwnProperty.call(errorObj, key)) {
+        const element = errorObj[key];
+        err.push(element);
+      }
+    }
+    setErrorObj(err)
+  }
+
 
   const create = (data) => {
     axios.post(process.env.REACT_APP_API_URL + "/Products",
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
-        reset({ sort: "", category_name: "", parent_id: "" }); /* Empty the Form */
         setVisibleXL(false) /* Close the Pop Here */
-        toast.success(response.data.message ?? "Success" )
         reload();
+        toast.success(response.data.message ?? "Success" )
       })
-      .catch((error, response) => {
-        toast.error(response.data.message ?? "Opps something went wrong!" )
+      .catch((error) => {
+        const data = error.response.data
+        const errObj = data.error.errors;
+        toast.error(error.response.data.message ?? "Opps something went wrong!" )
+        validationAlertPop({ err: error.response.data });
       })
   }
 
@@ -95,10 +113,9 @@ const Category = () => {
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
-        toast.success(response.data.message ?? "Success" )
-        reset({ sort: "", category_name: "", parent_id: "" }); /* Empty the Form */
-        setVisibleXL(false) /* Close the Pop Here */
         reload();
+        setVisibleXL(false) /* Close the Pop Here */
+        toast.success(response.data.message ?? "Success" )
       })
       .catch((error, response) => {
         console.log(response.data);
@@ -106,8 +123,10 @@ const Category = () => {
       })
   }
 
-  const onErrors = (errors) => console.error(errors);
-
+  const onErrors = (errors) => {
+    validationAlertPop(errors);
+  };
+  
   const options = {
     name: { required: "Product name is required" },
     status: {
@@ -163,6 +182,7 @@ const Category = () => {
 
   /* Edit Form */
   const onEdit = (data) => {
+    resetForm()
     console.log(data);
     setFormAction('Update');
     setVisibleXL(!visibleXL);
@@ -171,6 +191,23 @@ const Category = () => {
     setValue('status', data.status)
     setValue('cost', data.cost)
     setValue('sell_price', data.sell_price)
+    setValue('brand', data.brand)
+    setValue('length', data.length)
+    setValue('height', data.height)
+    setValue('weight', data.weight)
+    setValue('width', data.width)
+    setValue('weight_unit', data.weight_unit)
+    setValue('dimension_unit', data.dimension_unit)
+    setValue('category_id', data.category_id)
+    setValue('isbn', data.isbn)
+    setValue('ean', data.ean)
+    setValue('upc', data.upc)
+    setValue('manufacturer', data.manufacturer)
+    setValue('serial_number', data.serial_number)
+    setValue('description', data.description)
+    setValue('sku', data.sku)
+    setValue('units_of_measurement', data.units_of_measurement)
+    setValue('type', data.type)
     setValue('_id', data._id)
   };
 
@@ -179,6 +216,13 @@ const Category = () => {
     setProduct(data);
     setDelVisible(true);
   }
+
+  /* Reset Form */
+  const resetForm = () => {
+    setValidationAlert(false);
+    setErrorObj([]);
+    reset({});
+  };
 
 
   return (
@@ -255,21 +299,24 @@ const Category = () => {
                 <CModalBody>
                   <CCol xs={12}>
                     <CRow className="row g-3 px-3 mt-1 mb-5">
+                      <ValidationAlert validate={{visible:validationAlert,errorObjData}} />
                       <fieldset className="row mb-1">
                         <legend className="col-form-label col-sm-2 pt-0">Item Type</legend>
                         <CCol sm={10} >
-                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="option1" label="Product" />
-                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="option2" label="Service" />
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="product" label="Product" {...register("type",{required:true})} />
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="service" label="Service" {...register("type",{required:true})} />
+                          {errors.type && <div className='invalid-validation-css'>This field is required</div>}
                         </CCol>
                       </fieldset>
                       <CCol md={6}>
                         <CFormInput type="text" id="inputEmail4" floatingLabel="Name" {...register("name", options.name)} />
+                        {errors.name && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
                         <CFormInput type="text" id="inputPassword4" floatingLabel="sku" {...register("sku", options.sku)} />
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Units of Measurement">
+                        <CFormSelect id="inputState" floatingLabel="Units of Measurement" {...register("units_of_measurement")}>
                           <option value="">--Units--</option>
                           <option value="box">Box</option>
                           <option value="pcs">Pcs</option>
@@ -287,7 +334,7 @@ const Category = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Eligible for retrun">
+                        <CFormSelect id="inputState" floatingLabel="Eligible for retrun" {...register("is_returnable")}>
                           <option value="">Choose..</option>
                           <option value="true">Yes</option>
                           <option value="false">No</option>
@@ -301,11 +348,17 @@ const Category = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Category">
+                        <CFormSelect id="inputState" floatingLabel="Category" {...register("category_id", options.category_id)}>
                           <option value="">Choose...</option>
                           {categories.docs?.map((category, index) => {
                             return <option key={index} value={category._id}>{category.category_name}</option>
                           })};
+                        </CFormSelect>
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" floatingLabel="Track Inventory" {...register("track_inventory")}>
+                          <option value="true">Yes</option>
+                          <option value="false">No</option>
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
@@ -332,7 +385,7 @@ const Category = () => {
                         <CFormInput type="number" id="dimesion_width" floatingLabel="Height"  {...register("width", options.width)} />
                       </CCol>
                       <CCol md={3}>
-                        <CFormSelect name='status' id="inputState" floatingLabel="units" {...register("weight_unit", options.weight_unit)}>
+                        <CFormSelect name='status' id="inputState" floatingLabel="units" {...register("dimension_unit", options.dimension_unit)}>
                           <option>cm</option>
                           <option>inc</option>
                           <option>m</option>
@@ -429,4 +482,4 @@ const Category = () => {
   )
 }
 
-export default Category
+export default Product
