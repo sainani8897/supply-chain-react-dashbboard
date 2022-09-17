@@ -58,7 +58,9 @@ const SalesOrder = () => {
   const [delModal, setDelVisible] = useState(false)
   const [formAction, setFormAction] = useState('Add');
   const [data, setData] = useState([]);
+  const [products, setProducts] = useState([]);
   const [categories, setCategory] = useState({});
+  const [customers, setCustomers] = useState({});
   const [productData, setProduct] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
@@ -108,7 +110,7 @@ const SalesOrder = () => {
 
 
   const create = (data) => {
-    axios.post(process.env.REACT_APP_API_URL + "/Products",
+    axios.post(process.env.REACT_APP_API_URL + "/sales-order",
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
@@ -125,7 +127,7 @@ const SalesOrder = () => {
   }
 
   const updateData = (data) => {
-    axios.patch(process.env.REACT_APP_API_URL + "/Products",
+    axios.patch(process.env.REACT_APP_API_URL + "/sales-order",
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
@@ -154,7 +156,7 @@ const SalesOrder = () => {
   };
 
   const deleteAction = (data) => {
-    axios.delete(process.env.REACT_APP_API_URL + "/Products",
+    axios.delete(process.env.REACT_APP_API_URL + "/sales-order",
       { headers: { Authorization: localStorage.getItem('token') ?? null }, data: { _id: [data._id] } })
       .then((response) => {
         toast.success(response.data.message ?? "Success")
@@ -176,15 +178,44 @@ const SalesOrder = () => {
   /* Get Data */
   useEffect(() => {
     reload();
-    getCategory();
+    getProducts();
+    getCustomers();
   }, [])
 
   const reload = async () => {
     let page = searchParams.get('page') ?? 1
     return await axios
-      .get(process.env.REACT_APP_API_URL + "/Products", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .get(process.env.REACT_APP_API_URL + "/sales-order", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setData(res.data.data);
+        const pgdata = res.data.data;
+        paginationConfig.currentPage = pgdata.page
+        console.log(data);
+      }).catch((err) => {
+        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+      })
+  }
+
+  const getProducts = async () => {
+    let page = searchParams.get('page') ?? 1
+    return await axios
+      .get(process.env.REACT_APP_API_URL + "/Products", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((res) => {
+        setProducts(res.data.data);
+        const pgdata = res.data.data;
+        paginationConfig.currentPage = pgdata.page
+        console.log(data);
+      }).catch((err) => {
+        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+      })
+  }
+
+  const getCustomers = async () => {
+    let page = searchParams.get('page') ?? 1
+    return await axios
+      .get(process.env.REACT_APP_API_URL + "/customers", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((res) => {
+        setCustomers(res.data.data);
         const pgdata = res.data.data;
         paginationConfig.currentPage = pgdata.page
         console.log(data);
@@ -254,13 +285,13 @@ const SalesOrder = () => {
   }
 
   function removeItem(remInd) {
-    alert(remInd);
+    // alert(remInd);
     const cps = addItems;
     console.log(remInd);
     if (addItems.length <= 1) {
       return;
     }
-    
+
     const remEle = cps.filter(function (value, index, arr) {
       console.log(index, remInd);
       return remInd != index
@@ -370,30 +401,30 @@ const SalesOrder = () => {
                         </CCol>
                       </fieldset> */}
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Customer" {...register("customer_id", options.category_id)}>
+                        <CFormSelect id="inputState" floatingLabel="Customer" {...register("customer_id", options.customer_id)}>
                           <option value="">...</option>
-                          {categories.docs?.map((category, index) => {
-                            return <option key={index} value={category._id}>{category.category_name}</option>
+                          {customers.docs?.map((customer, index) => {
+                            return <option key={index} value={customer._id}>{customer.name}</option>
                           })};
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Sales Order#" {...register("sales_order", options.sales_order)} />
-                        {errors.sales_order && <div className='invalid-validation-css'>This field is required</div>}
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Sales Order#" {...register("order_no", options.order_no)} />
+                        {errors.order_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
                         <CFormInput type="text" id="inputEmail4" floatingLabel="Reference#" {...register("reference", options.reference)} />
                         {errors.reference && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Sales Order Date" {...register("so_date", options.so_date)} />
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Sales Order Date" {...register("sale_date", options.sale_date)} />
                       </CCol>
                       <CCol md={6}>
                         <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment_date", options.shipment_date)} />
                       </CCol>
 
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Sales Executive" {...register("customer_id", options.category_id)}>
+                        <CFormSelect id="inputState" floatingLabel="Sales Executive" {...register("sales_executive", options.sales_executive)}>
                           <option value="">...</option>
                           {categories.docs?.map((category, index) => {
                             return <option key={index} value={category._id}>{category.category_name}</option>
@@ -421,18 +452,19 @@ const SalesOrder = () => {
                                 {addItems?.map((element, index) => {
                                   return (
                                     <tr id='addr0'>
-                                      <td>{index+1}</td>
+                                      <td>{index + 1}</td>
                                       <td>
-                                        <CFormSelect className="form-control" id="inputState"  {...register(`items[${index}].product_id`)}>
+                                        <CFormSelect onChange={() => { alert(111) }} className="form-control" id="inputState"  {...register(`items[${index}].product_id`)}>
                                           <option value="">... Select Product ...</option>
-                                          {categories.docs?.map((category, index) => {
-                                            return <option key={index} value={category._id}>{category.category_name}</option>
+                                          {products.docs?.map((product, index) => {
+                                            return <option key={index} value={product._id}>{product.name}</option>
                                           })};
-                                        </CFormSelect></td>
+                                        </CFormSelect>
+                                      </td>
                                       <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].qty`)} /></td>
                                       <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].rate`)} /></td>
                                       <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].amount`)} /></td>
-                                      <td><CButton type="button" onClick={() => removeItem(index)} className="me-md-2"  color="danger"><CIcon size={'sm'} icon={cilTrash} /></CButton></td>
+                                      <td><CButton type="button" onClick={() => removeItem(index)} className="me-md-2" color="danger"><CIcon size={'sm'} icon={cilTrash} /></CButton></td>
                                     </tr>)
                                 }
                                 )}
@@ -476,22 +508,17 @@ const SalesOrder = () => {
                         </div>
                       </div>
 
-                      <h5>Sales & Purshase Information</h5>
+                      <h5>Additional Information</h5>
 
                       <CCol md={6}>
-                        <CFormInput type="text" id="cost" floatingLabel="Sell Price" {...register("sell_price", options.sell_price)} />
+                        <CFormTextarea id="cost_data" floatingLabel="Customer Notes" style={{ height: '100px' }} {...register("notes", options.notes)} rows="6">
+                        </CFormTextarea>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="cost" floatingLabel="Cost Price" {...register("cost", options.cost)} />
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput type="text" id="qty" floatingLabel="Qty" {...register("qty", options.qty)} />
-                        {errors.qty && <div className='invalid-validation-css'>This field is required</div>}
+                        <CFormTextarea id="cost_data" floatingLabel="Shipping Notes" style={{ height: '100px' }} {...register("shipping_notes", options.notes)} rows="6">
+                        </CFormTextarea>
                       </CCol>
 
-                      <CCol md={6}>
-                        <CFormInput id="inputCity" floatingLabel="Units" />
-                      </CCol>
 
                     </CRow>
                   </CCol>
