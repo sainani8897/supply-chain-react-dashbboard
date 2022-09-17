@@ -1,5 +1,5 @@
 import React, { Component, Suspense } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter,BrowserRouter,Switch, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthProvider';
 import  PersistLogin from './components/Auth/PresistentLogin'
 import './scss/style.scss'
@@ -30,10 +30,11 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 class App extends Component {
   render() {
     return (
-      <HashRouter>
+      <BrowserRouter>
         <Suspense fallback={loading}>
         <AuthProvider>
         <ToastContainer />
+        
           <Routes>
             <Route exact path="/login" name="Login Page" element={<Login />} />
             <Route exact path="/register" name="Register Page" element={<Register />} />
@@ -54,7 +55,7 @@ class App extends Component {
           </AuthProvider>
 
         </Suspense>
-      </HashRouter>
+      </BrowserRouter>
     )
   }
 }

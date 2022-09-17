@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
+import { useSearchParams } from 'react-router-dom';
 
 import {
   CCard,
@@ -61,6 +62,8 @@ const SalesOrder = () => {
   const [productData, setProduct] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
+  const [searchParams] = useSearchParams();
+  const [addItems, setItems] = useState([{ product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, }]);
 
   let paginationConfig = {
     totalPages: 1,
@@ -164,6 +167,12 @@ const SalesOrder = () => {
       })
   }
 
+  useEffect(() => {
+    const currentParams = Object.fromEntries([...searchParams]);
+    console.log(currentParams); // get new values onchange
+    reload();
+  }, [searchParams]);
+
   /* Get Data */
   useEffect(() => {
     reload();
@@ -171,8 +180,9 @@ const SalesOrder = () => {
   }, [])
 
   const reload = async () => {
+    let page = searchParams.get('page') ?? 1
     return await axios
-      .get(process.env.REACT_APP_API_URL + "/Products", { headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .get(process.env.REACT_APP_API_URL + "/Products", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setData(res.data.data);
         const pgdata = res.data.data;
@@ -238,6 +248,28 @@ const SalesOrder = () => {
     setErrorObj([]);
     reset({});
   };
+
+  const addRow = () => {
+    setItems([...addItems, { product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, }]);
+  }
+
+  function removeItem(remInd) {
+    alert(remInd);
+    const cps = addItems;
+    console.log(remInd);
+    if (addItems.length <= 1) {
+      return;
+    }
+    
+    const remEle = cps.filter(function (value, index, arr) {
+      console.log(index, remInd);
+      return remInd != index
+    });
+
+    console.log(cps);
+    setItems(remEle);
+
+  }
 
 
   return (
@@ -314,10 +346,8 @@ const SalesOrder = () => {
                 prevNext
                 activeBgColor="#fffff"
                 activeBorderColor="#7bc9c9"
-                onClick = {(page) => {
-                  console.log(page);
-                  return false;
-                }}
+                href="http://localhost:3000/#/sales-orders?page=*"
+                pageOneHref="http://localhost:3000/#/sales-orders"
               />
             </div>
 
@@ -371,58 +401,80 @@ const SalesOrder = () => {
                         </CFormSelect>
                       </CCol>
 
-                      <h5>Item Details</h5>
-                      <CCol md={2}>
-                        <CFormInput type="number" id="dimesion_length" floatingLabel="Length"  {...register("length", options.length)} />
-                      </CCol>
-
-                      <CCol md={2}>
-                        <CFormInput type="number" id="dimesion_height" floatingLabel="Width"  {...register("height", options.height)} />
-                      </CCol>
-                      <CCol md={2}>
-                        <CFormInput type="number" id="dimesion_width" floatingLabel="Height"  {...register("width", options.width)} />
-                      </CCol>
-                      <CCol md={3}>
-                        <CFormSelect name='status' id="inputState" floatingLabel="units" {...register("dimension_unit", options.dimension_unit)}>
-                          <option>cm</option>
-                          <option>inc</option>
-                          <option>m</option>
-                        </CFormSelect>
-                      </CCol>
-                      <CCol md={4}>
-                        <CFormInput type="number" id="dimesion_width" floatingLabel="Weight"  {...register("width", options.weight)} />
-                      </CCol>
-                      <CCol md={2}>
-                        <CFormSelect name='status' id="inputState" floatingLabel="units" {...register("weight_unit", options.weight_unit)}>
-                          <option>cm</option>
-                          <option>inc</option>
-                          <option>m</option>
-                        </CFormSelect>
-                      </CCol>
-
-                      <h5>Item Information</h5>
-
-                      <CCol md={6}>
-                        <CFormInput type="text" id="brand" floatingLabel="Brand"  {...register("brand", options.brand)} />
-                      </CCol>
-
-                      <CCol md={6}>
-                        <CFormInput type="text" id="manufacture" floatingLabel="Manufacturer"  {...register("manufacturer", options.manufacturer)} />
-                      </CCol>
-
-                      <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Serial Numbers (MPN)"  {...register("serial_number", options.serial_number)} />
-                        {errors.serial_number && <div className='invalid-validation-css'>This field is required</div>}
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput type="text" id="upc" floatingLabel="UPC"  {...register("upc", options.upc)} />
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput type="text" id="ean" floatingLabel="EAN"  {...register("ean", options.ean)} />
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput type="text" id="isbn" floatingLabel="ISBN"  {...register("isbn", options.isbn)} />
-                      </CCol>
+                      <h5>Items</h5>
+                      {/* Product Info */}
+                      <div className="container">
+                        <div className="row clearfix">
+                          <div className="col-md-12">
+                            <table className="table table-bordered table-hover" id="tab_logic">
+                              <thead>
+                                <tr>
+                                  <th className="text-center"> # </th>
+                                  <th className="text-center"> Product </th>
+                                  <th className="text-center"> Qty </th>
+                                  <th className="text-center"> Price </th>
+                                  <th className="text-center"> Total </th>
+                                  <th className="text-center"> . </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {addItems?.map((element, index) => {
+                                  return (
+                                    <tr id='addr0'>
+                                      <td>{index+1}</td>
+                                      <td>
+                                        <CFormSelect className="form-control" id="inputState"  {...register(`items[${index}].product_id`)}>
+                                          <option value="">... Select Product ...</option>
+                                          {categories.docs?.map((category, index) => {
+                                            return <option key={index} value={category._id}>{category.category_name}</option>
+                                          })};
+                                        </CFormSelect></td>
+                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].qty`)} /></td>
+                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].rate`)} /></td>
+                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].amount`)} /></td>
+                                      <td><CButton type="button" onClick={() => removeItem(index)} className="me-md-2"  color="danger"><CIcon size={'sm'} icon={cilTrash} /></CButton></td>
+                                    </tr>)
+                                }
+                                )}
+                                <tr id='addr1'></tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <div className="row clearfix">
+                          <div className="col-md-12">
+                            <button id="add_row" type='button' onClick={() => { addRow() }} className="btn btn-default pull-left">Add Row</button>
+                            <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button>
+                          </div>
+                        </div>
+                        <div className="row clearfix" style={{ "margin-top": "20px" }} > {/* style={"margin-top:20px"} */}
+                          <div className="col-md-4">
+                            <table className="table table-bordered table-hover" id="tab_logic_total">
+                              <tbody>
+                                <tr>
+                                  <th className="text-center">Sub Total</th>
+                                  <td className="text-center"><input type="number" name='sub_total' placeholder='0.00' className="form-control" id="sub_total" readonly /></td>
+                                </tr>
+                                <tr>
+                                  <th className="text-center">Tax</th>
+                                  <td className="text-center"><div className="input-group mb-2 mb-sm-0">
+                                    <input type="number" className="form-control" id="tax" placeholder="0" />
+                                    <div className="input-group-addon">%</div>
+                                  </div></td>
+                                </tr>
+                                <tr>
+                                  <th className="text-center">Tax Amount</th>
+                                  <td className="text-center"><input type="number" name='tax_amount' id="tax_amount" placeholder='0.00' className="form-control" readonly /></td>
+                                </tr>
+                                <tr>
+                                  <th className="text-center">Grand Total</th>
+                                  <td className="text-center"><input type="number" name='total_amount' id="total_amount" placeholder='0.00' className="form-control" readonly /></td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
 
                       <h5>Sales & Purshase Information</h5>
 

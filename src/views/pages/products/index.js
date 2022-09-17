@@ -1,7 +1,10 @@
 import { React, useState, useEffect } from 'react'
 import { useForm } from "react-hook-form";
-import { toast }  from "react-toastify";
+import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
+import Pagination from "react-bootstrap-4-pagination";
+import { useSearchParams } from 'react-router-dom';
+
 import {
   CCard,
   CCardBody,
@@ -60,13 +63,14 @@ const Product = () => {
   const [productData, setProduct] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
+  const [searchParams] = useSearchParams();
 
   const addForm = () => {
     resetForm()
     setFormAction('Add');
     setVisibleXL(true)
   }
-  const { register, handleSubmit, reset, setValue , formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
 
   /* Form */
   const onFormSubmit = (data) => {
@@ -98,12 +102,12 @@ const Product = () => {
       .then((response) => {
         setVisibleXL(false) /* Close the Pop Here */
         reload();
-        toast.success(response.data.message ?? "Success" )
+        toast.success(response.data.message ?? "Success")
       })
       .catch((error) => {
         const data = error.response.data
         const errObj = data.error.errors;
-        toast.error(error.response.data.message ?? "Opps something went wrong!" )
+        toast.error(error.response.data.message ?? "Opps something went wrong!")
         validationAlertPop({ err: error.response.data });
       })
   }
@@ -115,18 +119,18 @@ const Product = () => {
       .then((response) => {
         reload();
         setVisibleXL(false) /* Close the Pop Here */
-        toast.success(response.data.message ?? "Success" )
+        toast.success(response.data.message ?? "Success")
       })
       .catch((error, response) => {
         console.log(response.data);
-        toast.error(response.data.message ?? "Opps something went wrong!" )
+        toast.error(response.data.message ?? "Opps something went wrong!")
       })
   }
 
   const onErrors = (errors) => {
     validationAlertPop(errors);
   };
-  
+
   const options = {
     name: { required: "Product name is required" },
     status: {
@@ -141,15 +145,22 @@ const Product = () => {
     axios.delete(process.env.REACT_APP_API_URL + "/Products",
       { headers: { Authorization: localStorage.getItem('token') ?? null }, data: { _id: [data._id] } })
       .then((response) => {
-        toast.success(response.data.message ?? "Success" )
+        toast.success(response.data.message ?? "Success")
         /* Empty the Form */
         setDelVisible(false) /* Close the Pop Here */
         reload();
       })
       .catch((error, response) => {
-        toast.error(response.data.message ?? "Opps something went wrong!" )
+        toast.error(response.data.message ?? "Opps something went wrong!")
       })
   }
+
+  /* Get Data */
+  useEffect(() => {
+    const currentParams = Object.fromEntries([...searchParams]);
+    console.log(currentParams); // get new values onchange
+    reload();
+  }, [searchParams]);
 
   /* Get Data */
   useEffect(() => {
@@ -157,11 +168,13 @@ const Product = () => {
     getCategory();
   }, [])
 
-  const reload = async () => {
+  const reload = async (page=1) => {
     return await axios
-      .get(process.env.REACT_APP_API_URL + "/Products", { headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .get(process.env.REACT_APP_API_URL + "/Products", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setData(res.data.data);
+        const pgdata = res.data.data;
+        paginationConfig.currentPage = pgdata.page
         console.log(data);
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
@@ -289,6 +302,21 @@ const Product = () => {
                 )}
               </CTableBody>
             </CTable>
+            
+            <div className='mt-2 px-2 float-end'>
+              <Pagination
+                threeDots
+                totalPages={data.totalPages}
+                currentPage={data.page}
+                showMax={5}
+                prevNext
+                activeBgColor="#fffff"
+                activeBorderColor="#7bc9c9"
+                onClick={(page) => {
+                  reload(page) 
+                }}
+              />
+            </div>
 
             {/* Modal start Here */}
             <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
@@ -299,12 +327,12 @@ const Product = () => {
                 <CModalBody>
                   <CCol xs={12}>
                     <CRow className="row g-3 px-3 mt-1 mb-5">
-                      <ValidationAlert validate={{visible:validationAlert,errorObjData}} />
+                      <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
                       <fieldset className="row mb-1">
                         <legend className="col-form-label col-sm-2 pt-0">Item Type</legend>
                         <CCol sm={10} >
-                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="product" label="Product" {...register("type",{required:true})} />
-                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="service" label="Service" {...register("type",{required:true})} />
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="product" label="Product" {...register("type", { required: true })} />
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="service" label="Service" {...register("type", { required: true })} />
                           {errors.type && <div className='invalid-validation-css'>This field is required</div>}
                         </CCol>
                       </fieldset>
@@ -401,7 +429,7 @@ const Product = () => {
                           <option>m</option>
                         </CFormSelect>
                       </CCol>
-                      
+
                       <h5>Item Information</h5>
 
                       <CCol md={6}>
@@ -411,10 +439,10 @@ const Product = () => {
                       <CCol md={6}>
                         <CFormInput type="text" id="manufacture" floatingLabel="Manufacturer"  {...register("manufacturer", options.manufacturer)} />
                       </CCol>
-                      
+
                       <CCol md={6}>
                         <CFormInput type="text" id="inputEmail4" floatingLabel="Serial Numbers (MPN)"  {...register("serial_number", options.serial_number)} />
-                          {errors.serial_number && <div className='invalid-validation-css'>This field is required</div>}
+                        {errors.serial_number && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
                         <CFormInput type="text" id="upc" floatingLabel="UPC"  {...register("upc", options.upc)} />
@@ -438,11 +466,11 @@ const Product = () => {
                         <CFormInput type="text" id="qty" floatingLabel="Qty" {...register("qty", options.qty)} />
                         {errors.qty && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
-                     
+
                       <CCol md={6}>
                         <CFormInput id="inputCity" floatingLabel="Units" />
                       </CCol>
-                     
+
                     </CRow>
                   </CCol>
                 </CModalBody>
