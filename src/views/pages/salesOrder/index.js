@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
 import { useSearchParams } from 'react-router-dom';
-
+import { DateTime } from "luxon";
 import {
   CCard,
   CCardBody,
@@ -60,6 +60,7 @@ const SalesOrder = () => {
   const [data, setData] = useState([]);
   const [products, setProducts] = useState([]);
   const [categories, setCategory] = useState({});
+  const [salesExecutives, setSalesExe] = useState({});
   const [customers, setCustomers] = useState({});
   const [productData, setProduct] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
@@ -180,6 +181,7 @@ const SalesOrder = () => {
     reload();
     getProducts();
     getCustomers();
+    getUsers();
   }, [])
 
   const reload = async () => {
@@ -235,24 +237,35 @@ const SalesOrder = () => {
       })
   }
 
+  const getUsers = async () => {
+    return await axios
+      .get(process.env.REACT_APP_API_URL + "/users", { headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((res) => {
+        setSalesExe(res.data.data);
+        console.log(data);
+      }).catch((err) => {
+        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+      })
+  }
+
 
   /* Edit Form */
   const onEdit = (data) => {
     resetForm()
-    console.log(data);
     setFormAction('Update');
+    console.log(data.sales_executives.map((exe)=>exe._id ));
     setVisibleXL(!visibleXL);
-    setValue('name', data.name)
-    setValue('qty', data.qty)
+    setValue('customer_id', data.customer_id._id)
+    setValue('order_no', data.order_no)
     setValue('status', data.status)
-    setValue('cost', data.cost)
-    setValue('sell_price', data.sell_price)
-    setValue('brand', data.brand)
-    setValue('length', data.length)
-    setValue('height', data.height)
-    setValue('weight', data.weight)
-    setValue('width', data.width)
-    setValue('weight_unit', data.weight_unit)
+    setValue('reference', data.reference)
+    setValue('sale_date', DateTime.fromISO(data.sale_date).toFormat('yyyy-MM-dd'))
+    setValue('shipment_date', DateTime.fromISO(data.shipment_date).toFormat('yyyy-MM-dd'))
+    setValue('sales_executives', data.sales_executives.map((exe)=>exe._id ))
+    setValue('items', data.items)
+    setValue('sale_details', data.sale_details)
+    setValue('notes', data.customer_notes)
+    setValue('shipping_notes', data.shipping_notes)
     setValue('dimension_unit', data.dimension_unit)
     setValue('category_id', data.category_id)
     setValue('isbn', data.isbn)
@@ -330,24 +343,22 @@ const SalesOrder = () => {
               <CTableHead color="dark">
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Sku</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Qty</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Cost</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Price</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Customer </CTableHeaderCell>
+                  <CTableHeaderCell scope="col">#Order Id</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Sale Date</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Status</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Action</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Action</  CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
                 {data.docs?.map((product, index) =>
                   <CTableRow key={product.id}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{product.name}</CTableDataCell>
-                    <CTableDataCell>{product.sku}</CTableDataCell>
-                    <CTableDataCell>{product.qty}</CTableDataCell>
-                    <CTableDataCell>{product.cost}</CTableDataCell>
-                    <CTableDataCell>{product.sell_price ?? 0.00}</CTableDataCell>
+                    <CTableDataCell>{product.customer_id.name}</CTableDataCell>
+                    <CTableDataCell>{product.order_no}</CTableDataCell>
+                    <CTableDataCell>{product.sale_date}</CTableDataCell>
+                    <CTableDataCell>{product.sale_details?.total}</CTableDataCell>
                     <CTableDataCell>{product.status}</CTableDataCell>
                     <CTableDataCell>
                       <CTooltip
@@ -424,10 +435,10 @@ const SalesOrder = () => {
                       </CCol>
 
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Sales Executive" {...register("sales_executive", options.sales_executive)}>
+                        <CFormSelect id="inputState" multiple floatingLabel="Sales Executive" {...register("sales_executives[]", options.sales_executive)}>
                           <option value="">...</option>
-                          {categories.docs?.map((category, index) => {
-                            return <option key={index} value={category._id}>{category.category_name}</option>
+                          {salesExecutives.docs?.map((user, index) => {
+                            return <option key={index} value={user._id}>{user.name}</option>
                           })};
                         </CFormSelect>
                       </CCol>
@@ -485,22 +496,26 @@ const SalesOrder = () => {
                               <tbody>
                                 <tr>
                                   <th className="text-center">Sub Total</th>
-                                  <td className="text-center"><input type="number" name='sub_total' placeholder='0.00' className="form-control" id="sub_total" readonly /></td>
+                                  <td className="text-center">
+                                    <input type="number" name='sub_total' placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)}/>
+                                    </td>
                                 </tr>
                                 <tr>
                                   <th className="text-center">Tax</th>
                                   <td className="text-center"><div className="input-group mb-2 mb-sm-0">
-                                    <input type="number" className="form-control" id="tax" placeholder="0" />
+                                    <input type="number" className="form-control" id="tax" placeholder="0" {...register(`sale_details.tax_id`)} />
                                     <div className="input-group-addon">%</div>
                                   </div></td>
                                 </tr>
                                 <tr>
                                   <th className="text-center">Tax Amount</th>
-                                  <td className="text-center"><input type="number" name='tax_amount' id="tax_amount" placeholder='0.00' className="form-control" readonly /></td>
+                                  <td className="text-center">
+                                    <input type="number" {...register(`sale_details.tax_amount`)} id="tax_amount" placeholder='0.00' className="form-control" readOnly />
+                                    </td>
                                 </tr>
                                 <tr>
                                   <th className="text-center">Grand Total</th>
-                                  <td className="text-center"><input type="number" name='total_amount' id="total_amount" placeholder='0.00' className="form-control" readonly /></td>
+                                  <td className="text-center"><input type="number" name='total_amount' id="total_amount" placeholder='0.00' className="form-control" readOnly {...register(`sale_details.total`)}/></td>
                                 </tr>
                               </tbody>
                             </table>
