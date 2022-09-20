@@ -85,7 +85,7 @@ const SalesOrder = () => {
     setFormAction('Add');
     setVisibleXL(true)
   }
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, getValues, formState: { errors } } = useForm();
 
   /* Form */
   const onFormSubmit = (data) => {
@@ -248,12 +248,41 @@ const SalesOrder = () => {
       })
   }
 
+  const gerProductById = async (id, index) => {
+    // const filter = {_id:id} 
+    alert(index)
+    return await axios
+      .get(process.env.REACT_APP_API_URL + "/Products", { params: { _id: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((res) => {
+        const items = getValues('items');
+        const product = res.data.data?.docs[0] ?? {};
+        console.log(product,product.sell_price);
+
+        console.log(items);
+        const item = items[index];
+        
+        let qty = !isNaN(item['qty']) ? item['qty'] : 1
+        let rate = !isNaN(product.sell_price) ? product.sell_price : 0.00
+        let amount = !isNaN(qty*rate) ? qty*rate : 0.00
+        
+        items[index]['qty'] = qty;
+        items[index]['rate'] = rate;
+        items[index]['amount'] = amount;
+        
+        setValue('items',items);
+
+      }).catch((err) => {
+        console.error(err);
+        // setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+      })
+  }
+
 
   /* Edit Form */
   const onEdit = (data) => {
     resetForm()
     setFormAction('Update');
-    console.log(data.sales_executives.map((exe)=>exe._id ));
+    console.log(data.sales_executives.map((exe) => exe._id));
     setVisibleXL(!visibleXL);
     setValue('customer_id', data.customer_id._id)
     setValue('order_no', data.order_no)
@@ -261,7 +290,7 @@ const SalesOrder = () => {
     setValue('reference', data.reference)
     setValue('sale_date', DateTime.fromISO(data.sale_date).toFormat('yyyy-MM-dd'))
     setValue('shipment_date', DateTime.fromISO(data.shipment_date).toFormat('yyyy-MM-dd'))
-    setValue('sales_executives', data.sales_executives.map((exe)=>exe._id ))
+    setValue('sales_executives', data.sales_executives.map((exe) => exe._id))
     setValue('items', data.items)
     setValue('sale_details', data.sale_details)
     setValue('notes', data.customer_notes)
@@ -465,7 +494,7 @@ const SalesOrder = () => {
                                     <tr id='addr0'>
                                       <td>{index + 1}</td>
                                       <td>
-                                        <CFormSelect onChange={() => { alert(111) }} className="form-control" id="inputState"  {...register(`items[${index}].product_id`)}>
+                                        <CFormSelect className="form-control" key={index} id="inputState"  {...register(`items[${index}].product_id`)} onChange={(e) => { gerProductById(e.target.value, index) }} >
                                           <option value="">... Select Product ...</option>
                                           {products.docs?.map((product, index) => {
                                             return <option key={index} value={product._id}>{product.name}</option>
@@ -497,8 +526,8 @@ const SalesOrder = () => {
                                 <tr>
                                   <th className="text-center">Sub Total</th>
                                   <td className="text-center">
-                                    <input type="number" name='sub_total' placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)}/>
-                                    </td>
+                                    <input type="number" name='sub_total' placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
+                                  </td>
                                 </tr>
                                 <tr>
                                   <th className="text-center">Tax</th>
@@ -511,11 +540,11 @@ const SalesOrder = () => {
                                   <th className="text-center">Tax Amount</th>
                                   <td className="text-center">
                                     <input type="number" {...register(`sale_details.tax_amount`)} id="tax_amount" placeholder='0.00' className="form-control" readOnly />
-                                    </td>
+                                  </td>
                                 </tr>
                                 <tr>
                                   <th className="text-center">Grand Total</th>
-                                  <td className="text-center"><input type="number" name='total_amount' id="total_amount" placeholder='0.00' className="form-control" readOnly {...register(`sale_details.total`)}/></td>
+                                  <td className="text-center"><input type="number" name='total_amount' id="total_amount" placeholder='0.00' className="form-control" readOnly {...register(`sale_details.total`)} /></td>
                                 </tr>
                               </tbody>
                             </table>
