@@ -250,26 +250,27 @@ const SalesOrder = () => {
 
   const gerProductById = async (id, index) => {
     // const filter = {_id:id} 
-    alert(index)
     return await axios
       .get(process.env.REACT_APP_API_URL + "/Products", { params: { _id: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         const items = getValues('items');
         const product = res.data.data?.docs[0] ?? {};
-        console.log(product,product.sell_price);
+        console.log(product, product.sell_price);
 
-        console.log(items);
+        // console.log(items);
         const item = items[index];
-        
-        let qty = !isNaN(item['qty']) ? item['qty'] : 1
+
+        let qty = 1
         let rate = !isNaN(product.sell_price) ? product.sell_price : 0.00
-        let amount = !isNaN(qty*rate) ? qty*rate : 0.00
-        
+        let amount = !isNaN(qty * rate) ? qty * rate : 0.00
+
         items[index]['qty'] = qty;
         items[index]['rate'] = rate;
         items[index]['amount'] = amount;
-        
-        setValue('items',items);
+        items[index]['product_id'] = product._id;
+
+        setValue('items', items);
+        subTotalCal();
 
       }).catch((err) => {
         console.error(err);
@@ -277,6 +278,42 @@ const SalesOrder = () => {
       })
   }
 
+
+  function subTotalCal() {
+    const items = getValues('items');
+    let sub_total, total = 0
+    items.forEach(item => {
+      console.log(item.amount);
+      sub_total += 1;
+    });
+    setValue('sale_details', { sub_total: 101,total })
+  }
+
+
+  const handleQtyChange = async (qty, index) => {
+    const items = getValues('items');
+    const item = items[index];
+    let rate = !isNaN(item['rate']) ? item['rate'] : 0.00
+    let amount = !isNaN(qty * rate) ? qty * rate : 0.00
+    items[index]['qty'] = qty;
+    items[index]['rate'] = rate;
+    items[index]['amount'] = amount;
+    setValue('items', items);
+    subTotalCal();
+  }
+
+
+
+  const handleSubTotal = async (qty, index) => {
+    const items = getValues('items');
+    const item = items[index];
+    let rate = !isNaN(item['rate']) ? item['rate'] : 0.00
+    let amount = !isNaN(qty * rate) ? qty * rate : 0.00
+    items[index]['qty'] = qty;
+    items[index]['rate'] = rate;
+    items[index]['amount'] = amount;
+    setValue('items', items);
+  }
 
   /* Edit Form */
   const onEdit = (data) => {
@@ -501,9 +538,9 @@ const SalesOrder = () => {
                                           })};
                                         </CFormSelect>
                                       </td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].qty`)} /></td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].rate`)} /></td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].amount`)} /></td>
+                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].qty`)} onChange={(e) => { handleQtyChange(e.target.value, index) }} /></td>
+                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].rate`)} readOnly /></td>
+                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].amount`)} readOnly /></td>
                                       <td><CButton type="button" onClick={() => removeItem(index)} className="me-md-2" color="danger"><CIcon size={'sm'} icon={cilTrash} /></CButton></td>
                                     </tr>)
                                 }
@@ -526,20 +563,20 @@ const SalesOrder = () => {
                                 <tr>
                                   <th className="text-center">Sub Total</th>
                                   <td className="text-center">
-                                    <input type="number" name='sub_total' placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
+                                    <input type="text" name='sub_total' placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
                                   </td>
                                 </tr>
                                 <tr>
                                   <th className="text-center">Tax</th>
                                   <td className="text-center"><div className="input-group mb-2 mb-sm-0">
-                                    <input type="number" className="form-control" id="tax" placeholder="0" {...register(`sale_details.tax_id`)} />
+                                    <input type="text" className="form-control" id="tax" placeholder="0" {...register(`sale_details.tax_id`)} />
                                     <div className="input-group-addon">%</div>
                                   </div></td>
                                 </tr>
                                 <tr>
                                   <th className="text-center">Tax Amount</th>
                                   <td className="text-center">
-                                    <input type="number" {...register(`sale_details.tax_amount`)} id="tax_amount" placeholder='0.00' className="form-control" readOnly />
+                                    <input type="text" {...register(`sale_details.tax_amount`)} id="tax_amount" placeholder='0.00' className="form-control" readOnly />
                                   </td>
                                 </tr>
                                 <tr>
