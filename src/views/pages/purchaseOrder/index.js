@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react'
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
@@ -52,7 +52,7 @@ import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
 import axios from 'axios';
 
-const SalesOrder = () => {
+const PurchaseOrder = () => {
   const items = [];
   const [visibleXL, setVisibleXL] = useState(false)
   const [delModal, setDelVisible] = useState(false)
@@ -61,7 +61,7 @@ const SalesOrder = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategory] = useState({});
   const [salesExecutives, setSalesExe] = useState({});
-  const [customers, setCustomers] = useState({});
+  const [vendors, setVendors] = useState({});
   const [productData, setProduct] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
@@ -85,7 +85,16 @@ const SalesOrder = () => {
     setFormAction('Add');
     setVisibleXL(true)
   }
-  const { register, handleSubmit, reset, setValue, getValues, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, getValues, watch, control, formState: { errors } } = useForm({
+    defaultValues: {
+      items: [{ product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, }]
+    }
+  });
+  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({
+    control, // control props comes from useForm (optional: if you are using FormContext)
+    name: "items", // unique name for your Field Array
+  });
+  const watchItems = watch("items");
 
   /* Form */
   const onFormSubmit = (data) => {
@@ -111,7 +120,7 @@ const SalesOrder = () => {
 
 
   const create = (data) => {
-    axios.post(process.env.REACT_APP_API_URL + "/sales-order",
+    axios.post(process.env.REACT_APP_API_URL + "/purchase-order",
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
@@ -128,7 +137,7 @@ const SalesOrder = () => {
   }
 
   const updateData = (data) => {
-    axios.patch(process.env.REACT_APP_API_URL + "/sales-order",
+    axios.patch(process.env.REACT_APP_API_URL + "/purchase-order",
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
@@ -157,7 +166,7 @@ const SalesOrder = () => {
   };
 
   const deleteAction = (data) => {
-    axios.delete(process.env.REACT_APP_API_URL + "/sales-order",
+    axios.delete(process.env.REACT_APP_API_URL + "/purchase-order",
       { headers: { Authorization: localStorage.getItem('token') ?? null }, data: { _id: [data._id] } })
       .then((response) => {
         toast.success(response.data.message ?? "Success")
@@ -180,14 +189,14 @@ const SalesOrder = () => {
   useEffect(() => {
     reload();
     getProducts();
-    getCustomers();
+    getVendors();
     getUsers();
   }, [])
 
   const reload = async () => {
     let page = searchParams.get('page') ?? 1
     return await axios
-      .get(process.env.REACT_APP_API_URL + "/sales-order", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .get(process.env.REACT_APP_API_URL + "/purchase-order", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setData(res.data.data);
         const pgdata = res.data.data;
@@ -212,12 +221,12 @@ const SalesOrder = () => {
       })
   }
 
-  const getCustomers = async () => {
+  const getVendors = async () => {
     let page = searchParams.get('page') ?? 1
     return await axios
-      .get(process.env.REACT_APP_API_URL + "/customers", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .get(process.env.REACT_APP_API_URL + "/vendors", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
-        setCustomers(res.data.data);
+        setVendors(res.data.data);
         const pgdata = res.data.data;
         paginationConfig.currentPage = pgdata.page
         console.log(data);
@@ -264,15 +273,13 @@ const SalesOrder = () => {
         let rate = !isNaN(product.sell_price) ? product.sell_price : 0.00
         let amount = !isNaN(qty * rate) ? qty * rate : 0.00
 
-        items[index]['qty'] = qty;
-        items[index]['rate'] = rate;
-        items[index]['amount'] = amount;
-        items[index]['product_id'] = product._id;
-
-        setValue('items', items);
+        setValue(`items.${index}.qty`, qty);
+        setValue(`items.${index}.rate`, rate);
+        setValue(`items.${index}.amount`, amount);
+        setValue(`items.${index}.product._id`, id);
         subTotalCal();
 
-      }).catch((err) => {
+      }).catch((err) => { 
         console.error(err);
         // setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -281,14 +288,15 @@ const SalesOrder = () => {
 
   function subTotalCal() {
     const items = getValues('items');
-    let sub_total, total = 0
+    let sub_total = 0;
+    let total = 0;
     items.forEach(item => {
       console.log(item.amount);
       sub_total += item.amount;
     });
-    console.log(typeof(sub_total));
-    setValue('sale_details.sub_total', !isNaN(sub_total) ? sub_total : 0.00)
-    setValue('sale_details.total', !isNaN(total) ? total : 0.00)
+    total = sub_total;
+    setValue('sale_details.sub_total', sub_total);
+    setValue('sale_details.total', total)
   }
 
 
@@ -297,10 +305,7 @@ const SalesOrder = () => {
     const item = items[index];
     let rate = !isNaN(item['rate']) ? item['rate'] : 0.00
     let amount = !isNaN(qty * rate) ? qty * rate : 0.00
-    items[index]['qty'] = qty;
-    items[index]['rate'] = rate;
-    items[index]['amount'] = amount;
-    setValue('items', items);
+    setValue(`items.${index}.amount`, amount);
     subTotalCal();
   }
 
@@ -321,16 +326,20 @@ const SalesOrder = () => {
   const onEdit = (data) => {
     resetForm()
     setFormAction('Update');
-    console.log(data.sales_executives.map((exe) => exe._id));
+    // console.log(data.sales_executives.map((exe) => exe._id));
     setVisibleXL(!visibleXL);
-    setValue('customer_id', data.customer_id._id)
+    setValue('vendor_id', data.vendor_id._id)
     setValue('order_no', data.order_no)
     setValue('status', data.status)
     setValue('reference', data.reference)
+    setValue('shipment_type', data.shipment_type)
     setValue('sale_date', DateTime.fromISO(data.sale_date).toFormat('yyyy-MM-dd'))
-    setValue('shipment_date', DateTime.fromISO(data.shipment_date).toFormat('yyyy-MM-dd'))
-    setValue('sales_executives', data.sales_executives.map((exe) => exe._id))
-    setValue('items', data.items)
+    setValue('delivery_date', DateTime.fromISO(data.delivery_date).toFormat('yyyy-MM-dd'))
+
+    data.items.forEach((item,index) => {
+      append({ product_id: item.product_id, qty: item.qty, rate: item.rate, amount: item.amount })
+    })
+
     setValue('sale_details', data.sale_details)
     setValue('notes', data.customer_notes)
     setValue('shipping_notes', data.shipping_notes)
@@ -346,6 +355,7 @@ const SalesOrder = () => {
     setValue('units_of_measurement', data.units_of_measurement)
     setValue('type', data.type)
     setValue('_id', data._id)
+   
   };
 
   /* Delete  */
@@ -362,25 +372,17 @@ const SalesOrder = () => {
   };
 
   const addRow = () => {
-    setItems([...addItems, { product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, }]);
+    append({ product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, })
   }
 
   function removeItem(remInd) {
-    // alert(remInd);
-    const cps = addItems;
-    console.log(remInd);
-    if (addItems.length <= 1) {
+    const allItems = getValues('items');
+    if (allItems.length <= 1) {
       return;
     }
-
-    const remEle = cps.filter(function (value, index, arr) {
-      console.log(index, remInd);
-      return remInd != index
-    });
-
-    console.log(cps);
-    setItems(remEle);
-
+    remove(remInd);
+    subTotalCal()
+    return true;
   }
 
 
@@ -396,10 +398,10 @@ const SalesOrder = () => {
       </CCol>
 
       <CCol xs={12}>
-        <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Sales Order</CButton>
+        <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Purchase Order</CButton>
         <CCard className="mb-4">
           <CCardHeader>
-            Sales Order
+            Purchase Order
           </CCardHeader>
           <CCardBody>
             {/* <p className="text-medium-emphasis small">
@@ -414,6 +416,7 @@ const SalesOrder = () => {
                   <CTableHeaderCell scope="col">Customer </CTableHeaderCell>
                   <CTableHeaderCell scope="col">#Order Id</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Sale Date</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Delivery Date</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Status</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Action</  CTableHeaderCell>
@@ -423,9 +426,10 @@ const SalesOrder = () => {
                 {data.docs?.map((product, index) =>
                   <CTableRow key={product.id}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{product.customer_id.name}</CTableDataCell>
+                    <CTableDataCell>{product.vendor_id?.display_name}</CTableDataCell>
                     <CTableDataCell>{product.order_no}</CTableDataCell>
                     <CTableDataCell>{product.sale_date}</CTableDataCell>
+                    <CTableDataCell>{product.delivery_date}</CTableDataCell>
                     <CTableDataCell>{product.sale_details?.total}</CTableDataCell>
                     <CTableDataCell>{product.status}</CTableDataCell>
                     <CTableDataCell>
@@ -456,8 +460,8 @@ const SalesOrder = () => {
                 prevNext
                 activeBgColor="#fffff"
                 activeBorderColor="#7bc9c9"
-                href="http://localhost:3000/#/sales-orders?page=*"
-                pageOneHref="http://localhost:3000/#/sales-orders"
+                href="http://localhost:3000/#/purchase-order?page=*"
+                pageOneHref="http://localhost:3000/#/purchase-order"
               />
             </div>
 
@@ -465,7 +469,7 @@ const SalesOrder = () => {
             <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
               <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                 <CModalHeader>
-                  <CModalTitle>{formAction} Sales Order</CModalTitle>
+                  <CModalTitle>{formAction} Purchase Order</CModalTitle>
                 </CModalHeader>
                 <CModalBody>
                   <CCol xs={12}>
@@ -480,15 +484,15 @@ const SalesOrder = () => {
                         </CCol>
                       </fieldset> */}
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Customer" {...register("customer_id", options.customer_id)}>
+                        <CFormSelect id="inputState" floatingLabel="Vendor" {...register("vendor_id", options.vendor_id)}>
                           <option value="">...</option>
-                          {customers.docs?.map((customer, index) => {
-                            return <option key={index} value={customer._id}>{customer.name}</option>
+                          {vendors.docs?.map((vendor, index) => {
+                            return <option key={index} value={vendor._id}>{vendor.display_name}</option>
                           })};
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Sales Order#" {...register("order_no", options.order_no)} />
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Purchase Order#" {...register("order_no", options.order_no)} />
                         {errors.order_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
@@ -496,18 +500,26 @@ const SalesOrder = () => {
                         {errors.reference && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Sales Order Date" {...register("sale_date", options.sale_date)} />
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Purchase Order Date" {...register("sale_date", options.sale_date)} />
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment_date", options.shipment_date)} />
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Expected Delivery Date" {...register("delivery_date", options.delivery_date)} />
                       </CCol>
 
-                      <CCol md={6}>
+                      {/* <CCol md={6}>
                         <CFormSelect id="inputState" multiple floatingLabel="Sales Executive" {...register("sales_executives[]", options.sales_executive)}>
                           <option value="">...</option>
                           {salesExecutives.docs?.map((user, index) => {
                             return <option key={index} value={user._id}>{user.name}</option>
                           })};
+                        </CFormSelect>
+                      </CCol> */}
+
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" floatingLabel="Shipment type" {...register("shipment_type", options.sales_executive)}>
+                          <option value="">...</option>
+                          <option value="manual">Manual</option>
+                          <option value="Easy Post">Easy Post</option>
                         </CFormSelect>
                       </CCol>
 
@@ -528,7 +540,7 @@ const SalesOrder = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {addItems?.map((element, index) => {
+                                {fields?.map((element, index) => {
                                   return (
                                     <tr id='addr0'>
                                       <td>{index + 1}</td>
@@ -555,17 +567,17 @@ const SalesOrder = () => {
                         <div className="row clearfix">
                           <div className="col-md-12">
                             <button id="add_row" type='button' onClick={() => { addRow() }} className="btn btn-default pull-left">Add Row</button>
-                            <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button>
+                            {/* <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button> */}
                           </div>
                         </div>
-                        <div className="row clearfix" style={{ "margin-top": "20px" }} > {/* style={"margin-top:20px"} */}
+                        <div className="row clearfix" style={{ marginTop: "20px" }} > {/* style={"margin-top:20px"} */}
                           <div className="col-md-4">
                             <table className="table table-bordered table-hover" id="tab_logic_total">
                               <tbody>
                                 <tr>
                                   <th className="text-center">Sub Total</th>
                                   <td className="text-center">
-                                    <input type="text"  placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
+                                    <input type="text" placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
                                   </td>
                                 </tr>
                                 <tr>
@@ -644,4 +656,4 @@ const SalesOrder = () => {
   )
 }
 
-export default SalesOrder
+export default PurchaseOrder
