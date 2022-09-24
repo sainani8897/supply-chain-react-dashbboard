@@ -82,6 +82,7 @@ const PurchaseOrder = () => {
 
   const addForm = () => {
     resetForm()
+    append({ product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, });
     setFormAction('Add');
     setVisibleXL(true)
   }
