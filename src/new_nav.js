@@ -142,7 +142,7 @@ const new_nav = [
       {
         component: CNavItem,
         name: 'Vendors',
-        to: '/base/accordion',
+        to: '/vendors',
       },
       {
         component: CNavItem,

@@ -59,6 +59,7 @@ const Customers = React.lazy(() => import('./views/pages/customers'))
 const SalesOrder = React.lazy(() => import('./views/pages/salesOrder'))
 
 /* Purchase Order */
+const Vendor = React.lazy(() => import('./views/pages/vendors'))
 const PurchaseOrder = React.lazy(() => import('./views/pages/purchaseOrder'))
 
 
@@ -110,8 +111,10 @@ const routes = [
   { path: '/products', name: 'Products', element: Products },
   { path: '/category', name: 'Category', element: Category },
   { path: '/customers', name: 'Customers', element: Customers },
-  { path: '/sales-orders', name: 'SalesOrder', element: SalesOrder },
-  { path: '/purchase-orders', name: 'PurchaseOrder', element: PurchaseOrder },
+  { path: '/sales-orders', name: 'Sales Order', element: SalesOrder },
+  { path: '/purchase-orders', name: 'Purchase Order', element: PurchaseOrder },
+  { path: '/vendors', name: 'Vendor', element: Vendor },
+
 ]
 
 export default routes
