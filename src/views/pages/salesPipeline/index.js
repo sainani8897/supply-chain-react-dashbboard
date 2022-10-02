@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { DateTime } from "luxon";
 import {
   CCard,
@@ -42,19 +42,24 @@ import {
   CDropdownMenu,
   CDropdownItem,
   CDropdownDivider,
-  CFormFloating
+  CFormFloating,
+  CNav,
+  CNavItem,
+  CNavLink,
+  CTabContent,
+  CTabPane,
+  CAlert,
+  CAlertHeading
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilArrowCircleLeft,
-  cilArrowCircleRight,
   cilBell, cilPencil, cilTrash,
 } from '@coreui/icons'
 import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
 import axios from 'axios';
 
-const SalesOrder = () => {
+const SalesPipeline = () => {
   const items = [];
   const [visibleXL, setVisibleXL] = useState(false)
   const [delModal, setDelVisible] = useState(false)
@@ -69,6 +74,7 @@ const SalesOrder = () => {
   const [validationAlert, setValidationAlert] = useState(false)
   const [searchParams] = useSearchParams();
   const [addItems, setItems] = useState([{ product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, }]);
+  const [activeKey, setActiveKey] = useState(1);
 
   let paginationConfig = {
     totalPages: 1,
@@ -328,6 +334,7 @@ const SalesOrder = () => {
   const onEdit = (data) => {
     resetForm()
     setFormAction('Update');
+    console.log(data.sales_executives.map((exe) => exe._id));
     setVisibleXL(!visibleXL);
     setValue('customer_id', data.customer_id._id)
     setValue('order_no', data.order_no)
@@ -398,86 +405,44 @@ const SalesOrder = () => {
       </CCol>
 
       <CCol xs={12}>
-        <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Sales Order</CButton>
+
         <CCard className="mb-4">
           <CCardHeader>
             Sales Order
           </CCardHeader>
           <CCardBody>
-            {/* <p className="text-medium-emphasis small">
-              Using the most basic table CoreUI, here&#39;s how <code>&lt;CTable&gt;</code>-based
-              tables look in CoreUI.
-            </p> */}
-            {/* <DocsExample href="components/table"> */}
-            <CTable align="middle" className="mb-0 border" hover responsive>
-              <CTableHead color="dark">
-                <CTableRow>
-                  <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Customer </CTableHeaderCell>
-                  <CTableHeaderCell scope="col">#Order Id</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Sale Date</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Status</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Action</  CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
-              <CTableBody>
-                {data.docs?.map((product, index) =>
-                  <CTableRow key={product.id}>
-                    <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{product.customer_id.name}</CTableDataCell>
-                    <CTableDataCell>{product.order_no}</CTableDataCell>
-                    <CTableDataCell>{product.sale_date}</CTableDataCell>
-                    <CTableDataCell>{product.sale_details?.total}</CTableDataCell>
-                    <CTableDataCell>{product.status}</CTableDataCell>
-                    <CTableDataCell>
-                      <CTooltip
-                        content="Edit"
-                        placement="top"
-                      >
-                        <CButton color="info" onClick={() => onEdit(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilPencil} /></CButton>
-                      </CTooltip>
-                      <CTooltip
-                        content="Delete"
-                        placement="top"
-                      >
-                        <CButton color="danger" onClick={() => onDelete(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilTrash} /></CButton>
-                      </CTooltip>
-                      <CTooltip
-                        content="View Order"
-                        placement="top"
-                      >
-                        <Link to={`/sales-pipeline/${product._id}`}>
-                          <CButton color="info"  className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilArrowCircleRight} /></CButton>
-                        </Link>
-                      </CTooltip>
-                    </CTableDataCell>
-                  </CTableRow>
-                )}
-              </CTableBody>
-
-            </CTable>
-            <div className='mt-2 px-2 float-end'>
-              <Pagination
-                threeDots
-                totalPages={data.totalPages}
-                currentPage={data.page}
-                showMax={7}
-                prevNext
-                activeBgColor="#fffff"
-                activeBorderColor="#7bc9c9"
-                href="http://localhost:3000/#/sales-orders?page=*"
-                pageOneHref="http://localhost:3000/#/sales-orders"
-              />
-            </div>
-
-            {/* Modal start Here */}
-            <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
-              <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
-                <CModalHeader>
-                  <CModalTitle>{formAction} Sales Order</CModalTitle>
-                </CModalHeader>
-                <CModalBody>
+            <CNav variant="pills" role="tablist">
+              <CNavItem>
+                <CNavLink
+                  href="javascript:void(0);"
+                  active={activeKey === 1}
+                  onClick={() => setActiveKey(1)}
+                >
+                  Home
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink
+                  href="javascript:void(0);"
+                  active={activeKey === 2}
+                  onClick={() => setActiveKey(2)}
+                >
+                  Profile
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink
+                  href="javascript:void(0);"
+                  active={activeKey === 3}
+                  onClick={() => setActiveKey(3)}
+                >
+                  Contact
+                </CNavLink>
+              </CNavItem>
+            </CNav>
+            <CTabContent>
+              <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={activeKey === 1}>
+                <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                   <CCol xs={12}>
                     <CRow className="row g-3 px-3 mt-1 mb-5">
                       <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
@@ -615,13 +580,33 @@ const SalesOrder = () => {
 
                     </CRow>
                   </CCol>
-                </CModalBody>
-                <CModalFooter className='mt-4'>
-                  <input type="hidden"  {...register("_id", options._id)}></input>
-                  <CButton type="submit" className="me-md-2" >Submit</CButton>
-                  <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
-                </CModalFooter>
-              </CForm>
+                </CForm>
+              </CTabPane>
+              <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={activeKey === 2}>
+                Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid.
+                Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan
+                four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft
+                beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda
+                labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit
+                sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean
+                shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown,
+                tumblr butcher vero sint qui sapiente accusamus tattooed echo park.
+              </CTabPane>
+              <CTabPane role="tabpanel" aria-labelledby="contact-tab" visible={activeKey === 3}>
+                Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic
+                lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork
+                tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica.
+                DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork. Williamsburg banh
+                mi whatever gluten-free, carles pitchfork biodiesel fixie etsy retro mlkshk vice blog.
+                Scenester cred you probably haven't heard of them, vinyl craft beer blog stumptown.
+                Pitchfork sustainable tofu synth chambray yr.
+              </CTabPane>
+            </CTabContent>
+
+
+            {/* Modal start Here */}
+            <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
+
             </CModal>
 
             <CModal alignment="center" visible={delModal} onClose={() => setDelVisible(false)}>
@@ -654,4 +639,4 @@ const SalesOrder = () => {
   )
 }
 
-export default SalesOrder
+export default SalesPipeline
