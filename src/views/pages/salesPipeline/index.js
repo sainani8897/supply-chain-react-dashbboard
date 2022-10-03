@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams,useParams,useNavigate } from 'react-router-dom';
 import { DateTime } from "luxon";
 import {
   CCard,
@@ -69,12 +69,14 @@ const SalesPipeline = () => {
   const [categories, setCategory] = useState({});
   const [salesExecutives, setSalesExe] = useState({});
   const [customers, setCustomers] = useState({});
-  const [productData, setProduct] = useState({});
+  const [order, setOrder] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
   const [searchParams] = useSearchParams();
   const [addItems, setItems] = useState([{ product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, }]);
   const [activeKey, setActiveKey] = useState(1);
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   let paginationConfig = {
     totalPages: 1,
@@ -199,6 +201,8 @@ const SalesPipeline = () => {
     getProducts();
     getCustomers();
     getUsers();
+    getOrder(id);
+
   }, [])
 
   const reload = async () => {
@@ -265,7 +269,7 @@ const SalesPipeline = () => {
       })
   }
 
-  const gerProductById = async (id, index) => {
+  const getProductById = async (id, index) => {
     // const filter = {_id:id} 
     return await axios
       .get(process.env.REACT_APP_API_URL + "/Products", { params: { _id: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
@@ -290,6 +294,23 @@ const SalesPipeline = () => {
       }).catch((err) => {
         console.error(err);
         // setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
+      })
+  }
+
+  const getOrder = async (id, index) => {
+    return await axios
+      .get(process.env.REACT_APP_API_URL + "/sales-order", { params: { _id: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((res) => {
+        console.log(res);
+        if(res.data.status===404)
+          return navigate('/404')
+        const order = res.data.data?.docs[0] ?? {};
+        console.log(order);
+        onOrder(order)
+        setOrder(order);
+      }).catch((err) => {
+        console.error(err);
+        navigate('/500');
       })
   }
 
@@ -331,11 +352,8 @@ const SalesPipeline = () => {
   }
 
   /* Edit Form */
-  const onEdit = (data) => {
+  const onOrder = (data) => {
     resetForm()
-    setFormAction('Update');
-    console.log(data.sales_executives.map((exe) => exe._id));
-    setVisibleXL(!visibleXL);
     setValue('customer_id', data.customer_id._id)
     setValue('order_no', data.order_no)
     setValue('status', data.status)
@@ -411,14 +429,14 @@ const SalesPipeline = () => {
             Sales Order
           </CCardHeader>
           <CCardBody>
-            <CNav variant="pills" role="tablist">
+            <CNav variant="pills" layout="fill" role="tablist">
               <CNavItem>
                 <CNavLink
                   href="javascript:void(0);"
                   active={activeKey === 1}
                   onClick={() => setActiveKey(1)}
                 >
-                  Home
+                  Sales Order
                 </CNavLink>
               </CNavItem>
               <CNavItem>
@@ -440,7 +458,7 @@ const SalesPipeline = () => {
                 </CNavLink>
               </CNavItem>
             </CNav>
-            <CTabContent>
+            <CTabContent className="mt-4">
               <CTabPane role="tabpanel" aria-labelledby="home-tab" visible={activeKey === 1}>
                 <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                   <CCol xs={12}>
@@ -508,7 +526,7 @@ const SalesPipeline = () => {
                                     <tr id='addr0'>
                                       <td>{index + 1}</td>
                                       <td>
-                                        <CFormSelect className="form-control" key={index} id="inputState"  {...register(`items[${index}].product_id`)} onChange={(e) => { gerProductById(e.target.value, index) }} >
+                                        <CFormSelect className="form-control" key={index} id="inputState"  {...register(`items[${index}].product_id`)} onChange={(e) => { getProductById(e.target.value, index) }} >
                                           <option value="">... Select Product ...</option>
                                           {products.docs?.map((product, index) => {
                                             return <option key={index} value={product._id}>{product.name}</option>
@@ -527,13 +545,13 @@ const SalesPipeline = () => {
                             </table>
                           </div>
                         </div>
-                        <div className="row clearfix">
+                        {/* <div className="row clearfix">
                           <div className="col-md-12">
                             <button id="add_row" type='button' onClick={() => { addRow() }} className="btn btn-default pull-left">Add Row</button>
                             <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button>
                           </div>
-                        </div>
-                        <div className="row clearfix" style={{ "margin-top": "20px" }} > {/* style={"margin-top:20px"} */}
+                        </div> */}
+                        <div className="row clearfix" style={{ marginTop: "20px" }} > {/* style={"margin-top:20px"} */}
                           <div className="col-md-4">
                             <table className="table table-bordered table-hover" id="tab_logic_total">
                               <tbody>
