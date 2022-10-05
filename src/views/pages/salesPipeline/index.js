@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
-import { useSearchParams,useParams,useNavigate } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { DateTime } from "luxon";
 import {
   CCard,
@@ -77,6 +77,9 @@ const SalesPipeline = () => {
   const [activeKey, setActiveKey] = useState(1);
   const { id } = useParams();
   const navigate = useNavigate();
+  const [packageTab, setpackageTab] = useState(true)
+  const [shipmentTab, setShipmentTab] = useState(true)
+  const [invoiceTab, setInvoiceTab] = useState(true)
 
   let paginationConfig = {
     totalPages: 1,
@@ -108,12 +111,7 @@ const SalesPipeline = () => {
 
   /* Form */
   const onFormSubmit = (data) => {
-    if (formAction == 'Add') {
-      create(data);
-    }
-    else {
       updateData(data)
-    }
   };
 
   const validationAlertPop = (errorObj) => {
@@ -151,9 +149,10 @@ const SalesPipeline = () => {
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
-        reload();
-        setVisibleXL(false) /* Close the Pop Here */
-        toast.success(response.data.message ?? "Success")
+        toast.success('Saved Successfully!')
+        setpackageTab(false);
+        setActiveKey(2);
+
       })
       .catch((error, response) => {
         console.log(response.data);
@@ -302,7 +301,7 @@ const SalesPipeline = () => {
       .get(process.env.REACT_APP_API_URL + "/sales-order", { params: { _id: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         console.log(res);
-        if(res.data.status===404)
+        if (res.data.status === 404)
           return navigate('/404')
         const order = res.data.data?.docs[0] ?? {};
         console.log(order);
@@ -426,7 +425,7 @@ const SalesPipeline = () => {
 
         <CCard className="mb-4">
           <CCardHeader>
-            Sales Order
+            Sales Order (Pipeline)
           </CCardHeader>
           <CCardBody>
             <CNav variant="pills" layout="fill" role="tablist">
@@ -444,8 +443,9 @@ const SalesPipeline = () => {
                   href="javascript:void(0);"
                   active={activeKey === 2}
                   onClick={() => setActiveKey(2)}
+                  disabled={packageTab}
                 >
-                  Profile
+                  Packages
                 </CNavLink>
               </CNavItem>
               <CNavItem>
@@ -453,8 +453,19 @@ const SalesPipeline = () => {
                   href="javascript:void(0);"
                   active={activeKey === 3}
                   onClick={() => setActiveKey(3)}
+                  disabled={shipmentTab}
                 >
-                  Contact
+                  Shipment
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink
+                  href="javascript:void(0);"
+                  active={activeKey === 4}
+                  onClick={() => setActiveKey(4)}
+                  disabled={invoiceTab}
+                >
+                  Invoice
                 </CNavLink>
               </CNavItem>
             </CNav>
@@ -473,7 +484,7 @@ const SalesPipeline = () => {
                         </CCol>
                       </fieldset> */}
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Customer" {...register("customer_id", options.customer_id)}>
+                        <CFormSelect id="inputState" floatingLabel="Customer" disabled  {...register("customer_id", options.customer_id)}>
                           <option value="">...</option>
                           {customers.docs?.map((customer, index) => {
                             return <option key={index} value={customer._id}>{customer.name}</option>
@@ -481,22 +492,22 @@ const SalesPipeline = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Sales Order#" {...register("order_no", options.order_no)} />
+                        <CFormInput type="text" id="inputEmail4" disabled floatingLabel="Sales Order#" {...register("order_no", options.order_no)} />
                         {errors.order_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Reference#" {...register("reference", options.reference)} />
+                        <CFormInput type="text" id="inputEmail4" disabled floatingLabel="Reference#" {...register("reference", options.reference)} />
                         {errors.reference && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Sales Order Date" {...register("sale_date", options.sale_date)} />
+                        <CFormInput type="date" id="inputPassword4" disabled floatingLabel="Sales Order Date" {...register("sale_date", options.sale_date)} />
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment_date", options.shipment_date)} />
+                        <CFormInput type="date" id="inputPassword4" disabled floatingLabel="Shipment Date" {...register("shipment_date", options.shipment_date)} />
                       </CCol>
 
                       <CCol md={6}>
-                        <CFormSelect id="inputState" multiple floatingLabel="Sales Executive" {...register("sales_executives[]", options.sales_executive)}>
+                        <CFormSelect id="inputState" multiple disabled floatingLabel="Sales Executive" {...register("sales_executives[]", options.sales_executive)}>
                           <option value="">...</option>
                           {salesExecutives.docs?.map((user, index) => {
                             return <option key={index} value={user._id}>{user.name}</option>
@@ -517,7 +528,6 @@ const SalesPipeline = () => {
                                   <th className="text-center"> Qty </th>
                                   <th className="text-center"> Price </th>
                                   <th className="text-center"> Total </th>
-                                  <th className="text-center"> . </th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -526,17 +536,16 @@ const SalesPipeline = () => {
                                     <tr id='addr0'>
                                       <td>{index + 1}</td>
                                       <td>
-                                        <CFormSelect className="form-control" key={index} id="inputState"  {...register(`items[${index}].product_id`)} onChange={(e) => { getProductById(e.target.value, index) }} >
+                                        <CFormSelect disabled className="form-control" key={index} id="inputState"  {...register(`items[${index}].product_id`)} onChange={(e) => { getProductById(e.target.value, index) }} >
                                           <option value="">... Select Product ...</option>
                                           {products.docs?.map((product, index) => {
                                             return <option key={index} value={product._id}>{product.name}</option>
                                           })};
                                         </CFormSelect>
                                       </td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].qty`)} onChange={(e) => { handleQtyChange(e.target.value, index) }} /></td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].rate`)} readOnly /></td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].amount`)} readOnly /></td>
-                                      <td><CButton type="button" onClick={() => removeItem(index)} className="me-md-2" color="danger"><CIcon size={'sm'} icon={cilTrash} /></CButton></td>
+                                      <td><CFormInput disabled type="number" id="inputPassword4"  {...register(`items[${index}].qty`)} onChange={(e) => { handleQtyChange(e.target.value, index) }} /></td>
+                                      <td><CFormInput disabled type="number" id="inputPassword4"  {...register(`items[${index}].rate`)} readOnly /></td>
+                                      <td><CFormInput disabled type="number" id="inputPassword4"  {...register(`items[${index}].amount`)} readOnly /></td>
                                     </tr>)
                                 }
                                 )}
@@ -558,7 +567,7 @@ const SalesPipeline = () => {
                                 <tr>
                                   <th className="text-center">Sub Total</th>
                                   <td className="text-center">
-                                    <input type="text" placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
+                                    <input type="text" placeholder='0.00'  className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
                                   </td>
                                 </tr>
                                 <tr>
@@ -595,6 +604,13 @@ const SalesPipeline = () => {
                         </CFormTextarea>
                       </CCol>
 
+                      <CCol md={12} className="mt-4">
+                        <div className='float-end'>
+                          <input type="hidden"  {...register("_id", options._id)}></input>
+                          <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
+                          <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
+                        </div>
+                      </CCol>
 
                     </CRow>
                   </CCol>
@@ -611,6 +627,15 @@ const SalesPipeline = () => {
                 tumblr butcher vero sint qui sapiente accusamus tattooed echo park.
               </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="contact-tab" visible={activeKey === 3}>
+                Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic
+                lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork
+                tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica.
+                DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork. Williamsburg banh
+                mi whatever gluten-free, carles pitchfork biodiesel fixie etsy retro mlkshk vice blog.
+                Scenester cred you probably haven't heard of them, vinyl craft beer blog stumptown.
+                Pitchfork sustainable tofu synth chambray yr.
+              </CTabPane>
+              <CTabPane role="tabpanel" aria-labelledby="contact-tab" visible={activeKey === 4}>
                 Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic
                 lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork
                 tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica.
