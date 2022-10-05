@@ -80,6 +80,7 @@ const SalesPipeline = () => {
   const [packageTab, setpackageTab] = useState(true)
   const [shipmentTab, setShipmentTab] = useState(true)
   const [invoiceTab, setInvoiceTab] = useState(true)
+  const [packageItems,setPackageItems] = useState({});
 
   let paginationConfig = {
     totalPages: 1,
@@ -111,7 +112,12 @@ const SalesPipeline = () => {
 
   /* Form */
   const onFormSubmit = (data) => {
-      updateData(data)
+    updateData(data)
+  };
+
+  /* Form */
+  const onPackageSubmit = (data) => {
+    (data)
   };
 
   const validationAlertPop = (errorObj) => {
@@ -160,7 +166,27 @@ const SalesPipeline = () => {
       })
   }
 
+  const packageData = (data) => {
+    axios.patch(process.env.REACT_APP_API_URL + "/sales-order",
+      { payload: data },
+      { headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((response) => {
+        toast.success('Saved Successfully!')
+        setpackageTab(false);
+        setActiveKey(2);
+
+      })
+      .catch((error, response) => {
+        console.log(response.data);
+        toast.error(response.data.message ?? "Opps something went wrong!")
+      })
+  }
+
   const onErrors = (errors) => {
+    validationAlertPop(errors);
+  };
+
+  const onPackageErrors = (errors) => {
     validationAlertPop(errors);
   };
 
@@ -380,6 +406,9 @@ const SalesPipeline = () => {
     setValue('units_of_measurement', data.units_of_measurement)
     setValue('type', data.type)
     setValue('_id', data._id)
+    setValue('package',data.items);
+
+    /* Set Items */
   };
 
   /* Delete  */
@@ -567,7 +596,7 @@ const SalesPipeline = () => {
                                 <tr>
                                   <th className="text-center">Sub Total</th>
                                   <td className="text-center">
-                                    <input type="text" placeholder='0.00'  className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
+                                    <input type="text" placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
                                   </td>
                                 </tr>
                                 <tr>
@@ -617,14 +646,79 @@ const SalesPipeline = () => {
                 </CForm>
               </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={activeKey === 2}>
-                Food truck fixie locavore, accusamus mcsweeney's marfa nulla single-origin coffee squid.
-                Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan
-                four loko farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft
-                beer mlkshk aliquip jean shorts ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda
-                labore aesthetic magna delectus mollit. Keytar helvetica VHS salvia yr, vero magna velit
-                sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson 8-bit, sustainable jean
-                shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester stumptown,
-                tumblr butcher vero sint qui sapiente accusamus tattooed echo park.
+                {/* Packages Form */}
+                <CForm onSubmit={handleSubmit(onPackageSubmit, onPackageErrors)}>
+                  <CCol xs={12}>
+                    <CRow className="row g-3 px-3 mt-1 mb-5">
+                      <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputEmail4"  floatingLabel="Package Slip#" {...register("package_slip", options.order_no)} />
+                        {errors.order_no && <div className='invalid-validation-css'>This field is required</div>}
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="date" id="inputPassword4"  floatingLabel="Date" {...register("sale_date", options.sale_date)} />
+                      </CCol>
+                      <h5>Items</h5>
+                      {/* Product Info */}
+                      <div className="container">
+                        <div className="row clearfix">
+                          <div className="col-md-12">
+                            <table className="table table-bordered table-hover" id="tab_logic">
+                              <thead>
+                                <tr>
+                                  <th className="text-center"> # </th>
+                                  <th className="text-center"> Product </th>
+                                  <th className="text-center"> .Pcs </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {fields?.map((element, index) => {
+                                  return (
+                                    <tr id='addr0'>
+                                      <td>{index + 1}</td>
+                                      <td>
+                                        <div><b>ITEM:</b>{ element.product_id }</div>
+                                        <div>Qty:{ element.qty }</div>
+                                        <div>Rate:{ element.rate }</div>
+                                      <td>
+                                        <CFormInput  type="hidden" id="inputPcs"  {...register(`package[${index}].product_id`)}  /></td>
+                                        
+                                      </td>
+                                      <td><CFormInput  type="number" id="inputPcs"  {...register(`package[${index}].pcs`)}  /></td>
+                                    </tr>)
+                                }
+                                )}
+                                <tr id='addr1'></tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        {/* <div className="row clearfix">
+                          <div className="col-md-12">
+                            <button id="add_row" type='button' onClick={() => { addRow() }} className="btn btn-default pull-left">Add Row</button>
+                            <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button>
+                          </div>
+                        </div> */}
+                      </div>
+
+                      <h5>Additional Information</h5>
+
+                      <CCol md={12}>
+                        <CFormTextarea id="cost_data" floatingLabel="Package Notes" style={{ height: '100px' }} {...register("notes", options.notes)} rows="6">
+                        </CFormTextarea>
+                      </CCol>
+
+                      <CCol md={12} className="mt-4">
+                        <div className='float-end'>
+                          <input type="hidden"  {...register("_id", options._id)}></input>
+                          <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
+                          <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
+                        </div>
+                      </CCol>
+
+                    </CRow>
+                  </CCol>
+                </CForm>
               </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="contact-tab" visible={activeKey === 3}>
                 Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic
