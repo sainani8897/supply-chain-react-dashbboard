@@ -49,7 +49,8 @@ import {
   CTabContent,
   CTabPane,
   CAlert,
-  CAlertHeading
+  CAlertHeading,
+  CBadge
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
@@ -70,6 +71,7 @@ const SalesPipeline = () => {
   const [salesExecutives, setSalesExe] = useState({});
   const [customers, setCustomers] = useState({});
   const [order, setOrder] = useState({});
+  const [packageData, setPackage] = useState(null);
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
   const [searchParams] = useSearchParams();
@@ -77,10 +79,10 @@ const SalesPipeline = () => {
   const [activeKey, setActiveKey] = useState(1);
   const { id } = useParams();
   const navigate = useNavigate();
-  const [packageTab, setpackageTab] = useState(true)
-  const [shipmentTab, setShipmentTab] = useState(true)
-  const [invoiceTab, setInvoiceTab] = useState(true)
-  const [packageItems,setPackageItems] = useState({});
+  const [packageTab, setpackageTab] = useState(false)
+  const [shipmentTab, setShipmentTab] = useState(false)
+  const [invoiceTab, setInvoiceTab] = useState(false)
+  const [packageItems, setPackageItems] = useState({});
 
   let paginationConfig = {
     totalPages: 1,
@@ -115,9 +117,9 @@ const SalesPipeline = () => {
     updateData(data)
   };
 
-  /* Form */
+  /* Package Form */
   const onPackageSubmit = (data) => {
-    (data)
+    createPackage(data);
   };
 
   const validationAlertPop = (errorObj) => {
@@ -150,6 +152,24 @@ const SalesPipeline = () => {
       })
   }
 
+
+  const createPackage = (data) => {
+    axios.post(process.env.REACT_APP_API_URL + "/packages",
+      { payload: data },
+      { headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((response) => {
+        setVisibleXL(false) /* Close the Pop Here */
+        reload();
+        toast.success(response.data.message ?? "Success")
+      })
+      .catch((error) => {
+        const data = error.response.data
+        const errObj = data.error.errors;
+        toast.error(error.response.data.message ?? "Opps something went wrong!")
+        validationAlertPop({ err: error.response.data });
+      })
+  }
+
   const updateData = (data) => {
     axios.patch(process.env.REACT_APP_API_URL + "/sales-order",
       { payload: data },
@@ -166,8 +186,8 @@ const SalesPipeline = () => {
       })
   }
 
-  const packageData = (data) => {
-    axios.patch(process.env.REACT_APP_API_URL + "/sales-order",
+  const updatePackage = (data) => {
+    axios.patch(process.env.REACT_APP_API_URL + "/packages",
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
@@ -179,6 +199,16 @@ const SalesPipeline = () => {
       .catch((error, response) => {
         console.log(response.data);
         toast.error(response.data.message ?? "Opps something went wrong!")
+      })
+  }
+
+  const getpackageData = (data) => {
+    axios.get(process.env.REACT_APP_API_URL + "/packages", { params: { sales_order: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((response) => {
+        setPackage(response.data.data?.docs[0] ?? null);
+      })
+      .catch((error) => {
+        toast.error("Opps something went wrong!")
       })
   }
 
@@ -406,7 +436,7 @@ const SalesPipeline = () => {
     setValue('units_of_measurement', data.units_of_measurement)
     setValue('type', data.type)
     setValue('_id', data._id)
-    setValue('package',data.items);
+    setValue('package', data.items);
 
     /* Set Items */
   };
@@ -438,6 +468,11 @@ const SalesPipeline = () => {
     return true;
   }
 
+  /* Handle Submit */
+  const handlePackage = () => {
+    getpackageData({ sales_order: id });
+    setActiveKey(2);
+  }
 
   return (
     <CRow>
@@ -471,7 +506,7 @@ const SalesPipeline = () => {
                 <CNavLink
                   href="javascript:void(0);"
                   active={activeKey === 2}
-                  onClick={() => setActiveKey(2)}
+                  onClick={() => handlePackage()}
                   disabled={packageTab}
                 >
                   Packages
@@ -647,78 +682,172 @@ const SalesPipeline = () => {
               </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="profile-tab" visible={activeKey === 2}>
                 {/* Packages Form */}
-                <CForm onSubmit={handleSubmit(onPackageSubmit, onPackageErrors)}>
-                  <CCol xs={12}>
-                    <CRow className="row g-3 px-3 mt-1 mb-5">
-                      <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
-                      <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4"  floatingLabel="Package Slip#" {...register("package_slip", options.order_no)} />
-                        {errors.order_no && <div className='invalid-validation-css'>This field is required</div>}
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4"  floatingLabel="Date" {...register("sale_date", options.sale_date)} />
-                      </CCol>
-                      <h5>Items</h5>
+
+
+                {
+                  packageData ?
+
+                    (<div>
+                      <section className="vh-10" > {/* style="background-color: #eee;" */}
+                        <div className="container py-5">
+                          <div className="row d-flex justify-content-center align-items-center h-100">
+                            <div className="col">
+                              <div className="card card-stepper" style={{ borderRadius: "10px" }} >
+                                <div className="card-body p-4">
+
+                                  <div className="d-flex justify-content-between align-items-center">
+                                    <div className="d-flex flex-column">
+                                      <span className="lead fw-normal"># {packageData.package_slip}</span>
+                                      <span className="text-muted small">{DateTime.fromISO(packageData.date).toFormat('dd LLL , yyyy')}</span>
+                                    </div>
+                                    <div>
+                                      <span className="mx-5">Status: <strong style={{ "color": "green" }}>{packageData.status}</strong></span>
+                                      <button className="btn btn-outline-primary mx-2" type="button">Mark as Delivered</button>
+                                      <button className="btn btn-outline-primary" type="button">View Details</button>
+                                    </div>
+                                  </div>
+                                  <hr className="my-4" />
+
+                                  <div className="d-flex flex-row justify-content-between align-items-center align-content-center">
+                                    <span className="dot"></span>
+                                    <hr className="flex-fill track-line" /><span className="dot"></span>
+                                    <hr className="flex-fill track-line" /><span className="dot"></span>
+                                    <hr className="flex-fill track-line" /><span className="dot"></span>
+                                    <hr className="flex-fill track-line" /><span
+                                      className="d-flex justify-content-center align-items-center big-dot dot">
+                                      <i className="fa fa-check text-white"></i></span>
+                                  </div>
+
+                                  <div className="d-flex flex-row justify-content-between align-items-center">
+                                    <div className="d-flex flex-column align-items-start"><span>15 Mar</span><span>Order placed</span>
+                                    </div>
+                                    <div className="d-flex flex-column justify-content-center"><span>15 Mar</span><span>Order
+                                      placed</span></div>
+                                    <div className="d-flex flex-column justify-content-center align-items-center"><span>15
+                                      Mar</span><span>Order Dispatched</span></div>
+                                    <div className="d-flex flex-column align-items-center"><span>15 Mar</span><span>Out for
+                                      delivery</span></div>
+                                    <div className="d-flex flex-column align-items-end"><span>15 Mar</span><span>Delivered</span></div>
+                                  </div>
+
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
                       {/* Product Info */}
                       <div className="container">
                         <div className="row clearfix">
                           <div className="col-md-12">
-                            <table className="table table-bordered table-hover" id="tab_logic">
-                              <thead>
+                            <table className="table table-hover" id="tab_logic">
+                              <thead class="thead-dark">
                                 <tr>
-                                  <th className="text-center"> # </th>
-                                  <th className="text-center"> Product </th>
-                                  <th className="text-center"> .Pcs </th>
+                                  <th scope="col"> # </th>
+                                  <th scope="col"> Product </th>
+                                  <th scope="col"> Qty </th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {fields?.map((element, index) => {
+                                {packageData?.package?.map((element, index) => {
                                   return (
-                                    <tr id='addr0'>
+                                    <tr id={index + "addr2"}>
                                       <td>{index + 1}</td>
                                       <td>
-                                        <div><b>ITEM:</b>{ element.product_id }</div>
-                                        <div>Qty:{ element.qty }</div>
-                                        <div>Rate:{ element.rate }</div>
-                                      <td>
-                                        <CFormInput  type="hidden" id="inputPcs"  {...register(`package[${index}].product_id`)}  /></td>
-                                        
+                                        {element.product_id?.name}
+                                        <CFormInput type="hidden" id="inputPcs"  {...register(`package[${index}].product_id`)} />
                                       </td>
-                                      <td><CFormInput  type="number" id="inputPcs"  {...register(`package[${index}].pcs`)}  /></td>
+                                      <td>1</td>
                                     </tr>)
                                 }
                                 )}
-                                <tr id='addr1'></tr>
                               </tbody>
                             </table>
                           </div>
                         </div>
-                        {/* <div className="row clearfix">
+
+                      </div>
+                    </div>)
+                    : (
+                      <CForm onSubmit={handleSubmit(onPackageSubmit, onPackageErrors)}>
+                        <CCol xs={12}>
+
+                          {/* Show Package Form  */}
+                          <CRow className="row g-3 px-3 mt-1 mb-5">
+                            <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
+                            <CCol md={6}>
+                              <CFormInput type="text" id="inputEmail4" floatingLabel="Package Slip#" {...register("package_slip", options.order_no)} />
+                              {errors.order_no && <div className='invalid-validation-css'>This field is required</div>}
+                            </CCol>
+                            <CCol md={6}>
+                              <CFormInput type="date" id="inputPassword4" floatingLabel="Date" {...register("date", options.date)} />
+                            </CCol>
+                            <h5>Items</h5>
+                            {/* Product Info */}
+                            <div className="container">
+                              <div className="row clearfix">
+                                <div className="col-md-12">
+                                  <table className="table table-bordered table-hover" id="tab_logic">
+                                    <thead>
+                                      <tr>
+                                        <th className="text-center"> # </th>
+                                        <th className="text-center"> Product </th>
+                                        <th className="text-center"> .Pcs </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {fields?.map((element, index) => {
+                                        return (
+                                          <tr id='addr0'>
+                                            <td>{index + 1}</td>
+                                            <td>
+                                              <div><b>ITEM:</b>{element.product_id}</div>
+                                              <div>Qty:{element.qty}</div>
+                                              <div>Rate:{element.rate}</div>
+                                              <CFormInput type="hidden" id="inputPcs"  {...register(`package[${index}].product_id`)} />
+                                            </td>
+                                            <td><CFormInput type="number" id="inputPcs"  {...register(`package[${index}].pcs`)} /></td>
+                                          </tr>)
+                                      }
+                                      )}
+                                      <tr id='addr1'></tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                              {/* <div className="row clearfix">
                           <div className="col-md-12">
                             <button id="add_row" type='button' onClick={() => { addRow() }} className="btn btn-default pull-left">Add Row</button>
                             <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button>
                           </div>
                         </div> */}
-                      </div>
+                            </div>
 
-                      <h5>Additional Information</h5>
+                            <h5>Additional Information</h5>
 
-                      <CCol md={12}>
-                        <CFormTextarea id="cost_data" floatingLabel="Package Notes" style={{ height: '100px' }} {...register("notes", options.notes)} rows="6">
-                        </CFormTextarea>
-                      </CCol>
+                            <CCol md={12}>
+                              <CFormTextarea id="cost_data" floatingLabel="Package Notes" style={{ height: '100px' }} {...register("notes", options.notes)} rows="6">
+                              </CFormTextarea>
+                            </CCol>
 
-                      <CCol md={12} className="mt-4">
-                        <div className='float-end'>
-                          <input type="hidden"  {...register("_id", options._id)}></input>
-                          <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
-                          <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
-                        </div>
-                      </CCol>
+                            <CCol md={12} className="mt-4">
+                              <div className='float-end'>
+                                <input type="hidden"  {...register("sales_order")} value={id}></input>
+                                <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
+                                <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
+                              </div>
+                            </CCol>
 
-                    </CRow>
-                  </CCol>
-                </CForm>
+                          </CRow>
+
+                        </CCol>
+                      </CForm>
+                    )
+                }
+
+
+
               </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="contact-tab" visible={activeKey === 3}>
                 Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic

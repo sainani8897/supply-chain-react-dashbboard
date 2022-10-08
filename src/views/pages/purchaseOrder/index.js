@@ -461,8 +461,8 @@ const PurchaseOrder = () => {
                 prevNext
                 activeBgColor="#fffff"
                 activeBorderColor="#7bc9c9"
-                href="http://localhost:3000/#/purchase-order?page=*"
-                pageOneHref="http://localhost:3000/#/purchase-order"
+                href="http://localhost:3000/purchase-order?page=*"
+                pageOneHref="http://localhost:3000/purchase-order"
               />
             </div>
 

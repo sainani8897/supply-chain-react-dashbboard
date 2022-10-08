@@ -466,8 +466,8 @@ const SalesOrder = () => {
                 prevNext
                 activeBgColor="#fffff"
                 activeBorderColor="#7bc9c9"
-                href="http://localhost:3000/#/sales-orders?page=*"
-                pageOneHref="http://localhost:3000/#/sales-orders"
+                href="http://localhost:3000/sales-orders?page=*"
+                pageOneHref="http://localhost:3000/sales-orders"
               />
             </div>
 
