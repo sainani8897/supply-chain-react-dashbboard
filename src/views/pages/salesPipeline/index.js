@@ -122,6 +122,11 @@ const SalesPipeline = () => {
     createPackage(data);
   };
 
+  /* Shipping Form */
+  const onShippingSubmit = (data) => {
+    createShipping(data);
+  };
+
   const validationAlertPop = (errorObj) => {
     setValidationAlert(true);
     const err = [];
@@ -160,6 +165,21 @@ const SalesPipeline = () => {
       .then((response) => {
         setVisibleXL(false) /* Close the Pop Here */
         reload();
+        toast.success(response.data.message ?? "Success")
+      })
+      .catch((error) => {
+        const data = error.response.data
+        const errObj = data.error.errors;
+        toast.error(error.response.data.message ?? "Opps something went wrong!")
+        validationAlertPop({ err: error.response.data });
+      })
+  }
+
+  const createShipping = (data) => {
+    axios.post(process.env.REACT_APP_API_URL + "/shipment",
+      { payload: data },
+      { headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((response) => {
         toast.success(response.data.message ?? "Success")
       })
       .catch((error) => {
@@ -217,6 +237,10 @@ const SalesPipeline = () => {
   };
 
   const onPackageErrors = (errors) => {
+    validationAlertPop(errors);
+  };
+
+  const onShippingErrors = (errors) => {
     validationAlertPop(errors);
   };
 
@@ -703,7 +727,7 @@ const SalesPipeline = () => {
                                     <div>
                                       <span className="mx-5">Status: <strong style={{ "color": "green" }}>{packageData.status}</strong></span>
                                       <button className="btn btn-outline-primary mx-2" type="button">Mark as Delivered</button>
-                                      <button className="btn btn-outline-primary" type="button">View Details</button>
+                                      <button className="btn btn-outline-primary" type="button">Create Shipment</button>
                                     </div>
                                   </div>
                                   <hr className="my-4" />
@@ -766,6 +790,12 @@ const SalesPipeline = () => {
                             </table>
                           </div>
                         </div>
+                        <div className='mt-2 mb-5'>
+                          {/* <h3>Notes</h3> */}
+                          <p className='mx-2'>
+                            <small>{packageData.package_notes}</small>
+                          </p>
+                        </div>
 
                       </div>
                     </div>)
@@ -827,7 +857,7 @@ const SalesPipeline = () => {
                             <h5>Additional Information</h5>
 
                             <CCol md={12}>
-                              <CFormTextarea id="cost_data" floatingLabel="Package Notes" style={{ height: '100px' }} {...register("notes", options.notes)} rows="6">
+                              <CFormTextarea id="cost_data" floatingLabel="Package Notes" style={{ height: '100px' }} {...register("package_notes")} rows="6">
                               </CFormTextarea>
                             </CCol>
 
@@ -850,13 +880,59 @@ const SalesPipeline = () => {
 
               </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="contact-tab" visible={activeKey === 3}>
-                Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic
-                lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork
-                tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica.
-                DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork. Williamsburg banh
-                mi whatever gluten-free, carles pitchfork biodiesel fixie etsy retro mlkshk vice blog.
-                Scenester cred you probably haven't heard of them, vinyl craft beer blog stumptown.
-                Pitchfork sustainable tofu synth chambray yr.
+                <CForm onSubmit={handleSubmit(onShippingSubmit, onShippingErrors)}>
+                  <CCol xs={12}>
+                    <CRow className="row g-3 px-3 mt-1 mb-5">
+                      <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
+
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" floatingLabel="Shpiment Status"{...register("shipment_type")}>
+                          <option value="">...</option>
+                          <option>Manual</option>
+                          <option>Others</option>
+                        </CFormSelect>
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Shipment No#" {...register("shipment_no")} />
+                        {errors.shipment_no && <div className='invalid-validation-css'>This field is required</div>}
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Tracking No#" {...register("tracking_no")} />
+                        {errors.tracking_no && <div className='invalid-validation-css'>This field is required</div>}
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment_date")} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" floatingLabel="Shpiment Status"{...register("status")}>
+                          <option value="">...</option>
+                          <option>Shipped</option>
+                          <option>On-Transit</option>
+                          <option>Delivered</option>
+                          <option>Un-Delivered</option>
+                        </CFormSelect>
+                      </CCol>
+
+
+                      <h5>Additional Information</h5>
+
+                      <CCol md={12}>
+                        <CFormTextarea id="cost_data" floatingLabel="Shipping Notes" style={{ height: '100px' }} {...register("shipping_notes")} rows="6">
+                        </CFormTextarea>
+                      </CCol>
+
+                      <CCol md={12} className="mt-4">
+                        <div className='float-end'>
+                          <input type="hidden"  {...register("_id", options._id)}></input>
+                          <input type="hidden"  {...register("sales_order")} value={id}></input>
+                          <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
+                          <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
+                        </div>
+                      </CCol>
+
+                    </CRow>
+                  </CCol>
+                </CForm>
               </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="contact-tab" visible={activeKey === 4}>
                 Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic
