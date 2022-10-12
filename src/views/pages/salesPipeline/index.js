@@ -72,6 +72,7 @@ const SalesPipeline = () => {
   const [customers, setCustomers] = useState({});
   const [order, setOrder] = useState({});
   const [packageData, setPackage] = useState(null);
+  const [shipmentData, setShipment] = useState(null);
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
   const [searchParams] = useSearchParams();
@@ -123,8 +124,8 @@ const SalesPipeline = () => {
   };
 
   /* Shipping Form */
-  const onShippingSubmit = (data) => {
-    createShipping(data);
+  const onShippingSubmit = ({ shipment }) => {
+    createShipping(shipment);
   };
 
   const validationAlertPop = (errorObj) => {
@@ -176,10 +177,19 @@ const SalesPipeline = () => {
   }
 
   const createShipping = (data) => {
-    axios.post(process.env.REACT_APP_API_URL + "/shipment",
-      { payload: data },
-      { headers: { Authorization: localStorage.getItem('token') ?? null } })
+    let method = 'post'
+    if (data._id) {
+      method = 'patch'
+    }
+    const headers = { Authorization: localStorage.getItem('token') ?? null }
+    axios({
+      method,
+      url: process.env.REACT_APP_API_URL + "/shipment",
+      data: { payload: data },
+      headers: headers
+    })
       .then((response) => {
+        getShipmentData({ sales_order: id });
         toast.success(response.data.message ?? "Success")
       })
       .catch((error) => {
@@ -201,7 +211,6 @@ const SalesPipeline = () => {
 
       })
       .catch((error, response) => {
-        console.log(response.data);
         toast.error(response.data.message ?? "Opps something went wrong!")
       })
   }
@@ -217,7 +226,6 @@ const SalesPipeline = () => {
 
       })
       .catch((error, response) => {
-        console.log(response.data);
         toast.error(response.data.message ?? "Opps something went wrong!")
       })
   }
@@ -226,6 +234,16 @@ const SalesPipeline = () => {
     axios.get(process.env.REACT_APP_API_URL + "/packages", { params: { sales_order: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
         setPackage(response.data.data?.docs[0] ?? null);
+      })
+      .catch((error) => {
+        toast.error("Opps something went wrong!")
+      })
+  }
+
+  const getShipmentData = (data) => {
+    axios.get(process.env.REACT_APP_API_URL + "/shipment", { params: { sales_order: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((response) => {
+        setShipment(response.data.data?.docs[0] ?? null);
       })
       .catch((error) => {
         toast.error("Opps something went wrong!")
@@ -270,7 +288,6 @@ const SalesPipeline = () => {
 
   useEffect(() => {
     const currentParams = Object.fromEntries([...searchParams]);
-    console.log(currentParams); // get new values onchange
     reload();
   }, [searchParams]);
 
@@ -284,6 +301,14 @@ const SalesPipeline = () => {
 
   }, [])
 
+
+  useEffect(() => {
+    if (shipmentData != null) {
+      shipmentData.shipment_date = DateTime.fromISO(shipmentData.shipment_date).toFormat('yyyy-MM-dd');
+      setValue("shipment", shipmentData)
+    }
+  }, [shipmentData]);
+
   const reload = async () => {
     let page = searchParams.get('page') ?? 1
     return await axios
@@ -292,7 +317,6 @@ const SalesPipeline = () => {
         setData(res.data.data);
         const pgdata = res.data.data;
         paginationConfig.currentPage = pgdata.page
-        console.log(data);
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -306,7 +330,6 @@ const SalesPipeline = () => {
         setProducts(res.data.data);
         const pgdata = res.data.data;
         paginationConfig.currentPage = pgdata.page
-        console.log(data);
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -320,18 +343,6 @@ const SalesPipeline = () => {
         setCustomers(res.data.data);
         const pgdata = res.data.data;
         paginationConfig.currentPage = pgdata.page
-        console.log(data);
-      }).catch((err) => {
-        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
-      })
-  }
-
-  const getCategory = async () => {
-    return await axios
-      .get(process.env.REACT_APP_API_URL + "/categories", { headers: { Authorization: localStorage.getItem('token') ?? null } })
-      .then((res) => {
-        setCategory(res.data.data);
-        console.log(data);
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -342,7 +353,6 @@ const SalesPipeline = () => {
       .get(process.env.REACT_APP_API_URL + "/users", { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setSalesExe(res.data.data);
-        console.log(data);
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -355,21 +365,15 @@ const SalesPipeline = () => {
       .then((res) => {
         const items = getValues('items');
         const product = res.data.data?.docs[0] ?? {};
-        console.log(product, product.sell_price);
-
-        // console.log(items);
         const item = items[index];
-
         let qty = 1
         let rate = !isNaN(product.sell_price) ? product.sell_price : 0.00
         let amount = !isNaN(qty * rate) ? qty * rate : 0.00
-
         setValue(`items.${index}.qty`, qty);
         setValue(`items.${index}.rate`, rate);
         setValue(`items.${index}.amount`, amount);
         setValue(`items.${index}.product._id`, id);
         subTotalCal();
-
       }).catch((err) => {
         console.error(err);
         // setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
@@ -380,11 +384,9 @@ const SalesPipeline = () => {
     return await axios
       .get(process.env.REACT_APP_API_URL + "/sales-order", { params: { _id: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
-        console.log(res);
         if (res.data.status === 404)
           return navigate('/404')
         const order = res.data.data?.docs[0] ?? {};
-        console.log(order);
         onOrder(order)
         setOrder(order);
       }).catch((err) => {
@@ -399,7 +401,6 @@ const SalesPipeline = () => {
     let sub_total = 0;
     let total = 0;
     items.forEach(item => {
-      console.log(item.amount);
       sub_total += item.amount;
     });
     total = sub_total;
@@ -498,6 +499,14 @@ const SalesPipeline = () => {
     setActiveKey(2);
   }
 
+  /* Handle Shipment */
+  const handleShipment = () => {
+    getShipmentData({ sales_order: id });
+    setActiveKey(3);
+  }
+
+
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -540,7 +549,7 @@ const SalesPipeline = () => {
                 <CNavLink
                   href="javascript:void(0);"
                   active={activeKey === 3}
-                  onClick={() => setActiveKey(3)}
+                  onClick={() => handleShipment()}
                   disabled={shipmentTab}
                 >
                   Shipment
@@ -886,25 +895,28 @@ const SalesPipeline = () => {
                       <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
 
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Shpiment Status"{...register("shipment_type")}>
+                        <CFormSelect id="inputState" floatingLabel="Shpiment type"{...register("shipment.shipping_type")}>
                           <option value="">...</option>
                           <option>Manual</option>
+                          <option>Easy Post</option>
+                          <option>Xpress Bee</option>
+                          <option>DHL</option>
                           <option>Others</option>
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Shipment No#" {...register("shipment_no")} />
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Shipment No#" {...register("shipment.shipment_no")} />
                         {errors.shipment_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Tracking No#" {...register("tracking_no")} />
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Tracking No#" {...register("shipment.tracking_no")} />
                         {errors.tracking_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment_date")} />
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment.shipment_date")} />
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Shpiment Status"{...register("status")}>
+                        <CFormSelect id="inputState" floatingLabel="Shpiment Status"{...register("shipment.status")}>
                           <option value="">...</option>
                           <option>Shipped</option>
                           <option>On-Transit</option>
@@ -917,14 +929,14 @@ const SalesPipeline = () => {
                       <h5>Additional Information</h5>
 
                       <CCol md={12}>
-                        <CFormTextarea id="cost_data" floatingLabel="Shipping Notes" style={{ height: '100px' }} {...register("shipping_notes")} rows="6">
+                        <CFormTextarea id="cost_data" floatingLabel="Shipping Notes" style={{ height: '100px' }} {...register("shipment.shipping_notes")} rows="6">
                         </CFormTextarea>
                       </CCol>
 
                       <CCol md={12} className="mt-4">
                         <div className='float-end'>
-                          <input type="hidden"  {...register("_id", options._id)}></input>
-                          <input type="hidden"  {...register("sales_order")} value={id}></input>
+                          <input type="hidden"  {...register("shipment._id")}></input>
+                          <input type="hidden"  {...register("shipment.sales_order")} value={id}></input>
                           <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
                           <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
                         </div>
