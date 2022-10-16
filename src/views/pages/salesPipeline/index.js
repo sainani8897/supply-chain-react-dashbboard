@@ -105,15 +105,21 @@ const SalesPipeline = () => {
     setFormAction('Add');
     setVisibleXL(true)
   }
+
   const { register, handleSubmit, reset, setValue, getValues, watch, control, formState: { errors } } = useForm({
     defaultValues: {
       items: [{ product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, }]
     }
   });
+
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: "items", // unique name for your Field Array
   });
+
+  const {
+    register: register2,formState: { errors: errors2 }, handleSubmit: handleSubmit2, } = useForm({ });
+
   const watchItems = watch("items");
 
   /* Form */
@@ -129,6 +135,11 @@ const SalesPipeline = () => {
   /* Shipping Form */
   const onShippingSubmit = ({ shipment }) => {
     createShipping(shipment);
+  };
+
+  /* Payment Form */
+  const onPaymentSubmit = ({ payment }) => {
+    createPayment(payment);
   };
 
   const validationAlertPop = (errorObj) => {
@@ -167,7 +178,7 @@ const SalesPipeline = () => {
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
-        setVisibleXL(false) /* Close the Pop Here */
+        setActiveKey(4);
         reload();
         toast.success(response.data.message ?? "Success")
       })
@@ -188,6 +199,31 @@ const SalesPipeline = () => {
     axios({
       method,
       url: process.env.REACT_APP_API_URL + "/shipment",
+      data: { payload: data },
+      headers: headers
+    })
+      .then((response) => {
+        getShipmentData({ sales_order: id });
+        toast.success(response.data.message ?? "Success")
+        setActiveKey(4);
+      })
+      .catch((error) => {
+        const data = error.response.data
+        const errObj = data.error.errors;
+        toast.error(error.response.data.message ?? "Opps something went wrong!")
+        validationAlertPop({ err: error.response.data });
+      })
+  }
+
+  const createPayment = (data) => {
+    let method = 'post'
+    if (data._id) {
+      method = 'patch'
+    }
+    const headers = { Authorization: localStorage.getItem('token') ?? null }
+    axios({
+      method,
+      url: process.env.REACT_APP_API_URL + "/payment",
       data: { payload: data },
       headers: headers
     })
@@ -275,6 +311,11 @@ const SalesPipeline = () => {
   };
 
   const onShippingErrors = (errors) => {
+    console.log(errors);
+    validationAlertPop(errors);
+  };
+
+  const onPaymentErrors = (errors) => {
     validationAlertPop(errors);
   };
 
@@ -1002,7 +1043,7 @@ const SalesPipeline = () => {
                     :
                     (
                       <div className="container">
-                        <div className="row d-flex justify-content-center align-items-center h-100">
+                        <div className="row d-flex justify-content-center align-items-center h-100 mb-4">
                           <div className="col">
 
                             <div className="card card-stepper" style={{ borderRadius: "10px" }} >
@@ -1010,26 +1051,28 @@ const SalesPipeline = () => {
 
                                 <div className="d-flex justify-content-between align-items-center">
                                   <div className="d-flex flex-column">
-                                    <span className="lead fw-normal">INV: #{invoiceData.invoice_no}</span>
+                                    <span className="lead fw-normal"> #{invoiceData.invoice_no}</span>
                                     <span className="text-muted small">{DateTime.fromISO(invoiceData.invoice_date).toFormat('dd LLL , yyyy')}</span>
                                   </div>
                                   <div className="d-flex flex-column">
                                     <span className="fw-normal">Balace: <strong>${invoiceData.sale_details.total}</strong></span>
                                     <span className="text-muted small">Due on {DateTime.fromISO(invoiceData.invoice_date).toFormat('dd/LLL/yyyy')}</span>
                                   </div>
-                                  {/* <div>
-                                    <span className="lead fw-normal">Payment Status: Unpaid</span>
-                                  </div> */}
+                                  <div className="d-flex flex-column">
+                                    <span className="fw-normal">Payment</span>
+                                    <CBadge color={invoiceData.payment == 'Paid' ? 'success' : 'warning'}>{invoiceData.payment}</CBadge>
+                                  </div>
                                   <div>
-                                    <button className="btn btn-outline-primary" type="button">Make Payment</button>
-                                    <button className="btn btn-outline-primary mx-2" type="button">Convert to Invoice</button>
+                                    {invoiceData.payment == "Paid" ? ('') : (<button className="btn btn-outline-primary" onClick={() => { setVisibleXL(true) }} type="button">Make Payment</button>)}
+
+                                    <button className="btn btn-outline-primary mx-2" type="button">Send Invoice</button>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="card">
                           <div className="card-body">
                             <div id="invoice">
@@ -1067,8 +1110,8 @@ const SalesPipeline = () => {
                                         <div className="text-gray-light">INVOICE TO:</div>
                                         <h2 className="to">{invoiceData.customer_id?.name}</h2>
                                         <div className="email"><a href="mailto:john@example.com">{invoiceData.customer_id.email}</a>
-                                        <div className="address">{invoiceData.customer_id?.address.address_line1} {invoiceData.customer_id?.address.address_line2}</div>
-                                        <div className="address">{invoiceData.customer_id?.address.city}</div>
+                                          <div className="address">{invoiceData.customer_id?.address.address_line1} {invoiceData.customer_id?.address.address_line2}</div>
+                                          <div className="address">{invoiceData.customer_id?.address.city}</div>
                                         </div>
                                       </div>
                                       <div className="col invoice-details">
@@ -1143,9 +1186,87 @@ const SalesPipeline = () => {
 
 
             {/* Modal start Here */}
-            <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
+            {invoiceData ? (
+              <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
+                <CModalHeader>
+                  <CModalTitle>Payment for ({invoiceData?.invoice_no})</CModalTitle>
+                </CModalHeader>
+                <CForm onSubmit={handleSubmit2(onPaymentSubmit, onPaymentErrors)}>
+                  <CCol xs={12}>
+                    <CRow className="row g-3 px-3 mx-2 py-5">
+                      <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
 
-            </CModal>
+                      <fieldset className="row mb-1">
+                        <legend className="col-form-label col-sm-2 pt-0">Payment In</legend>
+                        <CCol sm={10} >
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="full_amount" label="Full amount" {...register("payment.payment_type", { required: true })} />
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="Partial amount" label="Partial amount" {...register("payment.payment_type", { required: true })} />
+                          {errors.payment?.payment_type && <div className='invalid-validation-css'>This field is required</div>}
+                        </CCol>
+                      </fieldset>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Payment No#" {...register("payment.payment_no")} />
+                        {errors.shipment_no && <div className='invalid-validation-css'>This field is required</div>}
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" floatingLabel="Payment Mode"{...register("payment.payment_mode")}>
+                          <option value="">...</option>
+                          <option>Cash</option>
+                          <option>Bank Transfer</option>
+                          <option>Cheque</option>
+                        </CFormSelect>
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Reference No#" {...register("payment.reference")} />
+                        {errors.tracking_no && <div className='invalid-validation-css'>This field is required</div>}
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="text" id="inputAmount" readOnly value={invoiceData?.sale_details.total} floatingLabel="Amount" {...register("payment.amount")} />
+                        {errors.tracking_no && <div className='invalid-validation-css'>This field is required</div>}
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Payment Date" {...register("payment.payment_date")} />
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" floatingLabel="Payment Deposit to"{...register("payment.deposit_to")}>
+                          <option value="">...</option>
+                          <option>Petty Cash</option>
+                          <option>Undeposited Funds</option>
+                          <option>Other Expense</option>
+                        </CFormSelect>
+                      </CCol>
+                      <CCol md={6}>
+                        <CFormSelect id="inputState" floatingLabel="Payment Status"{...register("payment.status")}>
+                          <option value="">...</option>
+                          <option>Completed</option>
+                          <option>On-Hold</option>
+                          <option>Cancelled</option>
+                          <option>Refunded</option>
+                        </CFormSelect>
+                      </CCol>
+
+                      <h5>Additional Information</h5>
+
+                      <CCol md={12}>
+                        <CFormTextarea id="cost_data" floatingLabel="Notes" style={{ height: '100px' }} {...register("payment.notes")} rows="6">
+                        </CFormTextarea>
+                      </CCol>
+
+                      <CCol md={12} className="mt-4">
+                        <div className='float-end'>
+                          <input type="hidden" value={invoiceData._id}  {...register("payment.invoice")}></input>
+                          {/* <input type="hidden"  {...register("payment.")} value={id}></input> */}
+                          <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
+                          <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
+                        </div>
+                      </CCol>
+
+                    </CRow>
+                  </CCol>
+                </CForm>
+              </CModal>
+            ) : ""}
+
 
             <CModal alignment="center" visible={delModal} onClose={() => setDelVisible(false)}>
               <CModalHeader>
