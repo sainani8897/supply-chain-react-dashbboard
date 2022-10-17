@@ -58,6 +58,7 @@ const Category = React.lazy(() => import('./views/pages/category'))
 const Customers = React.lazy(() => import('./views/pages/customers'))
 const SalesOrder = React.lazy(() => import('./views/pages/salesOrder'))
 const SalesPipeline = React.lazy(() => import('./views/pages/salesPipeline'))
+const Packaging = React.lazy(() => import('./views/pages/package'))
 
 /* Purchase Order */
 const Vendor = React.lazy(() => import('./views/pages/vendors'))
@@ -116,6 +117,7 @@ const routes = [
   { path: '/sales-pipeline/:id', name: 'Sales Pipelines', element: SalesPipeline },
   { path: '/purchase-orders', name: 'Purchase Order', element: PurchaseOrder },
   { path: '/vendors', name: 'Vendor', element: Vendor },
+  { path: '/packages', name: 'Packaging', element: Packaging },
 
 ]
 
