@@ -98,7 +98,7 @@ const new_nav = [
       {
         component: CNavItem,
         name: 'Packages',
-        to: '/base/breadcrumbs',
+        to: '/packages',
       },
       {
         component: CNavItem,
