@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams,Link } from 'react-router-dom';
 import { DateTime } from "luxon";
 import {
   CCard,
@@ -58,11 +58,11 @@ const Packaging = () => {
   const [delModal, setDelVisible] = useState(false)
   const [formAction, setFormAction] = useState('Add');
   const [data, setData] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [products, setPackages] = useState([]);
   const [categories, setCategory] = useState({});
   const [salesExecutives, setSalesExe] = useState({});
   const [vendors, setVendors] = useState({});
-  const [productData, setProduct] = useState({});
+  const [packageData, setPackage] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false)
   const [searchParams] = useSearchParams();
@@ -138,6 +138,10 @@ const Packaging = () => {
   }
 
   const updateData = (data) => {
+
+    data.package = packageData.package;
+    data.sales_order = packageData.sales_order;
+
     axios.patch(process.env.REACT_APP_API_URL + "/packages",
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
@@ -213,7 +217,7 @@ const Packaging = () => {
     return await axios
       .get(process.env.REACT_APP_API_URL + "/Products", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
-        setProducts(res.data.data);
+        setPackages(res.data.data);
         const pgdata = res.data.data;
         paginationConfig.currentPage = pgdata.page
         console.log(data);
@@ -280,7 +284,7 @@ const Packaging = () => {
         setValue(`items.${index}.product._id`, id);
         subTotalCal();
 
-      }).catch((err) => { 
+      }).catch((err) => {
         console.error(err);
         // setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -327,41 +331,20 @@ const Packaging = () => {
   const onEdit = (data) => {
     resetForm()
     setFormAction('Update');
+    setPackage(data);
     // console.log(data.sales_executives.map((exe) => exe._id));
     setVisibleXL(!visibleXL);
-    setValue('vendor_id', data.vendor_id._id)
-    setValue('order_no', data.order_no)
-    setValue('status', data.status)
-    setValue('reference', data.reference)
-    setValue('shipment_type', data.shipment_type)
-    setValue('sale_date', DateTime.fromISO(data.sale_date).toFormat('yyyy-MM-dd'))
-    setValue('delivery_date', DateTime.fromISO(data.delivery_date).toFormat('yyyy-MM-dd'))
-
-    data.items.forEach((item,index) => {
-      append({ product_id: item.product_id, qty: item.qty, rate: item.rate, amount: item.amount })
-    })
-
-    setValue('sale_details', data.sale_details)
-    setValue('notes', data.customer_notes)
-    setValue('shipping_notes', data.shipping_notes)
-    setValue('dimension_unit', data.dimension_unit)
-    setValue('category_id', data.category_id)
-    setValue('isbn', data.isbn)
-    setValue('ean', data.ean)
-    setValue('upc', data.upc)
-    setValue('manufacturer', data.manufacturer)
-    setValue('serial_number', data.serial_number)
-    setValue('description', data.description)
-    setValue('sku', data.sku)
-    setValue('units_of_measurement', data.units_of_measurement)
-    setValue('type', data.type)
     setValue('_id', data._id)
-   
+    setValue('package_slip', data.package_slip)
+    setValue('status', data.status)
+    setValue('date', DateTime.fromISO(data.date).toFormat('yyyy-MM-dd'))
+    setValue('package_notes', data.package_notes)
+
   };
 
   /* Delete  */
   const onDelete = (data) => {
-    setProduct(data);
+    setPackage(data);
     setDelVisible(true);
   }
 
@@ -415,6 +398,7 @@ const Packaging = () => {
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
                   <CTableHeaderCell scope="col"># Package Slip </CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Associated Sales </CTableHeaderCell>
                   <CTableHeaderCell scope="col">Packed Date</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Status</CTableHeaderCell>
@@ -425,7 +409,10 @@ const Packaging = () => {
                 {data.docs?.map((product, index) =>
                   <CTableRow key={product.id}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{product.package_slip}</CTableDataCell>
+                    <CTableDataCell>#{product.package_slip}</CTableDataCell>
+                    <CTableDataCell>
+                      <Link to={`/sales-pipeline/${product?.sales_order._id}`} >#{product?.sales_order?.order_no}</Link>
+                    </CTableDataCell>
                     <CTableDataCell>{DateTime.fromISO(product.date).toFormat('yyyy LLL dd')}</CTableDataCell>
                     <CTableDataCell>{product?.sales_order?.sale_details.total}</CTableDataCell>
                     <CTableDataCell>{product.status}</CTableDataCell>
@@ -470,56 +457,26 @@ const Packaging = () => {
                 </CModalHeader>
                 <CModalBody>
                   <CCol xs={12}>
+
+                    {/* Show Package Form  */}
                     <CRow className="row g-3 px-3 mt-1 mb-5">
                       <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
-                      {/* <fieldset className="row mb-1">
-                        <legend className="col-form-label col-sm-2 pt-0">Item Type</legend>
-                        <CCol sm={10} >
-                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="product" label="Product" {...register("type",{required:true})} />
-                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="service" label="Service" {...register("type",{required:true})} />
-                          {errors.type && <div className='invalid-validation-css'>This field is required</div>}
-                        </CCol>
-                      </fieldset> */}
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Vendor" {...register("vendor_id", options.vendor_id)}>
-                          <option value="">...</option>
-                          {vendors.docs?.map((vendor, index) => {
-                            return <option key={index} value={vendor._id}>{vendor.display_name}</option>
-                          })};
-                        </CFormSelect>
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Purchase Order#" {...register("order_no", options.order_no)} />
+                        <CFormInput type="text" id="inputEmail4" disabled floatingLabel="Package Slip#" {...register("package_slip")} />
                         {errors.order_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Reference#" {...register("reference", options.reference)} />
-                        {errors.reference && <div className='invalid-validation-css'>This field is required</div>}
+                        <CFormInput type="date" id="inputPassword4" disabled floatingLabel="Date" {...register("date")} />
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Purchase Order Date" {...register("sale_date", options.sale_date)} />
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Expected Delivery Date" {...register("delivery_date", options.delivery_date)} />
-                      </CCol>
-
-                      {/* <CCol md={6}>
-                        <CFormSelect id="inputState" multiple floatingLabel="Sales Executive" {...register("sales_executives[]", options.sales_executive)}>
+                        <CFormSelect id="inputState" floatingLabel="Packaging Status"{...register("status")}>
                           <option value="">...</option>
-                          {salesExecutives.docs?.map((user, index) => {
-                            return <option key={index} value={user._id}>{user.name}</option>
-                          })};
-                        </CFormSelect>
-                      </CCol> */}
-
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Shipment type" {...register("shipment_type", options.sales_executive)}>
-                          <option value="">...</option>
-                          <option value="manual">Manual</option>
-                          <option value="Easy Post">Easy Post</option>
+                          <option>Ready to Ship</option>
+                          <option>Packed</option>
+                          <option>Closed</option>
+                          <option>Not Found</option>
                         </CFormSelect>
                       </CCol>
-
                       <h5>Items</h5>
                       {/* Product Info */}
                       <div className="container">
@@ -530,29 +487,22 @@ const Packaging = () => {
                                 <tr>
                                   <th className="text-center"> # </th>
                                   <th className="text-center"> Product </th>
-                                  <th className="text-center"> Qty </th>
-                                  <th className="text-center"> Price </th>
-                                  <th className="text-center"> Total </th>
-                                  <th className="text-center"> . </th>
+                                  <th className="text-center"> .Pcs </th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {fields?.map((element, index) => {
+                                {packageData?.package?.map((element, index) => {
                                   return (
                                     <tr id='addr0'>
                                       <td>{index + 1}</td>
                                       <td>
-                                        <CFormSelect className="form-control" key={index} id="inputState"  {...register(`items[${index}].product_id`)} onChange={(e) => { gerProductById(e.target.value, index) }} >
-                                          <option value="">... Select Product ...</option>
-                                          {products.docs?.map((product, index) => {
-                                            return <option key={index} value={product._id}>{product.name}</option>
-                                          })};
-                                        </CFormSelect>
+                                        <div><b>ITEM: </b>{element.product_id?.name}</div>
+                                        {/* <div>Qty:{element.qty}</div> */}
+                                        <div><b>Rate: </b><span className='text-secondary'>{element.product_id?.sell_price}</span></div>
+                                        <div><b>Description: </b><span className='text-secondary'>{element.product_id?.description}</span></div>
+                                        <CFormInput type="hidden" id="inputPcs"  {...register(`package[${index}].product_id`)} />
                                       </td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].qty`)} onChange={(e) => { handleQtyChange(e.target.value, index) }} /></td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].rate`)} readOnly /></td>
-                                      <td><CFormInput type="number" id="inputPassword4"  {...register(`items[${index}].amount`)} readOnly /></td>
-                                      <td><CButton type="button" onClick={() => removeItem(index)} className="me-md-2" color="danger"><CIcon size={'sm'} icon={cilTrash} /></CButton></td>
+                                      <td>{element.pcs}</td>
                                     </tr>)
                                 }
                                 )}
@@ -561,65 +511,33 @@ const Packaging = () => {
                             </table>
                           </div>
                         </div>
-                        <div className="row clearfix">
+                        {/* <div className="row clearfix">
                           <div className="col-md-12">
                             <button id="add_row" type='button' onClick={() => { addRow() }} className="btn btn-default pull-left">Add Row</button>
-                            {/* <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button> */}
+                            <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button>
                           </div>
-                        </div>
-                        <div className="row clearfix" style={{ marginTop: "20px" }} > {/* style={"margin-top:20px"} */}
-                          <div className="col-md-4">
-                            <table className="table table-bordered table-hover" id="tab_logic_total">
-                              <tbody>
-                                <tr>
-                                  <th className="text-center">Sub Total</th>
-                                  <td className="text-center">
-                                    <input type="text" placeholder='0.00' className="form-control" id="sub_total" readOnly {...register(`sale_details.sub_total`)} />
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <th className="text-center">Tax</th>
-                                  <td className="text-center"><div className="input-group mb-2 mb-sm-0">
-                                    <input type="text" className="form-control" id="tax" placeholder="0" {...register(`sale_details.tax_id`)} />
-                                    <div className="input-group-addon">%</div>
-                                  </div></td>
-                                </tr>
-                                <tr>
-                                  <th className="text-center">Tax Amount</th>
-                                  <td className="text-center">
-                                    <input type="text" {...register(`sale_details.tax_amount`)} id="tax_amount" placeholder='0.00' className="form-control" readOnly />
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <th className="text-center">Grand Total</th>
-                                  <td className="text-center"><input type="text" name='total_amount' id="total_amount" placeholder='0.00' className="form-control" readOnly {...register(`sale_details.total`)} /></td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
+                        </div> */}
                       </div>
 
                       <h5>Additional Information</h5>
 
-                      <CCol md={6}>
-                        <CFormTextarea id="cost_data" floatingLabel="Customer Notes" style={{ height: '100px' }} {...register("notes", options.notes)} rows="6">
-                        </CFormTextarea>
-                      </CCol>
-                      <CCol md={6}>
-                        <CFormTextarea id="cost_data" floatingLabel="Shipping Notes" style={{ height: '100px' }} {...register("shipping_notes", options.notes)} rows="6">
+                      <CCol md={12}>
+                        <CFormTextarea id="cost_data" floatingLabel="Package Notes" style={{ height: '100px' }} {...register("package_notes")} rows="6">
                         </CFormTextarea>
                       </CCol>
 
+                      <CCol md={12} className="mt-4">
+                        <div className='float-end'>
+                          {/* <input type="hidden"  {...register("sales_order")} value={}></input> */}
+                          <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
+                          <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
+                        </div>
+                      </CCol>
 
                     </CRow>
+
                   </CCol>
                 </CModalBody>
-                <CModalFooter className='mt-4'>
-                  <input type="hidden"  {...register("_id", options._id)}></input>
-                  <CButton type="submit" className="me-md-2" >Submit</CButton>
-                  <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
-                </CModalFooter>
               </CForm>
             </CModal>
 
@@ -640,7 +558,7 @@ const Packaging = () => {
                 <CButton color="secondary" onClick={() => setDelVisible(false)}>
                   Close
                 </CButton>
-                <CButton color="danger" onClick={() => { deleteAction(productData) }} variant="ghost">Yes Continue</CButton>
+                <CButton color="danger" onClick={() => { deleteAction(packageData) }} variant="ghost">Yes Continue</CButton>
               </CModalFooter>
             </CModal>
 
