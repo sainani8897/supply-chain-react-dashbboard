@@ -113,12 +113,12 @@ const new_nav = [
       {
         component: CNavItem,
         name: 'Invoices',
-        to: '/base/breadcrumbs',
+        to: '/invoice',
       },
       {
         component: CNavItem,
         name: 'Payments Received',
-        to: '/base/breadcrumbs',
+        to: '/payments-received',
       },
       {
         component: CNavItem,

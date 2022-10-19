@@ -60,6 +60,8 @@ const SalesOrder = React.lazy(() => import('./views/pages/salesOrder'))
 const SalesPipeline = React.lazy(() => import('./views/pages/salesPipeline'))
 const Packaging = React.lazy(() => import('./views/pages/package'))
 const Shipment = React.lazy(() => import('./views/pages/shipment'))
+const Invoice = React.lazy(() => import('./views/pages/invoice'))
+const Payment = React.lazy(() => import('./views/pages/payment'))
 
 /* Purchase Order */
 const Vendor = React.lazy(() => import('./views/pages/vendors'))
@@ -121,6 +123,8 @@ const routes = [
   { path: '/vendors', name: 'Vendor', element: Vendor },
   { path: '/packages', name: 'Packaging', element: Packaging },
   { path: '/shipment', name: 'Shipment', element: Shipment },
+  { path: '/invoice', name: 'Invoice', element: Invoice },
+  { path: '/payments-received', name: 'Payment', element: Payment },
 
 ]
 

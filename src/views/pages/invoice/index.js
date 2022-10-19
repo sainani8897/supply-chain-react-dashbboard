@@ -52,7 +52,7 @@ import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
 import axios from 'axios';
 
-const Shipment = () => {
+const Invoice = () => {
   const items = [];
   const [visibleXL, setVisibleXL] = useState(false)
   const [delModal, setDelVisible] = useState(false)
@@ -142,7 +142,7 @@ const Shipment = () => {
     data.package = shipmentData.package;
     data.sales_order = shipmentData.sales_order;
 
-    axios.patch(process.env.REACT_APP_API_URL + "/shipment",
+    axios.patch(process.env.REACT_APP_API_URL + "/invoice",
       { payload: data },
       { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
@@ -171,7 +171,7 @@ const Shipment = () => {
   };
 
   const deleteAction = (data) => {
-    axios.delete(process.env.REACT_APP_API_URL + "/shipment",
+    axios.delete(process.env.REACT_APP_API_URL + "/invoice",
       { headers: { Authorization: localStorage.getItem('token') ?? null }, data: { _id: [data._id] } })
       .then((response) => {
         toast.success(response.data.message ?? "Success")
@@ -198,7 +198,7 @@ const Shipment = () => {
   const reload = async () => {
     let page = searchParams.get('page') ?? 1
     return await axios
-      .get(process.env.REACT_APP_API_URL + "/shipment", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .get(process.env.REACT_APP_API_URL + "/invoice", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setData(res.data.data);
         const pgdata = res.data.data;
@@ -257,7 +257,7 @@ const Shipment = () => {
         {/* <CButton color="info" onClick={() => { addForm() }} className="mb-4 text-white">Add Shipment</CButton> */}
         <CCard className="mb-4">
           <CCardHeader>
-            Shipments
+            Invoices
           </CCardHeader>
           <CCardBody>
             {/* <p className="text-medium-emphasis small">
@@ -272,12 +272,12 @@ const Shipment = () => {
               <CTableHead color="dark">
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Shipment Id </CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Shipment Type</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Invoice Id </CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Invoice Date</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Associated Sales </CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Shipment Date</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Payment</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Action</  CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
@@ -285,14 +285,14 @@ const Shipment = () => {
                 {data.docs?.map((product, index) =>
                   <CTableRow key={product.id}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>#{product.shipment_no}</CTableDataCell>
-                    <CTableDataCell>{product.shipping_type}</CTableDataCell>
+                    <CTableDataCell>#{product.invoice_no}</CTableDataCell>
+                    <CTableDataCell>{DateTime.fromISO(product.invoice_date).toFormat('yyyy/MM/dd')}</CTableDataCell>
                     <CTableDataCell>
-                      <Link to={`/sales-pipeline/${product?.sales_order._id}`} >#{product?.sales_order?.order_no}</Link>
+                      <Link to={`/sales-pipeline/${product?.sales_order?._id}`} >#{product?.sales_order?.order_no}</Link>
                     </CTableDataCell>
-                    <CTableDataCell>{DateTime.fromISO(product.shipment_date).toFormat('yyyy LLL dd')}</CTableDataCell>
-                    <CTableDataCell>{product?.sales_order?.sale_details.total}</CTableDataCell>
+                    <CTableDataCell>{product?.sale_details.total}</CTableDataCell>
                     <CTableDataCell>{product.status}</CTableDataCell>
+                    <CTableDataCell>{product.payment}</CTableDataCell>
                     <CTableDataCell>
                       <CTooltip
                         content="Edit"
@@ -321,8 +321,8 @@ const Shipment = () => {
                 prevNext
                 activeBgColor="#fffff"
                 activeBorderColor="#7bc9c9"
-                href="http://localhost:3000/shipment?page=*"
-                pageOneHref="http://localhost:3000/shipment"
+                href="http://localhost:3000/invoice?page=*"
+                pageOneHref="http://localhost:3000/invoice"
               />
             </div>
 
@@ -420,4 +420,4 @@ const Shipment = () => {
   )
 }
 
-export default Shipment
+export default Invoice
