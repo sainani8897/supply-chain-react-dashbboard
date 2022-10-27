@@ -117,8 +117,7 @@ const SalesPipeline = () => {
     name: "items", // unique name for your Field Array
   });
 
-  const {
-    register: register2,formState: { errors: errors2 }, handleSubmit: handleSubmit2, } = useForm({ });
+  const { register: register2,formState: { errors: errors2 }, handleSubmit: handleSubmit2, } = useForm({ });
 
   const watchItems = watch("items");
 
@@ -139,6 +138,7 @@ const SalesPipeline = () => {
 
   /* Payment Form */
   const onPaymentSubmit = ({ payment }) => {
+    console.log(payment);
     createPayment(payment);
   };
 
@@ -216,8 +216,9 @@ const SalesPipeline = () => {
   }
 
   const createPayment = (data) => {
+    console.log(data);
     let method = 'post'
-    if (data._id) {
+    if (data?._id) {
       method = 'patch'
     }
     const headers = { Authorization: localStorage.getItem('token') ?? null }
@@ -1199,17 +1200,17 @@ const SalesPipeline = () => {
                       <fieldset className="row mb-1">
                         <legend className="col-form-label col-sm-2 pt-0">Payment In</legend>
                         <CCol sm={10} >
-                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="full_amount" label="Full amount" {...register("payment.payment_type", { required: true })} />
-                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="Partial amount" label="Partial amount" {...register("payment.payment_type", { required: true })} />
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="full_amount" label="Full amount" {...register2("payment.payment_type", { required: true })} />
+                          <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox2" value="Partial amount" label="Partial amount" {...register2("payment.payment_type", { required: true })} />
                           {errors.payment?.payment_type && <div className='invalid-validation-css'>This field is required</div>}
                         </CCol>
                       </fieldset>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Payment No#" {...register("payment.payment_no")} />
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Payment No#" {...register2("payment.payment_no")} />
                         {errors.shipment_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Payment Mode"{...register("payment.payment_mode")}>
+                        <CFormSelect id="inputState" floatingLabel="Payment Mode"{...register2("payment.payment_mode")}>
                           <option value="">...</option>
                           <option>Cash</option>
                           <option>Bank Transfer</option>
@@ -1217,18 +1218,18 @@ const SalesPipeline = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputEmail4" floatingLabel="Reference No#" {...register("payment.reference")} />
+                        <CFormInput type="text" id="inputEmail4" floatingLabel="Reference No#" {...register2("payment.reference")} />
                         {errors.tracking_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="text" id="inputAmount" readOnly value={invoiceData?.sale_details.total} floatingLabel="Amount" {...register("payment.amount")} />
+                        <CFormInput type="text" id="inputAmount" readOnly value={invoiceData?.sale_details.total} floatingLabel="Amount" {...register2("payment.amount")} />
                         {errors.tracking_no && <div className='invalid-validation-css'>This field is required</div>}
                       </CCol>
                       <CCol md={6}>
-                        <CFormInput type="date" id="inputPassword4" floatingLabel="Payment Date" {...register("payment.payment_date")} />
+                        <CFormInput type="date" id="inputPassword4" floatingLabel="Payment Date" {...register2("payment.payment_date")} />
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Payment Deposit to"{...register("payment.deposit_to")}>
+                        <CFormSelect id="inputState" floatingLabel="Payment Deposit to"{...register2("payment.deposit_to")}>
                           <option value="">...</option>
                           <option>Petty Cash</option>
                           <option>Undeposited Funds</option>
@@ -1236,7 +1237,7 @@ const SalesPipeline = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Payment Status"{...register("payment.status")}>
+                        <CFormSelect id="inputState" floatingLabel="Payment Status"{...register2("payment.status")}>
                           <option value="">...</option>
                           <option>Completed</option>
                           <option>On-Hold</option>
@@ -1248,13 +1249,13 @@ const SalesPipeline = () => {
                       <h5>Additional Information</h5>
 
                       <CCol md={12}>
-                        <CFormTextarea id="cost_data" floatingLabel="Notes" style={{ height: '100px' }} {...register("payment.notes")} rows="6">
+                        <CFormTextarea id="cost_data" floatingLabel="Notes" style={{ height: '100px' }} {...register2("payment.notes")} rows="6">
                         </CFormTextarea>
                       </CCol>
 
                       <CCol md={12} className="mt-4">
                         <div className='float-end'>
-                          <input type="hidden" value={invoiceData._id}  {...register("payment.invoice")}></input>
+                          <input type="hidden" value={invoiceData._id}  {...register2("payment.invoice")}></input>
                           {/* <input type="hidden"  {...register("payment.")} value={id}></input> */}
                           <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
                           <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>

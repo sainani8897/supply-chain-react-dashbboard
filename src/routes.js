@@ -1,5 +1,6 @@
 import React from 'react'
 
+
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -67,6 +68,13 @@ const Payment = React.lazy(() => import('./views/pages/payment'))
 const Vendor = React.lazy(() => import('./views/pages/vendors'))
 const PurchaseOrder = React.lazy(() => import('./views/pages/purchaseOrder'))
 
+/* Roles & Permissions */
+const Roles = React.lazy(() => import('./views/pages/roles'))
+const Permissions = React.lazy(() => import('./views/pages/permissions'))
+const Users = React.lazy(() => import('./views/pages/users'))
+
+
+
 
 
 const routes = [
@@ -125,6 +133,9 @@ const routes = [
   { path: '/shipment', name: 'Shipment', element: Shipment },
   { path: '/invoice', name: 'Invoice', element: Invoice },
   { path: '/payments-received', name: 'Payment', element: Payment },
+  { path: '/roles', name: 'Roles', element: Roles },
+  { path: '/permissions', name: 'Roles', element: Permissions },
+  { path: '/users', name: 'Users', element: Users },
 
 ]
 

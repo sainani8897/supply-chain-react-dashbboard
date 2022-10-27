@@ -2,6 +2,7 @@ import { React, useRef, useState, useEffect, userRef } from "react";
 import useAuth from "../../../hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   CButton,
   CCard,
@@ -59,6 +60,7 @@ const Login = () => {
       })
       .catch((error) => {
         console.log(error);
+        toast.error(error.response.data.message ?? "Opps something went wrong!")
       })
 
   };
@@ -141,15 +143,13 @@ const Login = () => {
               </CCard>
               <CCard
                 className="text-white bg-primary py-5"
-                style={{ width: "44%" }}
+                /* style={{ width: "44%" }} */
               >
                 <CCardBody className="text-center">
                   <div>
                     <h2>Sign up</h2>
                     <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua.
+                      Don't have account SignUp Here.
                     </p>
                     <Link to="/register">
                       <CButton

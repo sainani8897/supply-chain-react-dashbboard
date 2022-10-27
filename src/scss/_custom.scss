@@ -233,3 +233,9 @@ body{margin-top:20px;
         background: #e7f2ff;
         padding: 10px;
     }
+
+    .checkbox-wrapper {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }

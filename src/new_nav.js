@@ -17,6 +17,8 @@ import {
   cilSpeedometer,
   cilStar,
   cilTags,
+  cilLockLocked,
+  cilShieldAlt
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -66,12 +68,35 @@ const new_nav = [
       {
         component: CNavItem,
         name: 'Users',
-        to: '/base/accordion',
+        to: '/users'
       },
       {
         component: CNavItem,
         name: 'Vendors',
-        to: '/base/breadcrumbs',
+        to: '/vendors',
+      },
+      {
+        component: CNavItem,
+        name: 'Customers',
+        to: '/customers',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Roles & Permissions',
+    to: '/dashboard',
+    icon: <CIcon icon={cilShieldAlt} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Roles',
+        to: '/roles',
+      },
+      {
+        component: CNavItem,
+        name: 'Permissions',
+        to: '/permissions',
       },
     ],
   },
@@ -105,11 +130,11 @@ const new_nav = [
         name: 'Shipments',
         to: '/shipment',
       },
-      {
+      /* {
         component: CNavItem,
         name: 'Delivery Challans',
         to: '/base/breadcrumbs',
-      },
+      }, */
       {
         component: CNavItem,
         name: 'Invoices',
@@ -120,16 +145,16 @@ const new_nav = [
         name: 'Payments Received',
         to: '/payments-received',
       },
-      {
-        component: CNavItem,
-        name: 'Sales Return',
-        to: '/base/breadcrumbs',
-      },
-      {
-        component: CNavItem,
-        name: 'Credit Notes',
-        to: '/base/breadcrumbs',
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Sales Return',
+      //   to: '/base/breadcrumbs',
+      // },
+      // {
+      //   component: CNavItem,
+      //   name: 'Credit Notes',
+      //   to: '/base/breadcrumbs',
+      // },
 
     ],
   },
