@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "react-toastify";
 import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { DateTime } from "luxon";
 import {
   CCard,
@@ -46,7 +46,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilBell, cilPencil, cilTrash,
+  cilBell, cilPencil, cilSitemap, cilTrash,
 } from '@coreui/icons'
 import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
@@ -280,7 +280,7 @@ const PurchaseOrder = () => {
         setValue(`items.${index}.product._id`, id);
         subTotalCal();
 
-      }).catch((err) => { 
+      }).catch((err) => {
         console.error(err);
         // setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -337,7 +337,7 @@ const PurchaseOrder = () => {
     setValue('sale_date', DateTime.fromISO(data.sale_date).toFormat('yyyy-MM-dd'))
     setValue('delivery_date', DateTime.fromISO(data.delivery_date).toFormat('yyyy-MM-dd'))
 
-    data.items.forEach((item,index) => {
+    data.items.forEach((item, index) => {
       append({ product_id: item.product_id, qty: item.qty, rate: item.rate, amount: item.amount })
     })
 
@@ -356,7 +356,7 @@ const PurchaseOrder = () => {
     setValue('units_of_measurement', data.units_of_measurement)
     setValue('type', data.type)
     setValue('_id', data._id)
-   
+
   };
 
   /* Delete  */
@@ -446,6 +446,9 @@ const PurchaseOrder = () => {
                       >
                         <CButton color="danger" onClick={() => onDelete(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilTrash} /></CButton>
                       </CTooltip>
+                      <Link to={`/purchase-pipeline/${product._id}`}>
+                        <CButton color="info" className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilSitemap} /></CButton>
+                      </Link>
                     </CTableDataCell>
                   </CTableRow>
                 )}
@@ -455,8 +458,8 @@ const PurchaseOrder = () => {
             <div className='mt-2 px-2 float-end'>
               <Pagination
                 threeDots
-                totalPages={data.totalPages}
-                currentPage={data.page}
+                totalPages={data.totalPages ?? 1}
+                currentPage={data.page ?? 1}
                 showMax={7}
                 prevNext
                 activeBgColor="#fffff"

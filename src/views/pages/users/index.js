@@ -248,7 +248,7 @@ const Users = () => {
   const getRoles = async () => {
     let page = searchParams.get('page') ?? 1
     return await axios
-      .get(process.env.REACT_APP_API_URL + "/roles", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .get(process.env.REACT_APP_API_URL + "/roles", { params: { page,not_admin:true }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         const rolesData = res.data.data;
         setRoles(rolesData);
@@ -351,7 +351,7 @@ const Users = () => {
             <CModal size="lg" visible={visibleXL} onClose={() => setVisibleXL(false)}>
               <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                 <CModalHeader>
-                  <CModalTitle>{formAction} Role </CModalTitle>
+                  <CModalTitle>{formAction} User  </CModalTitle>
                 </CModalHeader>
                 <CModalBody>
                   <CCol xs={12}>

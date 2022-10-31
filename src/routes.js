@@ -67,11 +67,14 @@ const Payment = React.lazy(() => import('./views/pages/payment'))
 /* Purchase Order */
 const Vendor = React.lazy(() => import('./views/pages/vendors'))
 const PurchaseOrder = React.lazy(() => import('./views/pages/purchaseOrder'))
+const PurchasePipeline = React.lazy(() => import('./views/pages/purchasePipeline'))
 
 /* Roles & Permissions */
 const Roles = React.lazy(() => import('./views/pages/roles'))
 const Permissions = React.lazy(() => import('./views/pages/permissions'))
 const Users = React.lazy(() => import('./views/pages/users'))
+
+
 
 
 
@@ -136,7 +139,8 @@ const routes = [
   { path: '/roles', name: 'Roles', element: Roles },
   { path: '/permissions', name: 'Roles', element: Permissions },
   { path: '/users', name: 'Users', element: Users },
-
+  { path: '/purchase-pipeline/:id', name: 'Purchase Pipeline', element: PurchasePipeline },
+  
 ]
 
 export default routes

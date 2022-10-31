@@ -203,7 +203,7 @@ const new_nav = [
   },
   {
     component: CNavTitle,
-    name: 'Extras',
+    name: 'Modules & Settings',
   },
   {
     component: CNavGroup,
