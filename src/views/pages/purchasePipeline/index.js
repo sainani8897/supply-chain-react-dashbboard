@@ -135,8 +135,8 @@ const PurchasePipeline = () => {
   };
 
   /* Shipping Form */
-  const onShippingSubmit = ({ shipment }) => {
-    createShipping(shipment);
+  const onReceive = ({ receive }) => {
+    createReceivables(receive);
   };
 
   /* Payment Form */
@@ -193,15 +193,15 @@ const PurchasePipeline = () => {
       })
   }
 
-  const createShipping = (data) => {
+  const createReceivables = (data) => {
     let method = 'post'
-    if (data._id) {
+    if (data?._id) {
       method = 'patch'
     }
     const headers = { Authorization: localStorage.getItem('token') ?? null }
     axios({
       method,
-      url: process.env.REACT_APP_API_URL + "/shipment",
+      url: process.env.REACT_APP_API_URL + "/receivables",
       data: { payload: data },
       headers: headers
     })
@@ -1047,18 +1047,18 @@ const PurchasePipeline = () => {
                       </div>
                     </div>)
                     : (
-                      <CForm onSubmit={handleSubmit('', onPackageErrors)}>
+                      <CForm onSubmit={handleSubmit(onReceive, onPackageErrors)}>
                         <CCol xs={12}>
 
                           {/* Show Package Form  */}
                           <CRow className="row g-3 px-3 mt-1 mb-5">
                             <ValidationAlert validate={{ visible: validationAlert, errorObjData }} />
                             <CCol md={6}>
-                              <CFormInput type="text" id="inputEmail4" floatingLabel="Package Slip#" {...register("package_slip", options.order_no)} />
+                              <CFormInput type="text" id="inputEmail4" floatingLabel="Purchase Receive#" {...register("receive.receivable_no")} />
                               {errors.order_no && <div className='invalid-validation-css'>This field is required</div>}
                             </CCol>
                             <CCol md={6}>
-                              <CFormInput type="date" id="inputPassword4" floatingLabel="Date" {...register("date", options.date)} />
+                              <CFormInput type="date" id="inputPassword4" floatingLabel="Date" {...register("receive.date")} />
                             </CCol>
                             <h5>Items</h5>
                             {/* Product Info */}
@@ -1070,7 +1070,8 @@ const PurchasePipeline = () => {
                                       <tr>
                                         <th className="text-center"> # </th>
                                         <th className="text-center"> Product </th>
-                                        <th className="text-center"> .Pcs </th>
+                                        <th className="text-center"> Order Qty </th>
+                                        <th className="text-center"> QUANTITY TO RECEIVE  </th>
                                       </tr>
                                     </thead>
                                     <tbody>
@@ -1082,9 +1083,11 @@ const PurchasePipeline = () => {
                                               <div><b>ITEM:</b>{element.product_id}</div>
                                               <div>Qty:{element.qty}</div>
                                               <div>Rate:{element.rate}</div>
-                                              <CFormInput type="hidden" id="inputPcs"  {...register(`package[${index}].product_id`)} />
+                                              <CFormInput type="hidden" id="inputPcs" value={element.product_id}  {...register(`receive.receivable[${index}].product_id`)} />
+                                              <CFormInput type="hidden" id="inputPcs" value={element.qty}  {...register(`receive.receivable[${index}].ordered_qty`)} />
                                             </td>
-                                            <td><CFormInput type="number" id="inputPcs"  {...register(`package[${index}].pcs`)} /></td>
+                                            <td>{element.qty}</td>
+                                            <td><CFormInput type="number" id="inputRecQty"  {...register(`receive.receivable[${index}].received_qty`)} /></td>
                                           </tr>)
                                       }
                                       )}
@@ -1104,13 +1107,13 @@ const PurchasePipeline = () => {
                             <h5>Additional Information</h5>
 
                             <CCol md={12}>
-                              <CFormTextarea id="cost_data" floatingLabel="Package Notes" style={{ height: '100px' }} {...register("package_notes")} rows="6">
+                              <CFormTextarea id="cost_data" floatingLabel="Package Notes" style={{ height: '100px' }} {...register("additional_notes")} rows="6">
                               </CFormTextarea>
                             </CCol>
 
                             <CCol md={12} className="mt-4">
                               <div className='float-end'>
-                                <input type="hidden"  {...register("purchase_order")} value={id}></input>
+                                <input type="hidden"  {...register("receive.purchase_order")} value={id}></input>
                                 <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
                                 <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
                               </div>
