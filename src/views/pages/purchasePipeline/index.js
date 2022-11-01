@@ -274,20 +274,10 @@ const PurchasePipeline = () => {
       })
   }
 
-  const getpackageData = (data) => {
-    axios.get(process.env.REACT_APP_API_URL + "/packages", { params: { sales_order: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
+  const getBillsData = (data) => {
+    axios.get(process.env.REACT_APP_API_URL + "/receivables", { params: { purchase_order: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((response) => {
         setPackage(response.data.data?.docs[0] ?? null);
-      })
-      .catch((error) => {
-        toast.error("Opps something went wrong!")
-      })
-  }
-
-  const getShipmentData = (data) => {
-    axios.get(process.env.REACT_APP_API_URL + "/shipment", { params: { purchase_order: id }, headers: { Authorization: localStorage.getItem('token') ?? null } })
-      .then((response) => {
-        setShipment(response.data.data?.docs[0] ?? null);
       })
       .catch((error) => {
         toast.error("Opps something went wrong!")
@@ -566,7 +556,7 @@ const PurchasePipeline = () => {
 
   /* Handle Receviables */
   const hanldeReceivables = () => {
-    getShipmentData({ sales_order: id });
+    getBillsData({ purchase_order: id });
     setActiveKey(3);
   }
 
@@ -968,13 +958,13 @@ const PurchasePipeline = () => {
 
                                   <div className="d-flex justify-content-between align-items-center">
                                     <div className="d-flex flex-column">
-                                      <span className="lead fw-normal"># {packageData.package_slip}</span>
+                                      <span className="lead fw-normal"># {packageData.receivable_no}</span>
                                       <span className="text-muted small">{DateTime.fromISO(packageData.date).toFormat('dd LLL , yyyy')}</span>
                                     </div>
                                     <div>
                                       <span className="mx-5">Status: <strong style={{ "color": "green" }}>{packageData.status}</strong></span>
                                       <button className="btn btn-outline-primary mx-2" type="button">Mark as Delivered</button>
-                                      <button className="btn btn-outline-primary" type="button">Create Shipment</button>
+                                      {/* <button className="btn btn-outline-primary" type="button">Create Shipment</button> */}
                                     </div>
                                   </div>
                                   <hr className="my-4" />
@@ -1017,11 +1007,12 @@ const PurchasePipeline = () => {
                                 <tr>
                                   <th scope="col"> # </th>
                                   <th scope="col"> Product </th>
-                                  <th scope="col"> Qty </th>
+                                  <th scope="col"> Ordered Qty</th>
+                                  <th scope="col"> Received Qty</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {packageData?.package?.map((element, index) => {
+                                {packageData?.receivable?.map((element, index) => {
                                   return (
                                     <tr id={index + "addr2"}>
                                       <td>{index + 1}</td>
@@ -1029,7 +1020,8 @@ const PurchasePipeline = () => {
                                         {element.product_id?.name}
                                         <CFormInput type="hidden" id="inputPcs"  {...register(`package[${index}].product_id`)} />
                                       </td>
-                                      <td>1</td>
+                                      <td>{element.ordered_qty}</td>
+                                      <td>{element.received_qty}</td>
                                     </tr>)
                                 }
                                 )}
@@ -1040,7 +1032,7 @@ const PurchasePipeline = () => {
                         <div className='mt-2 mb-5'>
                           <div>Notes</div>
                           <p className='mx-2'>
-                            <small>{packageData.package_notes}</small>
+                            <small>{packageData.additional_notes}</small>
                           </p>
                         </div>
 
