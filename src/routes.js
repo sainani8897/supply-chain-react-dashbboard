@@ -68,6 +68,8 @@ const Payment = React.lazy(() => import('./views/pages/payment'))
 const Vendor = React.lazy(() => import('./views/pages/vendors'))
 const PurchaseOrder = React.lazy(() => import('./views/pages/purchaseOrder'))
 const PurchasePipeline = React.lazy(() => import('./views/pages/purchasePipeline'))
+const Receivables = React.lazy(() => import('./views/pages/receivables'))
+
 
 /* Roles & Permissions */
 const Roles = React.lazy(() => import('./views/pages/roles'))
@@ -140,6 +142,8 @@ const routes = [
   { path: '/permissions', name: 'Roles', element: Permissions },
   { path: '/users', name: 'Users', element: Users },
   { path: '/purchase-pipeline/:id', name: 'Purchase Pipeline', element: PurchasePipeline },
+  { path: '/receivables', name: 'Receivables', element: Receivables },
+
   
 ]
 

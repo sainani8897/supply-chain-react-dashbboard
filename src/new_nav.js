@@ -182,7 +182,7 @@ const new_nav = [
       {
         component: CNavItem,
         name: 'Purchase Receives',
-        to: '/base/breadcrumbs',
+        to: '/receivables',
       },
       {
         component: CNavItem,
