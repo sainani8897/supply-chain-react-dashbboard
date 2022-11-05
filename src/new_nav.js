@@ -18,7 +18,8 @@ import {
   cilStar,
   cilTags,
   cilLockLocked,
-  cilShieldAlt
+  cilShieldAlt,
+  cilSettings
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -207,13 +208,13 @@ const new_nav = [
   },
   {
     component: CNavGroup,
-    name: 'Pages',
-    icon: <CIcon icon={cilStar} customClassName="nav-icon" />,
+    name: 'Settings',
+    icon: <CIcon icon={cilSettings} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Login',
-        to: '/login',
+        name: 'Profile',
+        to: '/profile',
       },
       {
         component: CNavItem,

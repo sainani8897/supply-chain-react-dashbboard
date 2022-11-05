@@ -145,6 +145,7 @@ const routes = [
   { path: '/purchase-pipeline/:id', name: 'Purchase Pipeline', element: PurchasePipeline },
   { path: '/receivables', name: 'Receivables', element: Receivables },
   { path: '/bills', name: 'bills', element: Bill },
+  { path: '/profile', name: 'profile', element: FormControl },
 
   
 ]
