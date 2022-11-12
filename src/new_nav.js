@@ -53,7 +53,7 @@ const new_nav = [
   {
     component: CNavItem,
     name: 'Inventory',
-    to: '/theme/typography',
+    to: '/500',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
   },
   {

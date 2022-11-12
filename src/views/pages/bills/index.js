@@ -321,8 +321,8 @@ const Bill = () => {
                 prevNext
                 activeBgColor="#fffff"
                 activeBorderColor="#7bc9c9"
-                href="http://localhost:3000/bills?page=*"
-                pageOneHref="http://localhost:3000/bills"
+                href="/bills?page=*"
+                pageOneHref="/bills"
               />
             </div>
 
