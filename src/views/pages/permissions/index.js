@@ -329,8 +329,8 @@ const Permissions = () => {
                 prevNext
                 activeBgColor="#fffff"
                 activeBorderColor="#7bc9c9"
-                href="http://localhost:3000/permissions?page=*"
-                pageOneHref="http://localhost:3000/permissions"
+                href="/permissions?page=*"
+                pageOneHref="/permissions"
               />
             </div>
 
