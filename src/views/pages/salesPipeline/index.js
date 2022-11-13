@@ -1012,7 +1012,176 @@ const SalesPipeline = () => {
                 </CForm>
               </CTabPane>
               <CTabPane role="tabpanel" aria-labelledby="contact-tab" visible={activeKey === 4}>
-                
+                <div className='mt-5 px-2'>
+
+                  {!invoiceData ?
+
+                    /* create invoice  */
+                    (<div className="container py-4">
+                      <div className="row d-flex justify-content-center align-items-center h-100">
+                        <div className="col">
+
+                          <div className="card card-stepper" style={{ borderRadius: "10px" }} >
+                            <div className="card-body p-4">
+
+                              <div className="d-flex justify-content-between align-items-center">
+                                <div className="d-flex flex-column">
+                                  <span className="lead fw-normal">S.O: #{order.order_no}</span>
+                                  <span className="text-muted small">{DateTime.fromISO(order.sale_date).toFormat('dd LLL , yyyy')}</span>
+                                </div>
+                                <div><span>Status:<strong> {order.status}</strong></span></div>
+                                <div>
+                                  <button className="btn btn-outline-primary mx-2" type="button">Convert to Invoice</button>
+                                  {/* <button className="btn btn-outline-primary" type="button">Make Payment</button> */}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>)
+
+                    :
+                    (
+                      <div className="container">
+                        <div className="row d-flex justify-content-center align-items-center h-100 mb-4">
+                          <div className="col">
+
+                            <div className="card card-stepper" style={{ borderRadius: "10px" }} >
+                              <div className="card-body p-4">
+
+                                <div className="d-flex justify-content-between align-items-center">
+                                  <div className="d-flex flex-column">
+                                    <span className="lead fw-normal"> #{invoiceData.invoice_no}</span>
+                                    <span className="text-muted small">{DateTime.fromISO(invoiceData.invoice_date).toFormat('dd LLL , yyyy')}</span>
+                                  </div>
+                                  <div className="d-flex flex-column">
+                                    <span className="fw-normal">Balace: <strong>${invoiceData.sale_details.total}</strong></span>
+                                    <span className="text-muted small">Due on {DateTime.fromISO(invoiceData.invoice_date).toFormat('dd/LLL/yyyy')}</span>
+                                  </div>
+                                  <div className="d-flex flex-column">
+                                    <span className="fw-normal">Payment</span>
+                                    <CBadge color={invoiceData.payment == 'Paid' ? 'success' : 'warning'}>{invoiceData.payment}</CBadge>
+                                  </div>
+                                  <div>
+                                    {invoiceData.payment == "Paid" ? ('') : (<button className="btn btn-outline-primary" onClick={() => { setVisibleXL(true) }} type="button">Make Payment</button>)}
+
+                                    <button className="btn btn-outline-primary mx-2" type="button">Send Invoice</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="card">
+                          <div className="card-body">
+                            <div id="invoice">
+                              <div className="toolbar hidden-print">
+                                <div className="text-end">
+                                  <button type="button" className="btn btn-dark mx-2"><i className="fa fa-print"></i> Print </button>
+                                  <button type="button" className="btn btn-danger"><i className="fa fa-file-pdf-o"></i> Export as PDF</button>
+                                </div>
+                                <hr />
+                              </div>
+                              <div className="invoice overflow-auto">
+                                <div style={{ "min-width": "600px" }}>
+                                  <header>
+                                    <div className="row">
+                                      <div className="col">
+                                        <a href="javascript:;">
+                                          <img src="assets/images/logo-icon.png" width="80" alt="" />
+                                        </a>
+                                      </div>
+                                      <div className="col company-details">
+                                        <h2 className="name">
+                                          <a target="_blank" href="javascript:;">
+                                            Dcodelabs
+                                          </a>
+                                        </h2>
+                                        <div>455 Foggy Heights, AZ 85004, US</div>
+                                        <div>(123) 456-789</div>
+                                        <div>company@example.com</div>
+                                      </div>
+                                    </div>
+                                  </header>
+                                  <main>
+                                    <div className="row contacts">
+                                      <div className="col invoice-to">
+                                        <div className="text-gray-light">INVOICE TO:</div>
+                                        <h2 className="to">{invoiceData.customer_id?.name}</h2>
+                                        <div className="email"><a href="mailto:john@example.com">{invoiceData.customer_id.email}</a>
+                                          <div className="address">{invoiceData.customer_id?.address.address_line1} {invoiceData.customer_id?.address.address_line2}</div>
+                                          <div className="address">{invoiceData.customer_id?.address.city}</div>
+                                        </div>
+                                      </div>
+                                      <div className="col invoice-details">
+                                        <h1 className="invoice-id">{invoiceData.invoice_no}</h1>
+                                        <div className="date">Date of Invoice: {invoiceData.invoice_date}</div>
+                                        <div className="date">Due Date: {invoiceData.due_date}</div>
+                                      </div>
+                                    </div>
+                                    <table>
+                                      <thead>
+                                        <tr>
+                                          <th>#</th>
+                                          <th className="text-left">ITEMS & DESCRIPTION</th>
+                                          <th className="text-right">Qty</th>
+                                          <th className="text-right">Rate</th>
+                                          <th className="text-right">TOTAL</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {invoiceData.items?.map((item, index) => {
+                                          return (
+                                            <tr key={index}>
+                                              <td className="no">{index + 1}</td>
+                                              <td className="text-left">
+                                                <h3>{item.product_id?.name}</h3>
+                                                <p>{item.product_id?.description}</p>
+                                              </td>
+                                              <td className="unit">${item.qty}</td>
+                                              <td className="qty">${item.rate}</td>
+                                              <td className="total">${item.amount}</td>
+                                            </tr>
+                                          )
+                                        })}
+                                      </tbody>
+                                      <tfoot>
+                                        <tr>
+                                          <td colSpan="2"></td>
+                                          <td colSpan="2">SUBTOTAL</td>
+                                          <td>${invoiceData.sale_details?.sub_total}</td>
+                                        </tr>
+                                        <tr>
+                                          <td colSpan="2"></td>
+                                          <td colSpan="2">TAX {/* 25% */}</td>
+                                          <td>${invoiceData.sale_details?.tax}</td>
+                                        </tr>
+                                        <tr>
+                                          <td colSpan="2"></td>
+                                          <td colSpan="2">GRAND TOTAL</td>
+                                          <td>${invoiceData.sale_details?.total}</td>
+                                        </tr>
+                                      </tfoot>
+                                    </table>
+                                    <div className="thanks">Thank you!</div>
+                                    <div className="notices">
+                                      <div>NOTICE:</div>
+                                      <div className="notice">{invoiceData.notes}</div>
+                                    </div>
+                                  </main>
+                                  <footer>Invoice was created on a computer and is valid without the signature and seal.</footer>
+                                </div>
+                                {/* <!--DO NOT DELETE THIS div. IT is responsible for showing footer always at the bottom--> */}
+                                <div></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>)}
+
+                </div>
               </CTabPane>
             </CTabContent>
 
