@@ -293,7 +293,7 @@ const Customer = () => {
               tables look in CoreUI.
             </p> */}
             {/* <DocsExample href="components/table"> */}
-            <CTable hover>
+            <CTable align="middle" className="mb-0 border" hover responsive>
               <CTableHead color="dark">
                 <CTableRow>
                   <CTableHeaderCell scope="col">#</CTableHeaderCell>
