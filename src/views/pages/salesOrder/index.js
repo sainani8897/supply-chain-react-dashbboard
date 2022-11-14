@@ -565,7 +565,6 @@ const SalesOrder = () => {
                         <div className="row clearfix">
                           <div className="col-md-12">
                             <button id="add_row" type='button' onClick={() => { addRow() }} className="btn btn-default pull-left">Add Row</button>
-                            <button id='delete_row' type='button' onClick={() => { alert(2) }} className="float-end btn btn-default">Delete Row</button>
                           </div>
                         </div>
                         <div className="row clearfix" style={{ "margin-top": "20px" }} > {/* style={"margin-top:20px"} */}
