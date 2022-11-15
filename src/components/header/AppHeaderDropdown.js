@@ -1,6 +1,7 @@
-import React from 'react'
+import React from "react";
 import useLogout from "../../hooks/useLogout";
-import { auth } from 'src/hooks/useAuth';
+import { auth } from "src/hooks/useAuth";
+import { Link } from "react-router-dom";
 import {
   CAvatar,
   CBadge,
@@ -10,7 +11,7 @@ import {
   CDropdownItem,
   CDropdownMenu,
   CDropdownToggle,
-} from '@coreui/react'
+} from "@coreui/react";
 import {
   cilBell,
   cilCreditCard,
@@ -22,20 +23,19 @@ import {
   cilTask,
   cilUser,
   cilApplicationsSettings,
-} from '@coreui/icons'
-import CIcon from '@coreui/icons-react'
+} from "@coreui/icons";
+import CIcon from "@coreui/icons-react";
 
-import avatar8 from './../../assets/images/avatars/8.jpg'
+import avatar8 from "./../../assets/images/avatars/8.jpg";
 
 const AppHeaderDropdown = () => {
-  
   const logout = useLogout();
-  
+
   const signOut = async () => {
-    console.log("Clicked!!")
+    console.log("Clicked!!");
     await logout();
-    navigate('/linkpage');
-  }
+    navigate("/linkpage");
+  };
 
   return (
     <CDropdown variant="nav-item">
@@ -43,7 +43,9 @@ const AppHeaderDropdown = () => {
         <CAvatar src={avatar8} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
-        <CDropdownHeader className="bg-light fw-semibold py-2">Account</CDropdownHeader>
+        <CDropdownHeader className="bg-light fw-semibold py-2">
+          Account
+        </CDropdownHeader>
         <CDropdownItem href="#">
           <CIcon icon={cilBell} className="me-2" />
           Notifications
@@ -51,27 +53,31 @@ const AppHeaderDropdown = () => {
             3
           </CBadge>
         </CDropdownItem>
-        <CDropdownItem href="#">
-          <CIcon icon={cilUser} className="me-2" />
-          Profile
+        <CDropdownItem>
+          <Link to="/profile">
+            <CIcon icon={cilUser} className="me-2" />
+            Profile
+          </Link>
         </CDropdownItem>
-        <CDropdownHeader className="bg-light fw-semibold py-2">Settings</CDropdownHeader>
+        <CDropdownHeader className="bg-light fw-semibold py-2">
+          Settings
+        </CDropdownHeader>
         <CDropdownItem href="#">
           <CIcon icon={cilSettings} className="me-2" />
           Settings
         </CDropdownItem>
         <CDropdownItem href="#">
-        <CIcon icon={cilApplicationsSettings} className="me-2" />
+          <CIcon icon={cilApplicationsSettings} className="me-2" />
           Application Logs
         </CDropdownItem>
         <CDropdownDivider />
         <CDropdownItem href="#" onClick={() => signOut()}>
-          <CIcon icon={cilLockLocked}  className="me-2" />
+          <CIcon icon={cilLockLocked} className="me-2" />
           Logout
         </CDropdownItem>
       </CDropdownMenu>
     </CDropdown>
-  )
-}
+  );
+};
 
-export default AppHeaderDropdown
+export default AppHeaderDropdown;

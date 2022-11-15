@@ -77,6 +77,9 @@ const Roles = React.lazy(() => import('./views/pages/roles'))
 const Permissions = React.lazy(() => import('./views/pages/permissions'))
 const Users = React.lazy(() => import('./views/pages/users'))
 
+/*  User Profile */
+const Profile = React.lazy(() => import('./views/pages/profile'))
+
 
 
 
@@ -145,7 +148,7 @@ const routes = [
   { path: '/purchase-pipeline/:id', name: 'Purchase Pipeline', element: PurchasePipeline },
   { path: '/receivables', name: 'Receivables', element: Receivables },
   { path: '/bills', name: 'bills', element: Bill },
-  { path: '/profile', name: 'profile', element: FormControl },
+  { path: '/profile', name: 'profile', element: Profile },
 
   
 ]
