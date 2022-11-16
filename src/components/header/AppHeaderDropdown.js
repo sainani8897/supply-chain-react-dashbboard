@@ -32,7 +32,6 @@ const AppHeaderDropdown = () => {
   const logout = useLogout();
 
   const signOut = async () => {
-    console.log("Clicked!!");
     await logout();
     navigate("/linkpage");
   };
@@ -53,11 +52,9 @@ const AppHeaderDropdown = () => {
             3
           </CBadge>
         </CDropdownItem>
-        <CDropdownItem>
-          <Link to="/profile">
-            <CIcon icon={cilUser} className="me-2" />
-            Profile
-          </Link>
+        <CDropdownItem href="/profile">
+          <CIcon icon={cilUser} className="me-2" />
+          Profile
         </CDropdownItem>
         <CDropdownHeader className="bg-light fw-semibold py-2">
           Settings

@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import ValidationAlert from "../../../components/Alerts/ValidationAlert";
+import { toast } from "react-toastify";
+import ValidationAlert from "../../../components/Alerts/ValidationAlert"
 import {
   CCard,
   CCardBody,
@@ -50,11 +51,7 @@ const Profile = () => {
   const [categoryData, setCategory] = useState({});
   const [validationAlert, setValidationAlert] = useState(false);
   const [errorObjData, setErrorObj] = useState([]);
-  const [toast, setToast] = useState({
-    visible: false,
-    color: "primary",
-    message: "Oops something went wrong!",
-  });
+
   const addForm = () => {
     reset({ sort: "", category_name: "", parent_id: "" });
     setFormAction("Add");
@@ -70,13 +67,25 @@ const Profile = () => {
 
   /* Form */
   const onFormSubmit = (data) => {
-    console.log("==== Here at cat ======");
-    if (formAction == "Add") {
-      create(data);
-    } else {
-      updateData(data);
-    }
+    updateProfile(data);
   };
+
+  const updateProfile = (postdata) => {
+    //Adding roles 
+    postdata.roles = data.roles ?? []
+    axios.patch(process.env.REACT_APP_API_URL + "/users",
+      postdata,
+      { headers: { Authorization: localStorage.getItem('token') ?? null } })
+      .then((response) => {
+        reload();
+        toast.success("Profile Updated Successfully")
+      })
+      .catch((error, response) => {
+        console.log(error);
+        toast.error(response?.data.message ?? "Opps something went wrong!")
+      })
+  }
+
 
   const onErrors = (errors) => console.error(errors);
 
@@ -94,7 +103,6 @@ const Profile = () => {
       .then((res) => {
         setData(res.data.data);
         onEdit(res.data.data)
-        console.log(data);
       })
       .catch((err) => {
         setToast({
@@ -151,8 +159,9 @@ const Profile = () => {
                     src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg"
                   />
                   <span className="font-weight-bold">{data.first_name} {data.last_name}</span>
-                  <span className="text-black-50">{data.email} {data.phone_number}</span>
-                  <span className="text-black-50">Sales Manager </span>
+                  <span className="text-black-50">mail:{data.email}</span>
+                  <span className="text-black-50">phone:{data.phone_number}</span>
+                  <span className="text-black-50">Role: </span>
                 </div>
               </div>
               <div className="col-md-5 border-right">
@@ -261,7 +270,7 @@ const Profile = () => {
                     <div className="mt-5 text-center">
                       <button
                         className="btn btn-primary profile-button"
-                        type="button"
+                        type="submit"
                       >
                         Save Profile
                       </button>
@@ -272,29 +281,31 @@ const Profile = () => {
               <div className="col-md-4">
                 <div className="p-3 py-5">
                   <div className="d-flex justify-content-between align-items-center experience">
-                    <span>Change Password</span>
+                    <span>Organization Details</span>
                     <span className="border px-3 p-1 add-experience">
-                      <i className="fa fa-plus"></i>&nbsp;Experience
+                      <i className="fa fa-plus"></i>&nbsp;Details
                     </span>
                   </div>
                   <br />
                   <div className="col-md-12">
-                    <label className="labels">Experience in Designing</label>
+                    <label className="labels">Orgnization Name</label>
                     <input
                       type="text"
                       className="form-control"
                       placeholder="experience"
-                      value=""
+                      disabled
+                      value={data?.org_id?.name}
                     />
                   </div>
                   <br />
                   <div className="col-md-12">
-                    <label className="labels">Additional Details</label>
+                    <label className="labels">Organization Email</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="additional details"
-                      value=""
+                      placeholder="experience"
+                      disabled
+                      value={data?.org_id?.org_email}
                     />
                   </div>
                 </div>
