@@ -81,14 +81,9 @@ const Users = React.lazy(() => import('./views/pages/users'))
 const Profile = React.lazy(() => import('./views/pages/profile'))
 
 
-
-
-
-
-
 const routes = [
   { path: '/', exact: true, name: 'Home' },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  { path: '/dashboard', name: 'Dashboard', element: Dashboard, permission:"dashboard" },
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },

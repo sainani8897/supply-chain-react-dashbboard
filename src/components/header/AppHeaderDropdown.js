@@ -1,6 +1,6 @@
 import React from "react";
 import useLogout from "../../hooks/useLogout";
-import { auth } from "src/hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 import { Link } from "react-router-dom";
 import {
   CAvatar,
@@ -36,9 +36,14 @@ const AppHeaderDropdown = () => {
     navigate("/linkpage");
   };
 
+  const { auth, persist } = useAuth();
+
+  const user = auth.user ?? null;
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
+        {user.name ?? ''} &nbsp;
         <CAvatar src={avatar8} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
