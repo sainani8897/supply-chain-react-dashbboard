@@ -34,6 +34,7 @@ import {
   CToastClose,
   CPopover,
   CTooltip,
+  CBadge
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 import { cilBell, cilPencil, cilTrash } from "@coreui/icons";
@@ -130,6 +131,8 @@ const Profile = () => {
     setDelVisible(true);
   };
 
+  const pluck = (arr, key) => arr.map(i => i[key]);
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -156,12 +159,16 @@ const Profile = () => {
                   <img
                     className="rounded-circle mt-5"
                     width="150px"
-                    src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg"
+                    src={`https://ui-avatars.com/api/?name=${data.name}=&size=250`}
                   />
                   <span className="font-weight-bold">{data.first_name} {data.last_name}</span>
                   <span className="text-black-50">mail:{data.email}</span>
                   <span className="text-black-50">phone:{data.phone_number}</span>
-                  <span className="text-black-50">Role: </span>
+                  <span className="text-black-50">{pluck(data?.roles ?? [], "display_text")?.map((role, key) => {
+                      return (
+                        <CBadge color="primary">{role}</CBadge>
+                      );
+                    })} </span>
                 </div>
               </div>
               <div className="col-md-5 border-right">

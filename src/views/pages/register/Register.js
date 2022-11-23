@@ -1,4 +1,4 @@
-import {React,useState} from 'react'
+import { React, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   CButton,
@@ -11,34 +11,50 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-  CAlert
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
-import axios from 'axios';
+  CAlert,
+} from "@coreui/react";
+import CIcon from "@coreui/icons-react";
+import { cilLockLocked, cilUser } from "@coreui/icons";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Register = () => {
-
   const [token, setToken] = useState("");
-  const { register, handleSubmit } = useForm();
-  const baseUrl = "http://localhost:8800/api/v1";
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm();
+  const baseUrl = process.env.REACT_APP_API_URL;
+  
+  let navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
+
   const onFormSubmit = (data) => {
-    axios.post(baseUrl+"/register",data)
-    .then((response)=>{
-      console.log(response);
-      setToken(response.data.token);
-      localStorage.setItem("token", response.data.token);
-    })
-    .catch((error)=>{
-      setVisible(true);
-    })
+    axios
+      .post(baseUrl + "/register", data)
+      .then((response) => {
+        setToken(response.data.data.token);
+        localStorage.setItem("token", response.data.data.token);
+        toast.success(response.data.message ?? "Created Successfuly");
+        setTimeout(() => {
+          navigate(from, { replace: true });
+        }, 3000);
+      })
+      .catch((error) => {
+        toast.error(error.message ?? "Created Successfuly");
+      });
     console.log(data);
   };
   const onErrors = (errors) => console.error(errors);
 
   const [visible, setVisible] = useState(false);
 
-  
   const registerOptions = {
     email: { required: "Email is required" },
     password: {
@@ -50,7 +66,6 @@ const Register = () => {
     },
   };
 
-
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -58,85 +73,138 @@ const Register = () => {
           <CCol md={9} lg={7} xl={6}>
             <CCard className="mx-4">
               <CCardBody className="p-4">
-              <CAlert
-                    color="danger"
-                    dismissible
-                    visible={visible}
-                    onClose={() => setVisible(false)}
-                  >
-                    Please Check Validations
-                  </CAlert>
+                <CAlert
+                  color="danger"
+                  dismissible
+                  visible={visible}
+                  onClose={() => setVisible(false)}
+                >
+                  Please Check Validations
+                </CAlert>
                 <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                   <h1>Sign Up</h1>
-                  <p className="text-medium-emphasis">Create your account</p>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                    <CIcon icon={cilUser} />
-                    </CInputGroupText>
+                  <p className="text-medium-emphasis">Personal Information</p>
+
+                  <CCol className="mb-3">
                     <CFormInput
-                        placeholder="First Name"
-                        autoComplete="name"
-                        required
-                        type="text"
-                        // onChange={()=>{setUsername(this.value)}}
-                        name="name"
-                        {...register("first_name", registerOptions.username)}
-                      />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                    <CIcon icon={cilUser} />
-                    </CInputGroupText>
+                      placeholder="First Name"
+                      autoComplete="first_name"
+                      required
+                      floatingLabel="First Name"
+                      type="text"
+                      {...register("first_name", {required:true})}
+                    />
+                    {errors.first_name && (
+                      <div className="invalid-validation-css">
+                        First Name is required
+                      </div>
+                    )}
+                  </CCol>
+
+                  
+                  <CCol className="mb-3">
                     <CFormInput
-                        placeholder="Last Name"
-                        autoComplete="name"
-                        required
-                        type="name"
-                        // onChange={()=>{setUsername(this.value)}}
-                        name="last_name"
-                        {...register("name", registerOptions.username)}
-                      />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      @
-                    </CInputGroupText>
+                      placeholder="Last Name"
+                      autoComplete="last_name"
+                      required
+                      floatingLabel="Last Name"
+                      type="text"
+                      {...register("last_name", {required:true})}
+                    />
+                    {errors.last_name && (
+                      <div className="invalid-validation-css">
+                        Last Name is required
+                      </div>
+                    )}
+                  </CCol>
+
+                  <CCol className="mb-3">
                     <CFormInput
-                        placeholder="example@example.com"
-                        autoComplete="email"
-                        required
-                        type="email"
-                        // onChange={()=>{setUsername(this.value)}}
-                        name="email"
-                        {...register("email", registerOptions.username)}
-                      />
-                  </CInputGroup>
-                  <CInputGroup className="mb-3">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
+                      placeholder="E-mail"
+                      autoComplete="email"
+                      required
+                      floatingLabel="E-mail"
+                      type="text"
+                      {...register("email", {required:true})}
+                    />
+                    {errors.email && (
+                      <div className="invalid-validation-css">
+                        Email is required
+                      </div>
+                    )}
+                  </CCol>
+
+                  <CCol className="mb-3">
                     <CFormInput
-                      type="password"
                       placeholder="Password"
-                      autoComplete="new-password"
-                      name="password"
-                      {...register("password", registerOptions.username)}
-                    />
-                  </CInputGroup>
-                  <CInputGroup className="mb-4">
-                    <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
-                    </CInputGroupText>
-                    <CFormInput
+                      autoComplete="name"
+                      required
+                      floatingLabel="Password"
                       type="password"
-                      placeholder="Confirm password"
-                      autoComplete="new-password"
-                      name="password_confirmation"
-                      {...register("password_confirmation", registerOptions.username)}
+                      {...register("password", {required:true})}
                     />
-                  </CInputGroup>
+                    {errors.password && (
+                      <div className="invalid-validation-css">
+                        Password is required
+                      </div>
+                    )}
+                  </CCol>
+
+                  <CCol className="mb-3">
+                    <CFormInput
+                      placeholder="Confirm Password"
+                      autoComplete="name"
+                      required
+                      floatingLabel="Confirm Password"
+                      type="password"
+                      {...register("password_confirmation", {required:true})}
+                    />
+                    {errors.password_confirmation && (
+                      <div className="invalid-validation-css">
+                        This field is required
+                      </div>
+                    )}
+                  </CCol>
+
+                  
+
+                  <p className="text-medium-emphasis">Organization Details</p>
+                  <CCol className="mb-3">
+                    <CFormInput
+                      type="text"
+                      id="input_end_date"
+                      floatingLabel="Organization name"
+                      {...register("org_name", {
+                        required: "Organization name is required",
+                      })}
+                    />
+                    {errors.org_name && (
+                      <div className="invalid-validation-css">
+                        Organization name is required
+                      </div>
+                    )}
+                  </CCol>
+
+                  <CCol className="mb-3">
+                    <CFormInput
+                      type="text"
+                      id="input_end_date"
+                      floatingLabel="Organization email"
+                      {...register("org_email", {
+                        required: "Organization name is required",
+                      })}
+                    />
+                    {errors.org_email && (
+                      <div className="invalid-validation-css">
+                        Organization email is required
+                      </div>
+                    )}
+                  </CCol>
+
                   <div className="d-grid">
-                    <CButton type="submit" color="success">Create Account</CButton>
+                    <CButton type="submit" color="success">
+                      Create Account
+                    </CButton>
                   </div>
                 </CForm>
               </CCardBody>
@@ -145,7 +213,7 @@ const Register = () => {
         </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;
