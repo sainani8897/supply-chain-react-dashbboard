@@ -60,7 +60,7 @@ const Login = () => {
       })
       .catch((error) => {
         console.log(error);
-        toast.error(error.response.data.message ?? "Opps something went wrong!")
+        toast.error(error?.response?.data?.message ?? error.message)
       })
 
   };

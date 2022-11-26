@@ -334,7 +334,7 @@ const Roles = () => {
             </div>
 
             {/* Modal start Here */}
-            <CModal size="lg" visible={visibleXL} onClose={() => setVisibleXL(false)}>
+            <CModal size="lg" visible={visibleXL} onClose={() => setVisibleXL(false)} backdrop='static'>
               <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                 <CModalHeader>
                   <CModalTitle>{formAction} Role </CModalTitle>

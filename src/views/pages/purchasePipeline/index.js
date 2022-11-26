@@ -1127,7 +1127,7 @@ const PurchasePipeline = () => {
 
             {/* Modal start Here */}
             {invoiceData ? (
-              <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
+              <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)} backdrop='static'>
                 <CModalHeader>
                   <CModalTitle>Payment for ({invoiceData?.invoice_no})</CModalTitle>
                 </CModalHeader>
@@ -1231,7 +1231,7 @@ const PurchasePipeline = () => {
 
             {/* Modal ends Here  */}
 
-            <CModal size="xl" visible={showBillModal} onClose={() => setBillModal(false)}>
+            <CModal size="xl" visible={showBillModal} onClose={() => setBillModal(false)} backdrop='static'>
               <CForm onSubmit={handleSubmit2(onBillSubmit, onBillErrors)}>
                 <CModalHeader>
                   <CModalTitle>Create Bill</CModalTitle>

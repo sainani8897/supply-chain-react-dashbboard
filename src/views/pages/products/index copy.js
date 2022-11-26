@@ -97,7 +97,7 @@ const Products = () => {
             </CTable>
 
             {/* Modal start Here */}
-            <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
+            <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)} backdrop='static'>
               <CModalHeader>
                 <CModalTitle>{formAction} Products</CModalTitle>
               </CModalHeader>

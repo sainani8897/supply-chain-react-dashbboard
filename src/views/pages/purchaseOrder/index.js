@@ -470,7 +470,7 @@ const PurchaseOrder = () => {
             </div>
 
             {/* Modal start Here */}
-            <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)}>
+            <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)} backdrop='static'>
               <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                 <CModalHeader>
                   <CModalTitle>{formAction} Purchase Order</CModalTitle>

@@ -308,6 +308,7 @@ const Category = () => {
               size="xl"
               visible={visibleXL}
               onClose={() => setVisibleXL(false)}
+              backdrop='static'
             >
               <CForm
                 className="row g-3"

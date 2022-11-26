@@ -1801,6 +1801,7 @@ const SalesPipeline = () => {
                 size="xl"
                 visible={visibleXL}
                 onClose={() => setVisibleXL(false)}
+                backdrop='static'
               >
                 <CModalHeader>
                   <CModalTitle>
@@ -1983,6 +1984,7 @@ const SalesPipeline = () => {
               size="xl"
               visible={invoiceFormVisible}
               onClose={() => setInvVisible(false)}
+              backdrop='static'
             >
               <CModalHeader>
                 <CModalTitle>Convert to Invoice</CModalTitle>
