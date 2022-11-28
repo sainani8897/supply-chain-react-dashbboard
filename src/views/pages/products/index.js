@@ -49,6 +49,8 @@ import { cilBell, cilPencil, cilTrash, cilWarning } from "@coreui/icons";
 import { DocsExample } from "src/components";
 import { Button } from "@coreui/coreui";
 import axios from "axios";
+import MultiSelect from "../../multi-select/Multiselect";
+import SelectAsync from "../../select-async/SelectAsync";
 
 const Product = () => {
   const columns = ["#", "class", "Heading", "Heading"];
@@ -58,6 +60,9 @@ const Product = () => {
   const [formAction, setFormAction] = useState("Add");
   const [data, setData] = useState([]);
   const [categories, setCategory] = useState({});
+  const [vendors, setVendors] = useState([]);
+  const [vendorsOptions, setVendorsOptions] = useState([]);
+  const [vendorsSelected, setvendorsSelected] = useState([]);
   const [productData, setProduct] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false);
@@ -66,6 +71,7 @@ const Product = () => {
   const addForm = () => {
     resetForm();
     setFormAction("Add");
+    setvendorsSelected([]);
     setVisibleXL(true);
   };
   const {
@@ -179,6 +185,7 @@ const Product = () => {
   useEffect(() => {
     reload();
     getCategory();
+    getVendors();
   }, []);
 
   const reload = async (page = 1) => {
@@ -194,11 +201,11 @@ const Product = () => {
         console.log(data);
       })
       .catch((err) => {
-        setToast({
-          visible: true,
-          color: "danger",
-          message: res.data.message ?? "Oops something went wrong!",
-        });
+        // setToast({
+        //   visible: true,
+        //   color: "danger",
+        //   message: res.data.message ?? "Oops something went wrong!",
+        // });
       });
   };
 
@@ -212,11 +219,32 @@ const Product = () => {
         console.log(data);
       })
       .catch((err) => {
-        setToast({
-          visible: true,
-          color: "danger",
-          message: res.data.message ?? "Oops something went wrong!",
-        });
+        // setToast({
+        //   visible: true,
+        //   color: "danger",
+        //   message: res.data.message ?? "Oops something went wrong!",
+        // });
+      });
+  };
+
+
+  const getVendors = async () => {
+    return await axios
+      .get(process.env.REACT_APP_API_URL + "/vendors", {
+        headers: { Authorization: localStorage.getItem("token") ?? null },
+      })
+      .then((res) => {
+        const vendorOptionsData = res?.data?.data?.docs?.map((option)=>{
+          return {
+            value: option._id,
+            label:option.display_name
+          }
+        })
+        setVendorsOptions(vendorOptionsData)
+        setVendors(res.data.data);
+      })
+      .catch((error) => {
+        toast.error(error.response?.data?.message ?? error.message);
       });
   };
 
@@ -249,6 +277,7 @@ const Product = () => {
     setValue("units_of_measurement", data.units_of_measurement);
     setValue("type", data.type);
     setValue("_id", data._id);
+    setvendorsSelected(data.vendor_id)
   };
 
   /* Delete  */
@@ -266,6 +295,7 @@ const Product = () => {
 
   return (
     <CRow>
+      {/* <MultiSelect data={{ selectData: [] }} /> */}
       <CCol xs={12}>
         <CToast
           autohide={true}
@@ -379,8 +409,8 @@ const Product = () => {
             ) : (
               <>
                 <CCol md={12}>
-                  <span class="d-block p-5 bg-light text-secondary text-center rounded ">
-                  <CIcon size={"xl"} icon={cilWarning} /> No Data Found
+                  <span className="d-block p-5 bg-light text-secondary text-center rounded ">
+                    <CIcon size={"xl"} icon={cilWarning} /> No Data Found
                   </span>
                 </CCol>
               </>
@@ -391,7 +421,7 @@ const Product = () => {
               size="xl"
               visible={visibleXL}
               onClose={() => setVisibleXL(false)}
-              backdrop='static'
+              backdrop="static"
             >
               <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
                 <CModalHeader>
@@ -488,10 +518,12 @@ const Product = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Vendor">
-                          <option>Choose...</option>
-                          <option>...</option>
-                        </CFormSelect>
+                        <SelectAsync data={{ options: vendorsOptions,selected:vendorsSelected }}  onSelect={ (value)=>{setValue('vendor_id',value.value)} } {...register("vendor_id",{required:true})}/>
+                        {errors.vendor_id && (
+                          <div className="invalid-validation-css">
+                            This field is required
+                          </div>
+                        )}
                       </CCol>
                       <CCol md={6}>
                         <CFormSelect
