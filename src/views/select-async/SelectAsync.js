@@ -29,7 +29,7 @@ const SelectAsync = (props) => {
 
   useEffect(() => {
     console.log(props);
-    setSelected({});
+    setSelected(props.data.selected ?? {});
   }, [setData]);
 
   return (

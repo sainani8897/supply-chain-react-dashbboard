@@ -67,6 +67,7 @@ const Product = () => {
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false);
   const [searchParams] = useSearchParams();
+ 
 
   const addForm = () => {
     resetForm();
@@ -277,7 +278,8 @@ const Product = () => {
     setValue("units_of_measurement", data.units_of_measurement);
     setValue("type", data.type);
     setValue("_id", data._id);
-    setvendorsSelected(data.vendor_id)
+    setValue("vendor_id", data.vendor_id?._id);
+    setvendorsSelected({label:data.vendor_id?.display_name,value:data.vendor_id?._id})
   };
 
   /* Delete  */
@@ -518,7 +520,7 @@ const Product = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <SelectAsync data={{ options: vendorsOptions,selected:vendorsSelected }}  onSelect={ (value)=>{setValue('vendor_id',value.value)} } {...register("vendor_id",{required:true})}/>
+                        <SelectAsync  data={{ options: vendorsOptions,selected:vendorsSelected }}  onSelect={ (value)=>{setValue('vendor_id',value.value)} } {...register("vendor_id",{required:true})}/>
                         {errors.vendor_id && (
                           <div className="invalid-validation-css">
                             This field is required
@@ -633,9 +635,9 @@ const Product = () => {
                           floatingLabel="units"
                           {...register("weight_unit", options.weight_unit)}
                         >
-                          <option>cm</option>
-                          <option>inc</option>
-                          <option>m</option>
+                          <option>kgs</option>
+                          <option>gms</option>
+                          <option>onuces</option>
                         </CFormSelect>
                       </CCol>
 
