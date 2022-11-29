@@ -62,7 +62,9 @@ const Product = () => {
   const [categories, setCategory] = useState({});
   const [vendors, setVendors] = useState([]);
   const [vendorsOptions, setVendorsOptions] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
   const [vendorsSelected, setvendorsSelected] = useState([]);
+  const [categorySelected, setCategorySelected] = useState([]);
   const [productData, setProduct] = useState({});
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false);
@@ -73,6 +75,7 @@ const Product = () => {
     resetForm();
     setFormAction("Add");
     setvendorsSelected([]);
+    setCategorySelected([]);
     setVisibleXL(true);
   };
   const {
@@ -178,13 +181,11 @@ const Product = () => {
   /* Get Data */
   useEffect(() => {
     const currentParams = Object.fromEntries([...searchParams]);
-    console.log(currentParams); // get new values onchange
     reload();
   }, [searchParams]);
 
   /* Get Data */
   useEffect(() => {
-    reload();
     getCategory();
     getVendors();
   }, []);
@@ -213,11 +214,19 @@ const Product = () => {
   const getCategory = async () => {
     return await axios
       .get(process.env.REACT_APP_API_URL + "/categories", {
+        params:{ignore_root:true},
         headers: { Authorization: localStorage.getItem("token") ?? null },
       })
       .then((res) => {
+        const catOptionsData = res?.data?.data?.docs?.map((option)=>{
+          return {
+            value: option._id,
+            label:option.category_name
+          }
+        })
+        setCategoryOptions(catOptionsData)
         setCategory(res.data.data);
-        console.log(data);
+        console.log(catOptionsData);
       })
       .catch((err) => {
         // setToast({
@@ -280,6 +289,7 @@ const Product = () => {
     setValue("_id", data._id);
     setValue("vendor_id", data.vendor_id?._id);
     setvendorsSelected({label:data.vendor_id?.display_name,value:data.vendor_id?._id})
+    setCategorySelected({label:data.category_id?.category_name,value:data.category_id?._id});
   };
 
   /* Delete  */
@@ -468,7 +478,7 @@ const Product = () => {
                       <CCol md={6}>
                         <CFormInput
                           type="text"
-                          id="inputEmail4"
+                          id="inputProductName"
                           floatingLabel="Name"
                           {...register("name", options.name)}
                         />
@@ -483,8 +493,13 @@ const Product = () => {
                           type="text"
                           id="inputPassword4"
                           floatingLabel="sku"
-                          {...register("sku", options.sku)}
+                          {...register("sku", {required:true})}
                         />
+                        {errors.vendor_id && (
+                          <div className="invalid-validation-css">
+                            SKU is required
+                          </div>
+                        )}
                       </CCol>
                       <CCol md={6}>
                         <CFormSelect
@@ -528,21 +543,12 @@ const Product = () => {
                         )}
                       </CCol>
                       <CCol md={6}>
-                        <CFormSelect
-                          id="inputState"
-                          floatingLabel="Category"
-                          {...register("category_id", options.category_id)}
-                        >
-                          <option value="">Choose...</option>
-                          {categories.docs?.map((category, index) => {
-                            return (
-                              <option key={index} value={category._id}>
-                                {category.category_name}
-                              </option>
-                            );
-                          })}
-                          ;
-                        </CFormSelect>
+                      <SelectAsync  data={{ options: categoryOptions,selected:categorySelected }}  onSelect={ (value)=>{setValue('category_id',value.value)} } {...register("category_id",{required:true})}/>
+                        {errors.category_id && (
+                          <div className="invalid-validation-css">
+                            This field is required
+                          </div>
+                        )}
                       </CCol>
                       <CCol md={6}>
                         <CFormSelect
