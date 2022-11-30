@@ -59,6 +59,19 @@ const Category = () => {
     color: "primary",
     message: "Oops something went wrong!",
   });
+
+  let paginationConfig = {
+    totalPages: 1,
+    currentPage: 1,
+    showMax: 5,
+    size: "sm",
+    threeDots: true,
+    prevNext: true,
+    onClick: function (page) {
+      // console.log(page);
+    },
+  };
+
   const addForm = () => {
     reset({ sort: "", category_name: "", parent_id: "" });
     setFormAction("Add");
@@ -184,12 +197,16 @@ const Category = () => {
   }, [searchParams]);
 
   const reload = async () => {
+    let page = searchParams.get("page") ?? 1;
     return await axios
       .get(process.env.REACT_APP_API_URL + "/categories", {
+        params: { page, limit: 15 },
         headers: { Authorization: localStorage.getItem("token") ?? null },
       })
       .then((res) => {
         setData(res.data.data);
+        const pgdata = res.data.data;
+        paginationConfig.currentPage = pgdata.page;
         console.log(data);
       })
       .catch((err) => {
@@ -271,7 +288,7 @@ const Category = () => {
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                     <CTableDataCell>{category.category_name}</CTableDataCell>
                     <CTableDataCell>
-                      {category.parent_id ?? "Root"}
+                      {category?.parent_id?.category_name ?? " "}
                     </CTableDataCell>
                     <CTableDataCell>{category.slug}</CTableDataCell>
                     <CTableDataCell>{category.status}</CTableDataCell>
@@ -310,15 +327,14 @@ const Category = () => {
             <div className="mt-2 px-2 float-end">
               <Pagination
                 threeDots
-                totalPages={data.totalPages ?? 0}
-                currentPage={data.page ?? 0}
+                totalPages={data.totalPages ?? 1}
+                currentPage={data.page ?? 1}
                 showMax={5}
                 prevNext
                 activeBgColor="#fffff"
                 activeBorderColor="#7bc9c9"
-                onClick={(page) => {
-                  reload(page);
-                }}
+                href="/category?page=*"
+                pageOneHref="/category"
               />
             </div>
 
@@ -330,7 +346,6 @@ const Category = () => {
               backdrop="static"
             >
               <CForm
-                className="row g-3"
                 onSubmit={handleSubmit(onFormSubmit, onErrors)}
               >
                 <CModalHeader>
