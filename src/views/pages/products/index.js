@@ -237,7 +237,6 @@ const Product = () => {
       });
   };
 
-
   const getVendors = async () => {
     return await axios
       .get(process.env.REACT_APP_API_URL + "/vendors", {
@@ -535,6 +534,7 @@ const Product = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
+                        <CFormLabel htmlFor="exampleFormControlInput1" className="text-secondary">Vendor</CFormLabel>
                         <SelectAsync  data={{ options: vendorsOptions,selected:vendorsSelected }}  onSelect={ (value)=>{setValue('vendor_id',value.value)} } {...register("vendor_id",{required:true})}/>
                         {errors.vendor_id && (
                           <div className="invalid-validation-css">
@@ -543,6 +543,7 @@ const Product = () => {
                         )}
                       </CCol>
                       <CCol md={6}>
+                      <CFormLabel htmlFor="exampleFormControlInput1" className="text-secondary">Category</CFormLabel>
                       <SelectAsync  data={{ options: categoryOptions,selected:categorySelected }}  onSelect={ (value)=>{setValue('category_id',value.value)} } {...register("category_id",{required:true})}/>
                         {errors.category_id && (
                           <div className="invalid-validation-css">

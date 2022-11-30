@@ -1,6 +1,9 @@
 import { React, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import ValidationAlert from "../../../components/Alerts/ValidationAlert";
+import Pagination from "react-bootstrap-4-pagination";
+import { useSearchParams } from "react-router-dom";
+
 import {
   CCard,
   CCardBody,
@@ -50,6 +53,7 @@ const Category = () => {
   const [categoryData, setCategory] = useState({});
   const [validationAlert, setValidationAlert] = useState(false);
   const [errorObjData, setErrorObj] = useState([]);
+  const [searchParams] = useSearchParams();
   const [toast, setToast] = useState({
     visible: false,
     color: "primary",
@@ -175,8 +179,9 @@ const Category = () => {
 
   /* Get Data */
   useEffect(() => {
+    const currentParams = Object.fromEntries([...searchParams]);
     reload();
-  }, []);
+  }, [searchParams]);
 
   const reload = async () => {
     return await axios
@@ -302,13 +307,27 @@ const Category = () => {
                 ))}
               </CTableBody>
             </CTable>
+            <div className="mt-2 px-2 float-end">
+              <Pagination
+                threeDots
+                totalPages={data.totalPages ?? 0}
+                currentPage={data.page ?? 0}
+                showMax={5}
+                prevNext
+                activeBgColor="#fffff"
+                activeBorderColor="#7bc9c9"
+                onClick={(page) => {
+                  reload(page);
+                }}
+              />
+            </div>
 
             {/* Modal start Here */}
             <CModal
               size="xl"
               visible={visibleXL}
               onClose={() => setVisibleXL(false)}
-              backdrop='static'
+              backdrop="static"
             >
               <CForm
                 className="row g-3"
@@ -318,7 +337,7 @@ const Category = () => {
                   <CModalTitle>{formAction} Categories</CModalTitle>
                 </CModalHeader>
                 <CModalBody>
-                <CCol xs={12}>
+                  <CCol xs={12}>
                     <CRow className="row g-3 px-3 mt-1 mb-5">
                       <ValidationAlert
                         validate={{ visible: validationAlert, errorObjData }}
