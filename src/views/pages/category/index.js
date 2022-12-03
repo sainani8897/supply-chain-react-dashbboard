@@ -68,7 +68,7 @@ const Category = () => {
     threeDots: true,
     prevNext: true,
     onClick: function (page) {
-      // console.log(page);
+      console.log(page);
     },
   };
 

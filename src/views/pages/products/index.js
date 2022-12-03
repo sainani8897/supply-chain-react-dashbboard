@@ -284,6 +284,7 @@ const Product = () => {
     setValue("description", data.description);
     setValue("sku", data.sku);
     setValue("units_of_measurement", data.units_of_measurement);
+    setValue("is_returnable", data.is_returnable);
     setValue("type", data.type);
     setValue("_id", data._id);
     setValue("vendor_id", data.vendor_id?._id);
@@ -614,7 +615,6 @@ const Product = () => {
                       </CCol>
                       <CCol md={3}>
                         <CFormSelect
-                          name="status"
                           id="inputState"
                           floatingLabel="units"
                           {...register(
