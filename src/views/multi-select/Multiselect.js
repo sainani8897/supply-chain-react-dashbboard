@@ -3,12 +3,21 @@ import AsyncSelect, { useAsync } from "react-select/async";
 
 const MultiSelect = (props) => {
   const [data, setData] = useState(props.data);
-  const colourOptions = [{ label:"Red",value:'Red'},{label:"Blue",value:"Blue"}]
+  const [selected, setSelected] = useState(props.data.selected ?? [])
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const colourOptions = data?.options ?? [];
 
   const filterColors = (inputValue) => {
     return colourOptions.filter((i) =>
       i.label.toLowerCase().includes(inputValue.toLowerCase())
     );
+  };
+
+  const handleChange = (options) => {
+    setSelectedOptions(options);
+    setSelected(options);
+    console.log(options);
+    props.onSelect(options ?? [])
   };
 
   const promiseOptions = (inputValue) =>
@@ -20,14 +29,20 @@ const MultiSelect = (props) => {
 
   useEffect(() => {
     console.log(props);
+    setSelected(props.data.selected ?? {});
   }, [setData]);
 
   return (
     <AsyncSelect
       isMulti
+      getValue
+      isClearable
+      name="vendor_id"
+      value={selected}
       cacheOptions
       defaultOptions
       loadOptions={promiseOptions}
+      onChange={handleChange}
     />
   );
 };

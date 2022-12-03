@@ -53,6 +53,8 @@ import {
 import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
 import axios from 'axios';
+import SelectAsync from "../../select-async/SelectAsync";
+import MultiSelect from "../../multi-select/Multiselect";
 
 const SalesOrder = () => {
   const items = [];
@@ -69,6 +71,10 @@ const SalesOrder = () => {
   const [validationAlert, setValidationAlert] = useState(false)
   const [searchParams] = useSearchParams();
   const [addItems, setItems] = useState([{ product_id: "", qty: 0.00, rate: 0.00, amount: 0.00, }]);
+  const [customerOptions, setCustomerOptions] = useState([]);
+  const [customerSelected, setCustomerSelected] = useState([]);
+  const [salesExeOptions, setSalesExeOptions] = useState([]);
+  const [salesExeSelected, setSalesExeSelected] = useState([]);
 
   let paginationConfig = {
     totalPages: 1,
@@ -229,20 +235,14 @@ const SalesOrder = () => {
       .get(process.env.REACT_APP_API_URL + "/customers", { params: { page }, headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setCustomers(res.data.data);
-        const pgdata = res.data.data;
-        paginationConfig.currentPage = pgdata.page
-        console.log(data);
-      }).catch((err) => {
-        setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
-      })
-  }
+        const customersData = res?.data?.data?.docs?.map((option) => {
+          return {
+            value: option._id,
+            label: option.name,
+          };
+        });
+        setCustomerOptions(customersData);
 
-  const getCategory = async () => {
-    return await axios
-      .get(process.env.REACT_APP_API_URL + "/categories", { headers: { Authorization: localStorage.getItem('token') ?? null } })
-      .then((res) => {
-        setCategory(res.data.data);
-        console.log(data);
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -253,7 +253,13 @@ const SalesOrder = () => {
       .get(process.env.REACT_APP_API_URL + "/users", { headers: { Authorization: localStorage.getItem('token') ?? null } })
       .then((res) => {
         setSalesExe(res.data.data);
-        console.log(data);
+        const customersData = res?.data?.data?.docs?.map((option) => {
+          return {
+            value: option._id,
+            label: option.name,
+          };
+        });
+        setSalesExeOptions(customersData);
       }).catch((err) => {
         setToast({ visible: true, color: "danger", message: res.data.message ?? "Oops something went wrong!" })
       })
@@ -356,6 +362,11 @@ const SalesOrder = () => {
     setValue('units_of_measurement', data.units_of_measurement)
     setValue('type', data.type)
     setValue('_id', data._id)
+    setCustomerSelected({
+      label: data.customer_id?.name,
+      value: data.customer_id?._id,
+    });
+    setSalesExeSelected(data.sales_executives?.map((sales) => { return {label:sales.name,value:sales._id} }))
   };
 
   /* Delete  */
@@ -383,6 +394,10 @@ const SalesOrder = () => {
     remove(remInd);
     subTotalCal()
     return true;
+  }
+
+  function pluck(array, key) {
+    return array.map(o => o[key]);
   }
 
 
@@ -448,7 +463,7 @@ const SalesOrder = () => {
                         placement="top"
                       >
                         <Link to={`/sales-pipeline/${product._id}`}>
-                          <CButton color="info"  className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilArrowCircleRight} /></CButton>
+                          <CButton color="info" className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilArrowCircleRight} /></CButton>
                         </Link>
                       </CTooltip>
                     </CTableDataCell>
@@ -489,13 +504,29 @@ const SalesOrder = () => {
                           {errors.type && <div className='invalid-validation-css'>This field is required</div>}
                         </CCol>
                       </fieldset> */}
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" floatingLabel="Customer" {...register("customer_id", options.customer_id)}>
-                          <option value="">...</option>
-                          {customers.docs?.map((customer, index) => {
-                            return <option key={index} value={customer._id}>{customer.name}</option>
-                          })};
-                        </CFormSelect>
+                      <CCol md={8}>
+                      <CFormLabel
+                          htmlFor="exampleFormControlInput1"
+                          className="text-dark"
+                        >
+                          Customer
+                        </CFormLabel>
+
+                        <SelectAsync
+                          data={{
+                            options: customerOptions,
+                            selected: customerSelected,
+                          }}
+                          onSelect={(value) => {
+                            setValue("customer_id", value.value);
+                          }}
+                          {...register("customer_id", { required: true })}
+                        />
+                        {errors.customer_id && (
+                          <div className="invalid-validation-css">
+                            This field is required
+                          </div>
+                        )}
                       </CCol>
                       <CCol md={6}>
                         <CFormInput type="text" id="inputEmail4" floatingLabel="Sales Order#" {...register("order_no", options.order_no)} />
@@ -512,13 +543,21 @@ const SalesOrder = () => {
                         <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment_date", options.shipment_date)} />
                       </CCol>
 
-                      <CCol md={6}>
-                        <CFormSelect id="inputState" multiple floatingLabel="Sales Executive" {...register("sales_executives[]", options.sales_executive)}>
-                          <option value="">...</option>
-                          {salesExecutives.docs?.map((user, index) => {
-                            return <option key={index} value={user._id}>{user.name}</option>
-                          })};
-                        </CFormSelect>
+                      <CCol md={6}>   
+                      <CFormLabel
+                          htmlFor="exampleFormControlInput1"
+                          className="text-dark"
+                        >
+                          Sales Executive's
+                        </CFormLabel>
+                        <MultiSelect data={{
+                            options: salesExeOptions,
+                            selected: salesExeSelected,
+                          }}
+                          onSelect={(value) => {
+                            console.log(value);
+                            setValue("sales_executives[]", pluck(value,"value"));
+                          }}/>
                       </CCol>
 
                       <h5>Items</h5>
