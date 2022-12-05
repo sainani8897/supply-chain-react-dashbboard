@@ -24,31 +24,20 @@ import {
   CModalTitle,
   CButton,
   CForm,
-  CFormCheck,
   CFormInput,
   CFormLabel,
   CFormSelect,
-  CInputGroup,
-  CInputGroupText,
   CFormTextarea,
   CToast,
   CToastBody,
   CModalFooter,
   CToastClose,
-  CPopover,
   CTooltip,
-  CDropdown,
-  CDropdownToggle,
-  CDropdownMenu,
-  CDropdownItem,
-  CDropdownDivider,
-  CFormFloating
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
-  cilArrowCircleLeft,
   cilArrowCircleRight,
-  cilBell, cilPencil, cilTrash,
+  cilBell, cilPencil, cilTrash, cilWarning
 } from '@coreui/icons'
 import { DocsExample } from 'src/components'
 import { Button } from '@coreui/coreui';
@@ -366,7 +355,7 @@ const SalesOrder = () => {
       label: data.customer_id?.name,
       value: data.customer_id?._id,
     });
-    setSalesExeSelected(data.sales_executives?.map((sales) => { return {label:sales.name,value:sales._id} }))
+    setSalesExeSelected(data.sales_executives?.map((sales) => { return { label: sales.name, value: sales._id } }))
   };
 
   /* Delete  */
@@ -424,67 +413,80 @@ const SalesOrder = () => {
               tables look in CoreUI.
             </p> */}
             {/* <DocsExample href="components/table"> */}
-            <CTable align="middle" className="mb-0 border" hover responsive>
-              <CTableHead color="dark">
-                <CTableRow>
-                  <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Customer </CTableHeaderCell>
-                  <CTableHeaderCell scope="col">#Order Id</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Sale Date</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Status</CTableHeaderCell>
-                  <CTableHeaderCell scope="col">Action</  CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
-              <CTableBody>
-                {data.docs?.map((product, index) =>
-                  <CTableRow key={product.id}>
-                    <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{product.customer_id.name}</CTableDataCell>
-                    <CTableDataCell>{product.order_no}</CTableDataCell>
-                    <CTableDataCell>{product.sale_date}</CTableDataCell>
-                    <CTableDataCell>{product.sale_details?.total}</CTableDataCell>
-                    <CTableDataCell>{product.status}</CTableDataCell>
-                    <CTableDataCell>
-                      <CTooltip
-                        content="Edit"
-                        placement="top"
-                      >
-                        <CButton color="info" onClick={() => onEdit(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilPencil} /></CButton>
-                      </CTooltip>
-                      <CTooltip
-                        content="Delete"
-                        placement="top"
-                      >
-                        <CButton color="danger" onClick={() => onDelete(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilTrash} /></CButton>
-                      </CTooltip>
-                      <CTooltip
-                        content="View Order"
-                        placement="top"
-                      >
-                        <Link to={`/sales-pipeline/${product._id}`}>
-                          <CButton color="info" className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilArrowCircleRight} /></CButton>
-                        </Link>
-                      </CTooltip>
-                    </CTableDataCell>
-                  </CTableRow>
-                )}
-              </CTableBody>
+            {data?.docs?.length > 0 ? (
+              <>
+                <CTable align="middle" className="mb-0 border" hover responsive>
+                  <CTableHead color="dark">
+                    <CTableRow>
+                      <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                      <CTableHeaderCell scope="col">Customer </CTableHeaderCell>
+                      <CTableHeaderCell scope="col">#Order Id</CTableHeaderCell>
+                      <CTableHeaderCell scope="col">Sale Date</CTableHeaderCell>
+                      <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
+                      <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                      <CTableHeaderCell scope="col">Action</  CTableHeaderCell>
+                    </CTableRow>
+                  </CTableHead>
+                  <CTableBody>
+                    {data.docs?.map((product, index) =>
+                      <CTableRow key={product.id}>
+                        <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                        <CTableDataCell>{product.customer_id.name}</CTableDataCell>
+                        <CTableDataCell>{product.order_no}</CTableDataCell>
+                        <CTableDataCell>{product.sale_date}</CTableDataCell>
+                        <CTableDataCell>{product.sale_details?.total}</CTableDataCell>
+                        <CTableDataCell>{product.status}</CTableDataCell>
+                        <CTableDataCell>
+                          <CTooltip
+                            content="Edit"
+                            placement="top"
+                          >
+                            <CButton color="info" onClick={() => onEdit(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilPencil} /></CButton>
+                          </CTooltip>
+                          <CTooltip
+                            content="Delete"
+                            placement="top"
+                          >
+                            <CButton color="danger" onClick={() => onDelete(product)} className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilTrash} /></CButton>
+                          </CTooltip>
+                          <CTooltip
+                            content="View Order"
+                            placement="top"
+                          >
+                            <Link to={`/sales-pipeline/${product._id}`}>
+                              <CButton color="info" className="me-md-2"><CIcon className="text-white" size={'lg'} icon={cilArrowCircleRight} /></CButton>
+                            </Link>
+                          </CTooltip>
+                        </CTableDataCell>
+                      </CTableRow>
+                    )}
+                  </CTableBody>
 
-            </CTable>
-            <div className='mt-2 px-2 float-end'>
-              <Pagination
-                threeDots
-                totalPages={data.totalPages}
-                currentPage={data.page}
-                showMax={7}
-                prevNext
-                activeBgColor="#fffff"
-                activeBorderColor="#7bc9c9"
-                href="http://localhost:3000/sales-orders?page=*"
-                pageOneHref="http://localhost:3000/sales-orders"
-              />
-            </div>
+                </CTable>
+                <div className='mt-2 px-2 float-end'>
+                  <Pagination
+                    threeDots
+                    totalPages={data.totalPages}
+                    currentPage={data.page}
+                    showMax={7}
+                    prevNext
+                    activeBgColor="#fffff"
+                    activeBorderColor="#7bc9c9"
+                    href="http://localhost:3000/sales-orders?page=*"
+                    pageOneHref="http://localhost:3000/sales-orders"
+                  />
+                </div>
+              </>
+            ) :
+              <>
+                <CCol md={12}>
+                  <span className="d-block p-5 bg-light text-secondary text-center rounded ">
+                    <CIcon size={"xl"} icon={cilWarning} /> No Data Found
+                  </span>
+                </CCol>
+              </>
+            }
+
 
             {/* Modal start Here */}
             <CModal size="xl" visible={visibleXL} onClose={() => setVisibleXL(false)} backdrop='static'>
@@ -505,7 +507,7 @@ const SalesOrder = () => {
                         </CCol>
                       </fieldset> */}
                       <CCol md={8}>
-                      <CFormLabel
+                        <CFormLabel
                           htmlFor="exampleFormControlInput1"
                           className="text-dark"
                         >
@@ -543,21 +545,21 @@ const SalesOrder = () => {
                         <CFormInput type="date" id="inputPassword4" floatingLabel="Shipment Date" {...register("shipment_date", options.shipment_date)} />
                       </CCol>
 
-                      <CCol md={6}>   
-                      <CFormLabel
+                      <CCol md={6}>
+                        <CFormLabel
                           htmlFor="exampleFormControlInput1"
                           className="text-dark"
                         >
                           Sales Executive's
                         </CFormLabel>
                         <MultiSelect data={{
-                            options: salesExeOptions,
-                            selected: salesExeSelected,
-                          }}
+                          options: salesExeOptions,
+                          selected: salesExeSelected,
+                        }}
                           onSelect={(value) => {
                             console.log(value);
-                            setValue("sales_executives[]", pluck(value,"value"));
-                          }}/>
+                            setValue("sales_executives[]", pluck(value, "value"));
+                          }} />
                       </CCol>
 
                       <h5>Items</h5>

@@ -216,7 +216,7 @@ const new_nav = [
         name: 'Profile',
         to: '/profile',
       },
-      {
+      /* {
         component: CNavItem,
         name: 'Register',
         to: '/register',
@@ -230,7 +230,7 @@ const new_nav = [
         component: CNavItem,
         name: 'Error 500',
         to: '/500',
-      },
+      }, */
     ],
   },
   {

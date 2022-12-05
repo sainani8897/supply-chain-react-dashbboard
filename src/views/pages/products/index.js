@@ -480,6 +480,7 @@ const Product = () => {
                           type="text"
                           id="inputProductName"
                           floatingLabel="Name"
+                          placeholder="Name"
                           {...register("name", options.name)}
                         />
                         {errors.name && (
@@ -493,6 +494,7 @@ const Product = () => {
                           type="text"
                           id="inputPassword4"
                           floatingLabel="sku"
+                          placeholder="sku"
                           {...register("sku", {required:true})}
                         />
                         {errors.vendor_id && (
@@ -505,6 +507,7 @@ const Product = () => {
                         <CFormSelect
                           id="inputState"
                           floatingLabel="Units of Measurement"
+                          placeholder="Units of Measurement"
                           {...register("units_of_measurement")}
                         >
                           <option value="">--Units--</option>
@@ -527,6 +530,7 @@ const Product = () => {
                         <CFormSelect
                           id="inputState"
                           floatingLabel="Eligible for retrun"
+                          placeholder="Eligible for retrun"
                           {...register("is_returnable")}
                         >
                           <option value="">Choose..</option>
@@ -593,6 +597,7 @@ const Product = () => {
                           type="number"
                           id="dimesion_length"
                           floatingLabel="Length"
+                          placeholder="Length"
                           {...register("length", options.length)}
                         />
                       </CCol>
@@ -601,6 +606,7 @@ const Product = () => {
                         <CFormInput
                           type="number"
                           id="dimesion_height"
+                          placeholder="Width"
                           floatingLabel="Width"
                           {...register("height", options.height)}
                         />
@@ -609,6 +615,7 @@ const Product = () => {
                         <CFormInput
                           type="number"
                           id="dimesion_width"
+                          placeholder="Height"
                           floatingLabel="Height"
                           {...register("width", options.width)}
                         />
@@ -631,6 +638,7 @@ const Product = () => {
                         <CFormInput
                           type="number"
                           id="dimesion_width"
+                          placeholder="Weight"
                           floatingLabel="Weight"
                           {...register("width", options.weight)}
                         />
@@ -654,6 +662,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="brand"
+                          placeholder="Brand"
                           floatingLabel="Brand"
                           {...register("brand", options.brand)}
                         />
@@ -663,6 +672,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="manufacture"
+                          placeholder="Manufacturer"
                           floatingLabel="Manufacturer"
                           {...register("manufacturer", options.manufacturer)}
                         />
@@ -672,6 +682,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="inputEmail4"
+                          placeholder="Serial Numbers (MPN)"
                           floatingLabel="Serial Numbers (MPN)"
                           {...register("serial_number", options.serial_number)}
                         />
@@ -685,6 +696,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="upc"
+                          placeholder="UPC"
                           floatingLabel="UPC"
                           {...register("upc", options.upc)}
                         />
@@ -693,6 +705,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="ean"
+                          placeholder="EAN"
                           floatingLabel="EAN"
                           {...register("ean", options.ean)}
                         />
@@ -701,6 +714,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="isbn"
+                          placeholder="ISBN"
                           floatingLabel="ISBN"
                           {...register("isbn", options.isbn)}
                         />
@@ -712,6 +726,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="cost"
+                          placeholder="Sell Price"
                           floatingLabel="Sell Price"
                           {...register("sell_price", options.sell_price)}
                         />
@@ -720,6 +735,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="cost"
+                          placeholder="Cost Price"
                           floatingLabel="Cost Price"
                           {...register("cost", options.cost)}
                         />
@@ -728,6 +744,7 @@ const Product = () => {
                         <CFormInput
                           type="text"
                           id="qty"
+                          placeholder="Qty  "
                           floatingLabel="Qty"
                           {...register("qty", options.qty)}
                         />
