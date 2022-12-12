@@ -5,6 +5,7 @@ import ValidationAlert from '../../../components/Alerts/ValidationAlert'
 import Pagination from "react-bootstrap-4-pagination";
 import { useSearchParams, Link } from 'react-router-dom';
 import { DateTime } from "luxon";
+import DropzoneHandler from '../../../components/Dropzone'
 import {
   CCard,
   CCardBody,
@@ -560,6 +561,10 @@ const SalesOrder = () => {
                             console.log(value);
                             setValue("sales_executives[]", pluck(value, "value"));
                           }} />
+                      </CCol>
+
+                      <CCol md={12}>
+                        <DropzoneHandler options={{ multiple:true }}/>
                       </CCol>
 
                       <h5>Items</h5>

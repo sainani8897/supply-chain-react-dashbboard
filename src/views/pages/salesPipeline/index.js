@@ -268,7 +268,10 @@ const SalesPipeline = () => {
       .then((response) => {
         getShipmentData({ sales_order: id });
         toast.success(response.data.message ?? "Success");
-        setActiveKey(4);
+        //setActiveKey(4);
+        window.location.reload(false);
+        setVisibleXL(false)
+
       })
       .catch((error) => {
         const data = error.response.data;
