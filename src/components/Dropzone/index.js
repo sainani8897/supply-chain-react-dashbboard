@@ -31,34 +31,34 @@ const rejectStyle = {
 };
 
 const thumbsContainer = {
-  display: 'flex',
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  marginTop: 16
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  marginTop: 16,
 };
 
 const thumb = {
-  display: 'inline-flex',
+  display: "inline-flex",
   borderRadius: 2,
-  border: '1px solid #eaeaea',
+  border: "1px solid #eaeaea",
   marginBottom: 8,
   marginRight: 8,
   width: 100,
   height: 100,
   padding: 4,
-  boxSizing: 'border-box'
+  boxSizing: "border-box",
 };
 
 const thumbInner = {
-  display: 'flex',
+  display: "flex",
   minWidth: 0,
-  overflow: 'hidden'
+  overflow: "hidden",
 };
 
 const img = {
-  display: 'block',
-  width: 'auto',
-  height: '100%'
+  display: "block",
+  width: "auto",
+  height: "100%",
 };
 
 const DropzoneHandler = (props) => {
@@ -67,16 +67,17 @@ const DropzoneHandler = (props) => {
   const [selectedFiles, setFiles] = useState([]);
 
   const onDrop = useCallback((acceptedFiles) => {
-   const viewFiles =  acceptedFiles.map((file) =>{ 
+    const viewFiles = acceptedFiles.map((file) => {
       console.log(file);
+      // New FormData file
+      uploadFile(file);
       return Object.assign(file, {
         preview: URL.createObjectURL(file),
-      })
-    }
-    )
+      });
+    });
     console.log(viewFiles);
     setFiles(viewFiles);
-  },[]);
+  }, []);
 
   const {
     acceptedFiles,
@@ -92,10 +93,17 @@ const DropzoneHandler = (props) => {
 
   // File Upload
   const uploadFile = async (file) => {
+    let formData = new FormData();
+    formData.append("file", file);
     const files = await axios.post(
       process.env.REACT_APP_API_URL + "/media-manager",
-      { file },
-      { headers: { Authorization: localStorage.getItem("token") ?? null } }
+      formData,
+      {
+        headers: {
+          Authorization: localStorage.getItem("token") ?? null,
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
   };
 
@@ -107,14 +115,16 @@ const DropzoneHandler = (props) => {
     );
   });
 
-  const thumbs = selectedFiles?.map(file => (
+  const thumbs = selectedFiles?.map((file) => (
     <div style={thumb} key={file.name}>
       <div style={thumbInner}>
         <img
           src={file.preview}
           style={img}
           // Revoke data uri after image is loaded
-          onLoad={() => { URL.revokeObjectURL(file.preview) }}
+          onLoad={() => {
+            URL.revokeObjectURL(file.preview);
+          }}
         />
       </div>
     </div>
@@ -139,9 +149,7 @@ const DropzoneHandler = (props) => {
         <h4>Files</h4>
         <ul>{files}</ul>
       </aside> */}
-       <aside style={thumbsContainer}>
-        {thumbs}
-      </aside>
+      <aside style={thumbsContainer}>{thumbs}</aside>
     </section>
   );
 };
