@@ -63,7 +63,7 @@ const img = {
 
 const DropzoneHandler = (props) => {
   console.log(props);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState(props.options.uploadedFile ?? []);
   const [selectedFiles, setFiles] = useState([]);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -93,19 +93,29 @@ const DropzoneHandler = (props) => {
 
   // File Upload
   const uploadFile = async (file) => {
-    let formData = new FormData();
-    formData.append("file", file);
-    const files = await axios.post(
-      process.env.REACT_APP_API_URL + "/media-manager",
-      formData,
-      {
-        headers: {
-          Authorization: localStorage.getItem("token") ?? null,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    try {
+      let formData = new FormData();
+      formData.append("file", file);
+      const files = await axios.post(
+        process.env.REACT_APP_API_URL + "/media-manager",
+        formData,
+        {
+          headers: {
+            Authorization: localStorage.getItem("token") ?? null,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setUploadedFiles((prevArray) => [...prevArray, files.data.data]);
+      console.log("uploaded files",uploadedFiles);
+      props.onFileUpload(uploadedFiles ?? [])
+    } catch (error) {}
   };
+
+  useEffect(() => {
+    //setUploadedFiles(props.options.uploadedFile ?? []);
+    props.onFileUpload(uploadedFiles ?? [])
+  }, [uploadedFiles]);
 
   const files = acceptedFiles.map((file) => {
     return (
@@ -115,17 +125,20 @@ const DropzoneHandler = (props) => {
     );
   });
 
-  const thumbs = selectedFiles?.map((file) => (
+  const thumbs = uploadedFiles?.map((file) => (
     <div style={thumb} key={file.name}>
-      <div style={thumbInner}>
+      <div className="container" style={thumbInner}>
         <img
-          src={file.preview}
+          src={file.full_url}
           style={img}
           // Revoke data uri after image is loaded
           onLoad={() => {
-            URL.revokeObjectURL(file.preview);
+            URL.revokeObjectURL(file.full_url);
           }}
         />
+        {/* <div class="middle">
+          <div class="text">John Doe</div>
+        </div> */}
       </div>
     </div>
   ));

@@ -508,6 +508,7 @@ const Product = () => {
                           id="inputState"
                           floatingLabel="Units of Measurement"
                           placeholder="Units of Measurement"
+                          aria-label="Floating label select example"
                           {...register("units_of_measurement")}
                         >
                           <option value="">--Units--</option>
