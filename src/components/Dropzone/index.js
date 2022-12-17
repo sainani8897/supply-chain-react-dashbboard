@@ -1,5 +1,7 @@
 import React, { useMemo, useEffect, useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import CIcon from "@coreui/icons-react";
+import { cilTrash } from "@coreui/icons";
 import axios from "axios";
 
 const baseStyle = {
@@ -63,7 +65,9 @@ const img = {
 
 const DropzoneHandler = (props) => {
   console.log(props);
-  const [uploadedFiles, setUploadedFiles] = useState(props.options.uploadedFile ?? []);
+  const [uploadedFiles, setUploadedFiles] = useState(
+    props.options.uploadedFile ?? []
+  );
   const [selectedFiles, setFiles] = useState([]);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -107,14 +111,14 @@ const DropzoneHandler = (props) => {
         }
       );
       setUploadedFiles((prevArray) => [...prevArray, files.data.data]);
-      console.log("uploaded files",uploadedFiles);
-      props.onFileUpload(uploadedFiles ?? [])
+      console.log("uploaded files", uploadedFiles);
+      props.onFileUpload(uploadedFiles ?? []);
     } catch (error) {}
   };
 
   useEffect(() => {
     //setUploadedFiles(props.options.uploadedFile ?? []);
-    props.onFileUpload(uploadedFiles ?? [])
+    props.onFileUpload(uploadedFiles ?? []);
   }, [uploadedFiles]);
 
   const files = acceptedFiles.map((file) => {
@@ -127,7 +131,7 @@ const DropzoneHandler = (props) => {
 
   const thumbs = uploadedFiles?.map((file) => (
     <div style={thumb} key={file.name}>
-      <div className="container" style={thumbInner}>
+      <div className="img-container" style={thumbInner}>
         <img
           src={file.full_url}
           style={img}
@@ -136,9 +140,11 @@ const DropzoneHandler = (props) => {
             URL.revokeObjectURL(file.full_url);
           }}
         />
-        {/* <div class="middle">
-          <div class="text">John Doe</div>
-        </div> */}
+        <div class="overlay">
+          <span  onClick={()=>{deleteAction(file);}}>
+            <CIcon size={"xl"} icon={cilTrash} />
+          </span>
+        </div>
       </div>
     </div>
   ));
@@ -152,6 +158,27 @@ const DropzoneHandler = (props) => {
     }),
     [isFocused, isDragAccept, isDragReject]
   );
+
+  const deleteAction = (data) => {
+    axios
+      .delete(process.env.REACT_APP_API_URL + "/media-manager", {
+        headers: { Authorization: localStorage.getItem("token") ?? null },
+        data: { _id: [data._id] },
+      })
+      .then((response) => {
+        filterUploadFiles(data._id)
+      })
+      .catch((error, response) => {
+        console.log(error);
+        // toast.error(response.data.message ?? "Opps something went wrong!");
+      });
+  };
+
+  function filterUploadFiles(id){
+    const filterValues = uploadedFiles.filter((file)=> file._id != id )
+    setUploadedFiles(filterValues);
+  }
+
   return (
     <section className="container">
       <div {...getRootProps({ style })}>
