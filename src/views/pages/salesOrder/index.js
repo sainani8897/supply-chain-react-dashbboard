@@ -347,8 +347,7 @@ const SalesOrder = () => {
     let sub_total = 0;
     let total = 0;
     items.forEach((item) => {
-      console.log(item.amount);
-      sub_total += item.amount;
+      sub_total += parseFloat(item.amount);
     });
     total = sub_total;
     setValue("sale_details.sub_total", sub_total);
@@ -360,7 +359,7 @@ const SalesOrder = () => {
     const item = items[index];
     let rate = !isNaN(item["rate"]) ? item["rate"] : 0.0;
     let amount = !isNaN(qty * rate) ? qty * rate : 0.0;
-    setValue(`items.${index}.amount`, amount);
+    setValue(`items.${index}.amount`, parseFloat(amount));
     subTotalCal();
   };
 

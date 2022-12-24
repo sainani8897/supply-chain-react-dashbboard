@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useState} from "react";
 import {
   CRow,
   CCol,
@@ -7,13 +7,20 @@ import {
   CDropdownItem,
   CDropdownToggle,
   CWidgetStatsA,
-} from '@coreui/react'
-import { getStyle } from '@coreui/utils'
-import { CChartBar, CChartLine } from '@coreui/react-chartjs'
-import CIcon from '@coreui/icons-react'
-import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
+} from "@coreui/react";
+import { getStyle } from "@coreui/utils";
+import { CChartBar, CChartLine } from "@coreui/react-chartjs";
+import CIcon from "@coreui/icons-react";
+import { cilArrowBottom, cilArrowTop, cilOptions } from "@coreui/icons";
 
-const SalesWidget = () => {
+const SalesWidget = (props) => {
+  const [salesReport,setSalesReport] = useState(props?.data?.salesReport);
+
+  function pluck(array, key) {
+    return array.map((o) => o[key]);
+  }
+
+
   return (
     <CRow>
       <CCol sm={6} lg={3}>
@@ -22,7 +29,7 @@ const SalesWidget = () => {
           color="primary"
           value={
             <>
-              26K{' '}
+              {props?.data?.salesCount + " "}
               <span className="fs-6 fw-normal">
                 (-12.4% <CIcon icon={cilArrowBottom} />)
               </span>
@@ -31,8 +38,15 @@ const SalesWidget = () => {
           title="No. of Sales"
           action={
             <CDropdown alignment="end">
-              <CDropdownToggle color="transparent" caret={false} className="p-0">
-                <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
+              <CDropdownToggle
+                color="transparent"
+                caret={false}
+                className="p-0"
+              >
+                <CIcon
+                  icon={cilOptions}
+                  className="text-high-emphasis-inverse"
+                />
               </CDropdownToggle>
               <CDropdownMenu>
                 <CDropdownItem>Action</CDropdownItem>
@@ -45,15 +59,15 @@ const SalesWidget = () => {
           chart={
             <CChartLine
               className="mt-3 mx-3"
-              style={{ height: '70px' }}
+              style={{ height: "70px" }}
               data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                labels: pluck(salesReport ?? [],'_id'),
                 datasets: [
                   {
-                    label: 'My First dataset',
-                    backgroundColor: 'transparent',
-                    borderColor: 'rgba(255,255,255,.55)',
-                    pointBackgroundColor: getStyle('--cui-primary'),
+                    label: "Total No.of Sales",
+                    backgroundColor: "transparent",
+                    borderColor: "rgba(255,255,255,.55)",
+                    pointBackgroundColor: getStyle("--cui-primary"),
                     data: [65, 59, 84, 84, 51, 55, 40],
                   },
                 ],
@@ -109,7 +123,7 @@ const SalesWidget = () => {
           color="info"
           value={
             <>
-              $6.200{' '}
+              ${props?.data?.salesRevenue[0]?.total + " "}
               <span className="fs-6 fw-normal">
                 (40.9% <CIcon icon={cilArrowTop} />)
               </span>
@@ -118,8 +132,15 @@ const SalesWidget = () => {
           title="Gross Revenue"
           action={
             <CDropdown alignment="end">
-              <CDropdownToggle color="transparent" caret={false} className="p-0">
-                <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
+              <CDropdownToggle
+                color="transparent"
+                caret={false}
+                className="p-0"
+              >
+                <CIcon
+                  icon={cilOptions}
+                  className="text-high-emphasis-inverse"
+                />
               </CDropdownToggle>
               <CDropdownMenu>
                 <CDropdownItem>Action</CDropdownItem>
@@ -132,15 +153,23 @@ const SalesWidget = () => {
           chart={
             <CChartLine
               className="mt-3 mx-3"
-              style={{ height: '70px' }}
+              style={{ height: "70px" }}
               data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                labels: [
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                ],
                 datasets: [
                   {
-                    label: 'My First dataset',
-                    backgroundColor: 'transparent',
-                    borderColor: 'rgba(255,255,255,.55)',
-                    pointBackgroundColor: getStyle('--cui-info'),
+                    label: "My First dataset",
+                    backgroundColor: "transparent",
+                    borderColor: "rgba(255,255,255,.55)",
+                    pointBackgroundColor: getStyle("--cui-info"),
                     data: [1, 18, 9, 17, 34, 22, 11],
                   },
                 ],
@@ -195,7 +224,7 @@ const SalesWidget = () => {
           color="warning"
           value={
             <>
-              2.49{' '}
+              {props?.data?.purchaseCount + " "}
               <span className="fs-6 fw-normal">
                 (84.7% <CIcon icon={cilArrowTop} />)
               </span>
@@ -204,8 +233,15 @@ const SalesWidget = () => {
           title="No .of Purchases"
           action={
             <CDropdown alignment="end">
-              <CDropdownToggle color="transparent" caret={false} className="p-0">
-                <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
+              <CDropdownToggle
+                color="transparent"
+                caret={false}
+                className="p-0"
+              >
+                <CIcon
+                  icon={cilOptions}
+                  className="text-high-emphasis-inverse"
+                />
               </CDropdownToggle>
               <CDropdownMenu>
                 <CDropdownItem>Action</CDropdownItem>
@@ -218,14 +254,22 @@ const SalesWidget = () => {
           chart={
             <CChartLine
               className="mt-3"
-              style={{ height: '70px' }}
+              style={{ height: "70px" }}
               data={{
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                labels: [
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                ],
                 datasets: [
                   {
-                    label: 'My First dataset',
-                    backgroundColor: 'rgba(255,255,255,.2)',
-                    borderColor: 'rgba(255,255,255,.55)',
+                    label: "My First dataset",
+                    backgroundColor: "rgba(255,255,255,.2)",
+                    borderColor: "rgba(255,255,255,.55)",
                     data: [78, 81, 80, 45, 34, 12, 40],
                     fill: true,
                   },
@@ -268,7 +312,7 @@ const SalesWidget = () => {
           color="dark"
           value={
             <>
-              44K{' '}
+              44K{" "}
               <span className="fs-6 fw-normal">
                 (-23.6% <CIcon icon={cilArrowBottom} />)
               </span>
@@ -277,8 +321,15 @@ const SalesWidget = () => {
           title="Expenses"
           action={
             <CDropdown alignment="end">
-              <CDropdownToggle color="transparent" caret={false} className="p-0">
-                <CIcon icon={cilOptions} className="text-high-emphasis-inverse" />
+              <CDropdownToggle
+                color="transparent"
+                caret={false}
+                className="p-0"
+              >
+                <CIcon
+                  icon={cilOptions}
+                  className="text-high-emphasis-inverse"
+                />
               </CDropdownToggle>
               <CDropdownMenu>
                 <CDropdownItem>Action</CDropdownItem>
@@ -291,32 +342,35 @@ const SalesWidget = () => {
           chart={
             <CChartBar
               className="mt-3 mx-3"
-              style={{ height: '70px' }}
+              style={{ height: "70px" }}
               data={{
                 labels: [
-                  'January',
-                  'February',
-                  'March',
-                  'April',
-                  'May',
-                  'June',
-                  'July',
-                  'August',
-                  'September',
-                  'October',
-                  'November',
-                  'December',
-                  'January',
-                  'February',
-                  'March',
-                  'April',
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                  "August",
+                  "September",
+                  "October",
+                  "November",
+                  "December",
+                  "January",
+                  "February",
+                  "March",
+                  "April",
                 ],
                 datasets: [
                   {
-                    label: 'My First dataset',
-                    backgroundColor: 'rgba(255,255,255,.2)',
-                    borderColor: 'rgba(255,255,255,.55)',
-                    data: [78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84, 67, 82],
+                    label: "My First dataset",
+                    backgroundColor: "rgba(255,255,255,.2)",
+                    borderColor: "rgba(255,255,255,.55)",
+                    data: [
+                      78, 81, 80, 45, 34, 12, 40, 85, 65, 23, 12, 98, 34, 84,
+                      67, 82,
+                    ],
                     barPercentage: 0.6,
                   },
                 ],
@@ -355,7 +409,7 @@ const SalesWidget = () => {
         />
       </CCol>
     </CRow>
-  )
-}
+  );
+};
 
-export default SalesWidget
+export default SalesWidget;
