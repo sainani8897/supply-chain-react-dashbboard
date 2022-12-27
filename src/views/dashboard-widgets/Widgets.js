@@ -278,6 +278,7 @@ const Widgets = (props) => {
                 <CCol sm={12}>
                   <CChart
                     type="bar"
+                    redraw={true}
                     data={{
                       labels: ["January", "February", "March", "April", "May"],
                       datasets: [
@@ -297,7 +298,7 @@ const Widgets = (props) => {
         </CCol>
       </CRow>
 
-      <CRow>
+      {/* <CRow>
         <CCol xs={12} sm={6} lg={6}>
           <CCard className="mb-4">
             <CCardBody>
@@ -411,7 +412,7 @@ const Widgets = (props) => {
             </CCardBody>
           </CCard>
         </CCol>
-      </CRow>
+      </CRow> */}
 
       <CRow>
         <CCol xs={12} sm={6} lg={6}>
