@@ -34,10 +34,11 @@ const MultiSelect = (props) => {
 
   return (
     <AsyncSelect
+      styles={props.styles}
       isMulti
       getValue
       isClearable
-      name="vendor_id"
+      name={props.data?.name ?? 'vendor_id'}
       value={selected}
       cacheOptions
       defaultOptions

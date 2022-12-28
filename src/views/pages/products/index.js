@@ -69,7 +69,6 @@ const Product = () => {
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false);
   const [searchParams] = useSearchParams();
- 
 
   const addForm = () => {
     resetForm();
@@ -86,6 +85,14 @@ const Product = () => {
     formState: { errors },
   } = useForm();
 
+  const {
+    register: register2,
+    formState: { errors: errors2 },
+    handleSubmit: handleSubmit2,
+    setValue: setValue2,
+    reset: reset2,
+  } = useForm({});
+
   /* Form */
   const onFormSubmit = (data) => {
     if (formAction == "Add") {
@@ -93,6 +100,10 @@ const Product = () => {
     } else {
       updateData(data);
     }
+  };
+
+  const onFilterSubmit = (data) => {
+    reload(data);
   };
 
   const validationAlertPop = (errorObj) => {
@@ -190,10 +201,11 @@ const Product = () => {
     getVendors();
   }, []);
 
-  const reload = async (page = 1) => {
+  const reload = async (query = {}) => {
+    query.page = query.page ?? 1;
     return await axios
       .get(process.env.REACT_APP_API_URL + "/Products", {
-        params: { page },
+        params: query,
         headers: { Authorization: localStorage.getItem("token") ?? null },
       })
       .then((res) => {
@@ -214,17 +226,17 @@ const Product = () => {
   const getCategory = async () => {
     return await axios
       .get(process.env.REACT_APP_API_URL + "/categories", {
-        params:{ignore_root:true},
+        params: { ignore_root: true },
         headers: { Authorization: localStorage.getItem("token") ?? null },
       })
       .then((res) => {
-        const catOptionsData = res?.data?.data?.docs?.map((option)=>{
+        const catOptionsData = res?.data?.data?.docs?.map((option) => {
           return {
             value: option._id,
-            label:option.category_name
-          }
-        })
-        setCategoryOptions(catOptionsData)
+            label: option.category_name,
+          };
+        });
+        setCategoryOptions(catOptionsData);
         setCategory(res.data.data);
         console.log(catOptionsData);
       })
@@ -243,13 +255,13 @@ const Product = () => {
         headers: { Authorization: localStorage.getItem("token") ?? null },
       })
       .then((res) => {
-        const vendorOptionsData = res?.data?.data?.docs?.map((option)=>{
+        const vendorOptionsData = res?.data?.data?.docs?.map((option) => {
           return {
             value: option._id,
-            label:option.display_name
-          }
-        })
-        setVendorsOptions(vendorOptionsData)
+            label: option.display_name,
+          };
+        });
+        setVendorsOptions(vendorOptionsData);
         setVendors(res.data.data);
       })
       .catch((error) => {
@@ -288,8 +300,14 @@ const Product = () => {
     setValue("type", data.type);
     setValue("_id", data._id);
     setValue("vendor_id", data.vendor_id?._id);
-    setvendorsSelected({label:data.vendor_id?.display_name,value:data.vendor_id?._id})
-    setCategorySelected({label:data.category_id?.category_name,value:data.category_id?._id});
+    setvendorsSelected({
+      label: data.vendor_id?.display_name,
+      value: data.vendor_id?._id,
+    });
+    setCategorySelected({
+      label: data.category_id?.category_name,
+      value: data.category_id?._id,
+    });
   };
 
   /* Delete  */
@@ -304,6 +322,11 @@ const Product = () => {
     setErrorObj([]);
     reset({});
   };
+
+  const resetFilter = () => {
+    reset2();
+    setValue2('status[]',[]);
+  }
 
   return (
     <CRow>
@@ -336,6 +359,61 @@ const Product = () => {
         <CCard className="mb-4">
           <CCardHeader>Products</CCardHeader>
           <CCardBody>
+            <CForm className="row g-3" onSubmit={handleSubmit2(onFilterSubmit)}>
+              <CCol xs="auto">
+                <CFormInput
+                  style={{ padding: "0.48rem 0.5rem" }}
+                  type="text"
+                  size="sm"
+                  id="inputPassword2"
+                  placeholder="Search"
+                  {...register2("search")}
+                />
+              </CCol>
+              <CCol xs="auto">
+                <MultiSelect
+                  data={{
+                    name: "status",
+                    options: [
+                      {
+                        value: "Active",
+                        label: "Active",
+                      },
+                      {
+                        value: "In-Active",
+                        label: "In-Active",
+                      },
+                    ],
+                    selected: [],
+                  }}
+                  onSelect={(value) => {
+                    setValue2("status[]", value.map((o) => o["value"]) ?? []);
+                  }}
+                />
+              </CCol>
+              <CCol xs="auto">
+                <CButton
+                  style={{ padding: "0.48rem 0.5rem" }}
+                  size="sm"
+                  type="submit"
+                  className="mb-3 " 
+                >
+                  Filter
+                </CButton>
+                <CButton
+                  style={{ padding: "0.48rem 0.5rem" }}
+                  size="sm"
+                  type="button"
+                  color="secondary" variant="outline"
+                  className="mb-3 mx-1" 
+                  onClick={()=>{
+                    reset2()
+                  }}
+                >
+                  Clear
+                </CButton>
+              </CCol>
+            </CForm>
             {/* <p className="text-medium-emphasis small">
               Using the most basic table CoreUI, here&#39;s how <code>&lt;CTable&gt;</code>-based
               tables look in CoreUI.
@@ -413,7 +491,7 @@ const Product = () => {
                     activeBgColor="#fffff"
                     activeBorderColor="#7bc9c9"
                     onClick={(page) => {
-                      reload(page);
+                      reload({ page });
                     }}
                   />
                 </div>
@@ -495,7 +573,7 @@ const Product = () => {
                           id="inputPassword4"
                           floatingLabel="sku"
                           placeholder="sku"
-                          {...register("sku", {required:true})}
+                          {...register("sku", { required: true })}
                         />
                         {errors.vendor_id && (
                           <div className="invalid-validation-css">
@@ -540,8 +618,22 @@ const Product = () => {
                         </CFormSelect>
                       </CCol>
                       <CCol md={6}>
-                        <CFormLabel htmlFor="exampleFormControlInput1" className="text-secondary">Vendor</CFormLabel>
-                        <SelectAsync  data={{ options: vendorsOptions,selected:vendorsSelected }}  onSelect={ (value)=>{setValue('vendor_id',value.value)} } {...register("vendor_id",{required:true})}/>
+                        <CFormLabel
+                          htmlFor="exampleFormControlInput1"
+                          className="text-secondary"
+                        >
+                          Vendor
+                        </CFormLabel>
+                        <SelectAsync
+                          data={{
+                            options: vendorsOptions,
+                            selected: vendorsSelected,
+                          }}
+                          onSelect={(value) => {
+                            setValue("vendor_id", value.value);
+                          }}
+                          {...register("vendor_id", { required: true })}
+                        />
                         {errors.vendor_id && (
                           <div className="invalid-validation-css">
                             This field is required
@@ -549,8 +641,22 @@ const Product = () => {
                         )}
                       </CCol>
                       <CCol md={6}>
-                      <CFormLabel htmlFor="exampleFormControlInput1" className="text-secondary">Category</CFormLabel>
-                      <SelectAsync  data={{ options: categoryOptions,selected:categorySelected }}  onSelect={ (value)=>{setValue('category_id',value.value)} } {...register("category_id",{required:true})}/>
+                        <CFormLabel
+                          htmlFor="exampleFormControlInput1"
+                          className="text-secondary"
+                        >
+                          Category
+                        </CFormLabel>
+                        <SelectAsync
+                          data={{
+                            options: categoryOptions,
+                            selected: categorySelected,
+                          }}
+                          onSelect={(value) => {
+                            setValue("category_id", value.value);
+                          }}
+                          {...register("category_id", { required: true })}
+                        />
                         {errors.category_id && (
                           <div className="invalid-validation-css">
                             This field is required
