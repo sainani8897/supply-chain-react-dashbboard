@@ -45,7 +45,16 @@ import {
   CFormFloating,
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
-import { cilBell, cilPencil, cilTrash, cilWarning } from "@coreui/icons";
+import {
+  cilBell,
+  cilCloudDownload,
+  cilOptions,
+  cilPencil,
+  cilSearch,
+  cilTrash,
+  cilWarning,
+  cilX,
+} from "@coreui/icons";
 import { DocsExample } from "src/components";
 import { Button } from "@coreui/coreui";
 import axios from "axios";
@@ -69,6 +78,7 @@ const Product = () => {
   const [errorObjData, setErrorObj] = useState([]);
   const [validationAlert, setValidationAlert] = useState(false);
   const [searchParams] = useSearchParams();
+  const [filterSelect, setFilterSelect] = useState(false);
 
   const addForm = () => {
     resetForm();
@@ -104,6 +114,13 @@ const Product = () => {
 
   const onFilterSubmit = (data) => {
     reload(data);
+    setFilterSelect(false);
+  };
+
+  const clearAll = () => {
+    reset2();
+    setFilterSelect(true);
+    reload();
   };
 
   const validationAlertPop = (errorObj) => {
@@ -325,8 +342,8 @@ const Product = () => {
 
   const resetFilter = () => {
     reset2();
-    setValue2('status[]',[]);
-  }
+    setValue2("status[]", []);
+  };
 
   return (
     <CRow>
@@ -359,59 +376,82 @@ const Product = () => {
         <CCard className="mb-4">
           <CCardHeader>Products</CCardHeader>
           <CCardBody>
-            <CForm className="row g-3" onSubmit={handleSubmit2(onFilterSubmit)}>
-              <CCol xs="auto">
-                <CFormInput
-                  style={{ padding: "0.48rem 0.5rem" }}
-                  type="text"
-                  size="sm"
-                  id="inputPassword2"
-                  placeholder="Search"
-                  {...register2("search")}
-                />
+            <CForm className="row" onSubmit={handleSubmit2(onFilterSubmit)}>
+              <CCol sm={8}>
+                <CRow className="g-3">
+                  <CCol xs="auto">
+                    <CFormInput
+                      style={{ padding: "0.48rem 0.5rem" }}
+                      type="text"
+                      size="sm"
+                      id="inputPassword2"
+                      placeholder="Search"
+                      {...register2("search")}
+                    />
+                  </CCol>
+                  <CCol xs="auto">
+                    <MultiSelect
+                      data={{
+                        name: "status",
+                        clearValue: filterSelect,
+                        options: [
+                          {
+                            value: "Active",
+                            label: "Active",
+                          },
+                          {
+                            value: "In-Active",
+                            label: "In-Active",
+                          },
+                        ],
+                        selected: [],
+                      }}
+                      onSelect={(value) => {
+                        setValue2(
+                          "status[]",
+                          value.map((o) => o["value"]) ?? []
+                        );
+                      }}
+                    />
+                  </CCol>
+                  <CCol xs="auto">
+                    <CButton
+                      style={{ padding: "0.48rem 0.5rem" }}
+                      size="sm"
+                      type="submit"
+                      color="success"
+                      className="mb-3"
+                      variant="outline"
+                    >
+                      <CIcon icon={cilSearch} size="custom-size" /> Filter
+                    </CButton>
+                    <CButton
+                      style={{ padding: "0.48rem 0.5rem" }}
+                      size="sm"
+                      type="button"
+                      color="secondary"
+                      variant="outline"
+                      className="mb-3 mx-1"
+                      onClick={clearAll}
+                    >
+                      <CIcon icon={cilX} size="sm" /> Clear all
+                    </CButton>
+                  </CCol>
+                </CRow>
               </CCol>
-              <CCol xs="auto">
-                <MultiSelect
-                  data={{
-                    name: "status",
-                    options: [
-                      {
-                        value: "Active",
-                        label: "Active",
-                      },
-                      {
-                        value: "In-Active",
-                        label: "In-Active",
-                      },
-                    ],
-                    selected: [],
-                  }}
-                  onSelect={(value) => {
-                    setValue2("status[]", value.map((o) => o["value"]) ?? []);
-                  }}
-                />
-              </CCol>
-              <CCol xs="auto">
-                <CButton
-                  style={{ padding: "0.48rem 0.5rem" }}
-                  size="sm"
-                  type="submit"
-                  className="mb-3 " 
-                >
-                  Filter
-                </CButton>
-                <CButton
-                  style={{ padding: "0.48rem 0.5rem" }}
-                  size="sm"
-                  type="button"
-                  color="secondary" variant="outline"
-                  className="mb-3 mx-1" 
-                  onClick={()=>{
-                    reset2()
-                  }}
-                >
-                  Clear
-                </CButton>
+              <CCol sm={4} className="d-flex flex-column align-items-end">
+                <CCol xs="auto">
+                  <CButton
+                    style={{ padding: "0.48rem 0.5rem" }}
+                    size="sm"
+                    type="submit"
+                    color="info"
+                    className="mb-3"
+                    variant="outline"
+                  >
+                    <CIcon icon={cilCloudDownload} size="custom-size" /> Export
+                  </CButton>
+                </CCol>
               </CCol>
             </CForm>
             {/* <p className="text-medium-emphasis small">
@@ -437,7 +477,7 @@ const Product = () => {
                   </CTableHead>
                   <CTableBody>
                     {data.docs?.map((product, index) => (
-                      <CTableRow key={product.id}>
+                      <CTableRow key={index}>
                         <CTableHeaderCell scope="row">
                           {index + 1}
                         </CTableHeaderCell>
