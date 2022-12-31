@@ -49,6 +49,7 @@ import CIcon from "@coreui/icons-react";
 import { cilBell, cilPencil, cilTrash,cilSearch,cilX,cilCloudDownload } from "@coreui/icons";
 import axios from "axios";
 import MultiSelect from "../../multi-select/Multiselect";
+import SelectWithCheckbox from "src/views/multi-select/SelectWithCheckbox";
 
 const Users = () => {
   const [visibleXL, setVisibleXL] = useState(false);
@@ -355,6 +356,7 @@ const Users = () => {
                   <CCol xs="auto">
                     <MultiSelect
                       data={{
+                        clearValue: filterSelect,
                         name: "status",
                         options: [
                           {
@@ -376,16 +378,22 @@ const Users = () => {
                       }}
                     />
                   </CCol>
-                  {/* <CCol xs="auto">
-                    <MultiSelect
+                  <CCol xs="auto">
+                    <SelectWithCheckbox
                       data={{
-                        name: "roles",
+                        clearValue: filterSelect,
+                        name: "status",
                         options: rolesOptions,
                         selected: [],
                       }}
-                     
+                      onSelect={(value) => {
+                        setValue2(
+                          "status[]",
+                          value.map((o) => o["value"]) ?? []
+                        );
+                      }}
                     />
-                  </CCol> */}
+                  </CCol>
                   <CCol xs="auto">
                     <CButton
                       style={{ padding: "0.48rem 0.5rem" }}
