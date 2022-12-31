@@ -13,10 +13,11 @@ const MultiSelect = (props) => {
     );
   };
 
+
+
   const handleChange = (options) => {
     setSelectedOptions(options);
     setSelected(options);
-    console.log(options);
     props.onSelect(options ?? [])
   };
 
@@ -28,16 +29,22 @@ const MultiSelect = (props) => {
     });
 
   useEffect(() => {
-    console.log(props);
     setSelected(props.data.selected ?? {});
   }, [setData]);
 
+  useEffect(() => {
+    if (props?.data?.clearValue) {
+      setSelected(props.data.selected ?? {});
+    }
+  }, [props]);
+
   return (
     <AsyncSelect
+      styles={props.styles}
       isMulti
       getValue
       isClearable
-      name="vendor_id"
+      name={props.data?.name ?? 'vendor_id'}
       value={selected}
       cacheOptions
       defaultOptions
