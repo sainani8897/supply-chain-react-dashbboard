@@ -132,6 +132,8 @@ const Dashboard = () => {
 
   return (
     <>
+    <h5 className="mb-5">Company Name</h5>
+    
       <SalesWidget data={data?.value} />
       {/* <PurchaseWidget /> */}
       <CCard className="mb-4">
