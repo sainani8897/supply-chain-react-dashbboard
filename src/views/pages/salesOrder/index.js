@@ -42,6 +42,9 @@ import {
   cilPencil,
   cilTrash,
   cilWarning,
+  cilSearch,
+  cilX,
+  cilCloudDownload,
 } from "@coreui/icons";
 import { DocsExample } from "src/components";
 import { Button } from "@coreui/coreui";
@@ -71,6 +74,7 @@ const SalesOrder = () => {
   const [salesExeOptions, setSalesExeOptions] = useState([]);
   const [salesExeSelected, setSalesExeSelected] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [filterSelect, setFilterSelect] = useState(false);
 
   let paginationConfig = {
     totalPages: 1,
@@ -211,17 +215,17 @@ const SalesOrder = () => {
 
   /* Get Data */
   useEffect(() => {
-    reload();
+   // reload();
     getProducts();
     getCustomers();
     getUsers();
   }, []);
 
-  const reload = async () => {
-    let page = searchParams.get("page") ?? 1;
+  const reload = async (query = {}) => {
+    query.page = query.page ?? 1;
     return await axios
       .get(process.env.REACT_APP_API_URL + "/sales-order", {
-        params: { page },
+        params: query,
         headers: { Authorization: localStorage.getItem("token") ?? null },
       })
       .then((res) => {
@@ -463,6 +467,25 @@ const SalesOrder = () => {
     return array.map((o) => o[key]);
   }
 
+  const {
+    register: register2,
+    formState: { errors: errors2 },
+    handleSubmit: handleSubmit2,
+    setValue: setValue2,
+    reset: reset2,
+  } = useForm({});
+
+  const onFilterSubmit = (data) => {
+    reload(data);
+    setFilterSelect(false);
+  };
+
+  const clearAll = () => {
+    reset2();
+    setFilterSelect(true);
+    reload();
+  };
+
   return (
     <CRow>
       <CCol xs={12}>
@@ -493,6 +516,92 @@ const SalesOrder = () => {
         <CCard className="mb-4">
           <CCardHeader>Sales Order</CCardHeader>
           <CCardBody>
+            <CForm className="row" onSubmit={handleSubmit2(onFilterSubmit)}>
+              <CCol sm={8}>
+                <CRow className="g-3">
+                  <CCol xs="auto">
+                    <CFormInput
+                      style={{ padding: "0.48rem 0.5rem" }}
+                      type="text"
+                      size="sm"
+                      id="inputPassword2"
+                      placeholder="Search"
+                      {...register2("search")}
+                    />
+                  </CCol>
+                  <CCol xs="auto">
+                    <MultiSelect
+                      data={{
+                        name: "status",
+                        clearValue: filterSelect,
+                        options: [
+                          {
+                            value: "Order Created",
+                            label: "Order Created",
+                          },
+                          {
+                            value: "Shipping",
+                            label: "Shipping",
+                          },
+                          {
+                            value: "Delivered",
+                            label: "Delivered",
+                          },
+                          {
+                            value: "Closed",
+                            label: "Closed",
+                          },
+                        ],
+                        selected: [],
+                      }}
+                      onSelect={(value) => {
+                        setValue2(
+                          "status[]",
+                          value.map((o) => o["value"]) ?? []
+                        );
+                      }}
+                    />
+                  </CCol>
+                  <CCol xs="auto">
+                    <CButton
+                      style={{ padding: "0.48rem 0.5rem" }}
+                      size="sm"
+                      type="submit"
+                      color="success"
+                      className="mb-3"
+                      variant="outline"
+                    >
+                      <CIcon icon={cilSearch} size="custom-size" /> Filter
+                    </CButton>
+                    <CButton
+                      style={{ padding: "0.48rem 0.5rem" }}
+                      size="sm"
+                      type="button"
+                      color="secondary"
+                      variant="outline"
+                      className="mb-3 mx-1"
+                      onClick={clearAll}
+                    >
+                      <CIcon icon={cilX} size="sm" /> Clear all
+                    </CButton>
+                  </CCol>
+                </CRow>
+              </CCol>
+              <CCol sm={4} className="d-flex flex-column align-items-end">
+                <CCol xs="auto">
+                  <CButton
+                    style={{ padding: "0.48rem 0.5rem" }}
+                    size="sm"
+                    type="submit"
+                    color="info"
+                    className="mb-3"
+                    variant="outline"
+                  >
+                    <CIcon icon={cilCloudDownload} size="custom-size" /> Export
+                  </CButton>
+                </CCol>
+              </CCol>
+            </CForm>
             {/* <p className="text-medium-emphasis small">
               Using the most basic table CoreUI, here&#39;s how <code>&lt;CTable&gt;</code>-based
               tables look in CoreUI.
@@ -926,7 +1035,7 @@ const SalesOrder = () => {
                           htmlFor="exampleFormControlInput1"
                           className="text-dark"
                         >
-                        Attachment's
+                          Attachment's
                         </CFormLabel>
                         <DropzoneHandler
                           options={{
