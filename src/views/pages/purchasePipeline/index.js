@@ -216,10 +216,7 @@ const PurchasePipeline = () => {
         setActiveKey(4);
       })
       .catch((error) => {
-        const data = error.response.data
-        const errObj = data.error.errors;
-        toast.error(error.response.data.message ?? "Opps something went wrong!")
-        validationAlertPop({ err: error.response.data });
+        toast.error(error.message ?? "Opps something went wrong!")
       })
   }
 
@@ -242,8 +239,6 @@ const PurchasePipeline = () => {
         setActiveKey(4);
       })
       .catch((error) => {
-        const data = error.response.data
-        const errObj = data.error.errors;
         toast.error(error.response.data.message ?? "Opps something went wrong!")
         validationAlertPop({ err: error.response.data });
       })
@@ -757,7 +752,6 @@ const PurchasePipeline = () => {
                       <CCol md={12} className="mt-4">
                         <div className='float-end'>
                           <input type="hidden"  {...register2("_id")}></input>
-                          {/* <input type="hidden"  {...register("payment.")} value={id}></input> */}
                           <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
                           {/* <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton> */}
                         </div>
@@ -1200,7 +1194,8 @@ const PurchasePipeline = () => {
                       <CCol md={12} className="mt-4">
                         <div className='float-end'>
                           <input type="hidden" value={invoiceData._id}  {...register3("payment.invoice")}></input>
-                          {/* <input type="hidden"  {...register("payment.")} value={id}></input> */}
+                          <input type="hidden" value={invoiceData._id}  {...register3("payment.payable")}></input>
+                          <input type="hidden"  {...register3("payment.onModel")} value="Bill"></input>
                           <CButton type="submit" className="me-md-2" >Save & Continue </CButton>
                           <CButton type="button" onClick={() => setVisibleXL(!visibleXL)} className="me-md-2" color="secondary" variant="ghost">Close</CButton>
                         </div>
