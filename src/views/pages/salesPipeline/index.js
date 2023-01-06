@@ -270,12 +270,9 @@ const SalesPipeline = () => {
         toast.success(response.data.message ?? "Success");
         //setActiveKey(4);
         window.location.reload(false);
-        setVisibleXL(false)
-
+        setVisibleXL(false);
       })
       .catch((error) => {
-        const data = error.response.data;
-        const errObj = data.error.errors;
         toast.error(
           error.response.data.message ?? "Opps something went wrong!"
         );
@@ -1736,9 +1733,7 @@ const SalesPipeline = () => {
                                                 {item.product_id?.description}
                                               </p>
                                             </td>
-                                            <td className="unit">
-                                              {item.qty}
-                                            </td>
+                                            <td className="unit">{item.qty}</td>
                                             <td className="qty">
                                               ${item.rate}
                                             </td>
@@ -1804,7 +1799,7 @@ const SalesPipeline = () => {
                 size="xl"
                 visible={visibleXL}
                 onClose={() => setVisibleXL(false)}
-                backdrop='static'
+                backdrop="static"
               >
                 <CModalHeader>
                   <CModalTitle>
@@ -1960,7 +1955,7 @@ const SalesPipeline = () => {
                             value={invoiceData._id}
                             {...register2("payment.invoice")}
                           ></input>
-                          {/* <input type="hidden"  {...register("payment.")} value={id}></input> */}
+                          <input type="hidden"  {...register2("payment.payable")} value={invoiceData._id}></input>
                           <CButton type="submit" className="me-md-2">
                             Save & Continue{" "}
                           </CButton>
@@ -1987,7 +1982,7 @@ const SalesPipeline = () => {
               size="xl"
               visible={invoiceFormVisible}
               onClose={() => setInvVisible(false)}
-              backdrop='static'
+              backdrop="static"
             >
               <CModalHeader>
                 <CModalTitle>Convert to Invoice</CModalTitle>
