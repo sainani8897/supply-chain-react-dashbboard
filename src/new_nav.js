@@ -170,11 +170,11 @@ const new_nav = [
         name: 'Vendors',
         to: '/vendors',
       },
-      {
-        component: CNavItem,
-        name: 'Expenses',
-        to: '/base/breadcrumbs',
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Expenses',
+      //   to: '/base/breadcrumbs',
+      // },
       {
         component: CNavItem,
         name: 'Purshase Order',
@@ -193,13 +193,13 @@ const new_nav = [
       {
         component: CNavItem,
         name: 'Payments Made',
-        to: '/base/breadcrumbs',
+        to: '/payments-made',
       },
-      {
-        component: CNavItem,
-        name: 'Vendor Credits',
-        to: '/base/breadcrumbs',
-      },
+      // {
+      //   component: CNavItem,
+      //   name: 'Vendor Credits',
+      //   to: '/base/breadcrumbs',
+      // },
     ],
   },
   {
