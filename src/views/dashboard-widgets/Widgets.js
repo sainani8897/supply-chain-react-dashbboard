@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   CCard,
   CCardBody,
@@ -43,11 +43,62 @@ import { DocsExample } from "src/components";
 
 import WidgetsBrand from "./WidgetsBrand";
 import WidgetsDropdown from "./SalesWidget";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
 const Widgets = (props) => {
+  const [productAnalytics, setProdLabels] = useState([]);
   const random = (min, max) =>
     Math.floor(Math.random() * (max - min + 1) + min);
   console.log(props);
+  const labels  = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+  ];
+  const chartRef = useRef(null);
+
+  ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+  );
+
+  function pluck(array, key) {
+    return array.map((o) => o[key]);
+  }
+
+  useEffect(() => {
+    const labelsData = props?.data?.productsSales?.map((product) => {
+      return {
+        lables: product?.product_doc[0]?.name,
+        sales: product?.total,
+        total_no_of_sale: product?.total_sales,
+      };
+    });
+    setProdLabels(labelsData);
+    console.log("labelsData ===", labelsData);
+    const chart = chartRef.current;
+    if (props?.data?.productsSales!=undefined && props?.data?.productsSales.length>0) {
+          chart.update();
+    }
+  }, [props]);
+
   return (
     <>
       <CRow>
@@ -276,11 +327,11 @@ const Widgets = (props) => {
               </CRow>
               <CRow>
                 <CCol sm={12}>
-                  <CChart
+                  {/* <CChart
                     type="bar"
                     redraw={true}
                     data={{
-                      labels: ["January", "February", "March", "April", "May"],
+                      labels: pluck(productAnalytics ?? [],'lables'),
                       datasets: [
                         {
                           label: "Sales",
@@ -290,6 +341,31 @@ const Widgets = (props) => {
                       ],
                     }}
                     labels="months"
+                  /> */}
+                  <Bar
+                    ref={chartRef}
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: {
+                          position: "top",
+                        },
+                        title: {
+                          display: true,
+                          text: "Product Sales",
+                        },
+                      },
+                    }}
+                    data={{
+                      labels:pluck(productAnalytics ?? [],'lables'),
+                      datasets: [
+                        {
+                          label: "Top Selling Products",
+                          data: pluck(productAnalytics ?? [],'sales'),
+                          backgroundColor: "#07bc0c",
+                        },
+                      ],
+                    }}
                   />
                 </CCol>
               </CRow>
@@ -544,21 +620,29 @@ const Widgets = (props) => {
                         <CTableHeaderCell scope="col">
                           Customer
                         </CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Created At</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Customer type</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">
+                          Created At
+                        </CTableHeaderCell>
+                        <CTableHeaderCell scope="col">
+                          Customer type
+                        </CTableHeaderCell>
                         <CTableHeaderCell scope="col">Status</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
                     <CTableBody>
-                    {props?.data?.recentCustomers?.map((customer, index) => {
+                      {props?.data?.recentCustomers?.map((customer, index) => {
                         return (
                           <CTableRow key={index}>
                             <CTableHeaderCell scope="row">
-                              {index+1}
+                              {index + 1}
                             </CTableHeaderCell>
                             <CTableDataCell>{customer?.name}</CTableDataCell>
-                            <CTableDataCell>{customer?.createdAt}</CTableDataCell>
-                            <CTableDataCell>{customer?.customer_type}</CTableDataCell>
+                            <CTableDataCell>
+                              {customer?.createdAt}
+                            </CTableDataCell>
+                            <CTableDataCell>
+                              {customer?.customer_type}
+                            </CTableDataCell>
                             <CTableDataCell>{customer?.status}</CTableDataCell>
                           </CTableRow>
                         );
