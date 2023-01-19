@@ -36,7 +36,7 @@ CoreUI is meant to be the UX game changer. Pure & transparent code is devoid of 
 
 * [CoreUI Free Bootstrap Admin Template](https://github.com/coreui/coreui-free-bootstrap-admin-template)
 * [CoreUI Free Angular Admin Template](https://github.com/coreui/coreui-free-angular-admin-template)
-* [CoreUI Free React.js Admin Template](https://github.com/coreui/coreui-free-react-admin-template)
+* [Inventory Control || Inventory Management Solution](https://github.com/coreui/coreui-free-react-admin-template)
 * [CoreUI Free Vue.js Admin Template](https://github.com/coreui/coreui-free-vue-admin-template)
 
 ## CoreUI Pro

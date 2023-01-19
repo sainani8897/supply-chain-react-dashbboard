@@ -61,7 +61,7 @@ const AppHeaderDropdown = () => {
           <CIcon icon={cilUser} className="me-2" />
           Profile
         </CDropdownItem>
-        <CDropdownHeader className="bg-light fw-semibold py-2">
+        {/* <CDropdownHeader className="bg-light fw-semibold py-2">
           Settings
         </CDropdownHeader>
         <CDropdownItem href="#">
@@ -71,7 +71,7 @@ const AppHeaderDropdown = () => {
         <CDropdownItem href="#">
           <CIcon icon={cilApplicationsSettings} className="me-2" />
           Application Logs
-        </CDropdownItem>
+        </CDropdownItem> */}
         <CDropdownDivider />
         <CDropdownItem href="#" onClick={() => signOut()}>
           <CIcon icon={cilLockLocked} className="me-2" />
