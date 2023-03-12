@@ -25,9 +25,11 @@ import RequireAuth from "./components/Auth/RequireAuth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
 // Pages
 const Login = React.lazy(() => import("./views/pages/login/Login"));
 const Register = React.lazy(() => import("./views/pages/register/Register"));
+const Page403 = React.lazy(() => import("./views/pages/page403/Page403"));
 const Page404 = React.lazy(() => import("./views/pages/page404/Page404"));
 const Page500 = React.lazy(() => import("./views/pages/page500/Page500"));
 
@@ -63,6 +65,7 @@ class App extends Component {
                 element={<Register />}
               />
               <Route exact path="/404" name="Page 404" element={<Page404 />} />
+              <Route exact path="/403" name="Forbidden! Access Denied" element={<Page403 />} />
               <Route exact path="/500" name="Page 500" element={<Page500 />} />
               {/* <Route path="*" name="Home" element={AuthGuard(DefaultLayout)} /> */}
               {/* <ProtectedRoute>
