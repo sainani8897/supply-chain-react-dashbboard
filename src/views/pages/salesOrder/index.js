@@ -977,7 +977,7 @@ const SalesOrder = () => {
                                   </td>
                                 </tr>
                                 <tr>
-                                  <th className="text-center">Tax Amount</th>
+                                  <th className="text-center">Total Tax</th>
                                   <td className="text-center">
                                     <input
                                       type="text"
