@@ -998,6 +998,7 @@ const SalesPipeline = () => {
                         >
                           {" "}
                           {/* style={"margin-top:20px"} */}
+                          
                           <div className="col-md-4">
                             <table
                               className="table table-bordered table-hover"
@@ -1033,7 +1034,7 @@ const SalesPipeline = () => {
                                   </td>
                                 </tr>
                                 <tr>
-                                  <th className="text-center">Tax Amount</th>
+                                  <th className="text-center">Total Tax</th>
                                   <td className="text-center">
                                     <input
                                       type="text"

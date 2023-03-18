@@ -723,7 +723,7 @@ const PurchasePipeline = () => {
                                   </div></td>
                                 </tr>
                                 <tr>
-                                  <th className="text-center">Tax Amount</th>
+                                  <th className="text-center">Total Tax</th>
                                   <td className="text-center">
                                     <input type="text" {...register(`sale_details.tax_amount`)} id="tax_amount" disabled placeholder='0.00' className="form-control" readOnly />
                                   </td>
@@ -1313,7 +1313,7 @@ const PurchasePipeline = () => {
                                   </div></td>
                                 </tr>
                                 <tr>
-                                  <th className="text-center">Tax Amount</th>
+                                  <th className="text-center">Total Tax</th>
                                   <td className="text-center">
                                     <input type="text" {...register2(`bill.sale_details.tax_amount`)} id="tax_amount" placeholder='0.00' className="form-control" readOnly />
                                   </td>
