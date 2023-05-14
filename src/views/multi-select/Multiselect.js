@@ -13,8 +13,6 @@ const MultiSelect = (props) => {
     );
   };
 
-
-
   const handleChange = (options) => {
     setSelectedOptions(options);
     setSelected(options);

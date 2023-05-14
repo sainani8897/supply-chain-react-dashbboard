@@ -107,6 +107,10 @@ const Users = React.lazy(() => import("./views/pages/users"));
 /*  User Profile */
 const Profile = React.lazy(() => import("./views/pages/profile"));
 
+/** POS */
+const POS = React.lazy(() => import("./views/pages/POS"));
+
+
 const routes = [
   { path: "/", exact: true, name: "Home" },
   {
@@ -333,6 +337,17 @@ const routes = [
     canPermissions: [],
   },
   { path: "/payments-made", name: "Payments Made", element: PaymentsMade },
+  {
+    path: "/pos",
+    name: "POS",
+    element: POS,
+    canPermissions: [
+      "read_users",
+      "create_users",
+      "update_users",
+      "delete_users",
+    ],
+  },
 ];
 
 export default routes;
