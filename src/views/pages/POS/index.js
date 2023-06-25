@@ -148,6 +148,7 @@ const POS = () => {
       .then((response) => {
         setVisibleXL(false); /* Close the Pop Here */
         reload();
+        resetForm()
         toast.success(response.data.message ?? "Success");
       })
       .catch((error) => {

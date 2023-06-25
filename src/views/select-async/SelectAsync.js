@@ -24,7 +24,7 @@ const SelectAsync = forwardRef((props,ref) => {
     new Promise((resolve) => {
       setTimeout(() => {
         resolve(filterColors(inputValue));
-      }, 1000);
+      }, 500);
     });
 
   useEffect(() => {
