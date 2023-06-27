@@ -77,6 +77,8 @@ const POS = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [filterSelect, setFilterSelect] = useState(false);
   const [customerAdd, setState] = useState(false);
+  const [invoiceData,setInvoiceData] = useState({})
+  const [customer,setCustomerData] = useState({})
 
   let paginationConfig = {
     totalPages: 1,
@@ -145,19 +147,18 @@ const POS = () => {
         { payload: data },
         { headers: { Authorization: localStorage.getItem("token") ?? null } }
       )
-      .then((response) => {
-        setVisibleXL(false); /* Close the Pop Here */
-        reload();
-        resetForm()
-        toast.success(response.data.message ?? "Success");
+      .then(({data}) => {
+        resetForm();
+        setInvoiceData(data.data.invoice)
+        setCustomerData(data.data.customer)
+        setVisibleXL(true); /* Close the Pop Here */
+        toast.success(data.data.message ?? "Success");
       })
       .catch((error) => {
-        const data = error.response.data;
-        const errObj = data.error.errors;
         toast.error(
-          error.response.data.message ?? "Opps something went wrong!"
+          error?.response?.data?.message ?? "Opps something went wrong!"
         );
-        validationAlertPop({ err: error.response.data });
+        // validationAlertPop({ err: error.response.data });
       });
   };
 
@@ -516,16 +517,16 @@ const POS = () => {
         >
           Add Point Of Sale
         </CButton>
-        <CForm  onSubmit={handleSubmit(onFormSubmit, onErrors)}>
-        <CCard className="mb-4">
-          <CCardHeader>Point Of Sale</CCardHeader>
-          <CCardBody>
-            <CCol xs={12}>
-              <CRow className="row g-3 px-3 mt-1 mb-5">
-                <ValidationAlert
-                  validate={{ visible: validationAlert, errorObjData }}
-                />
-                {/* <fieldset className="row mb-1">
+        <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
+          <CCard className="mb-4">
+            <CCardHeader>Point Of Sale</CCardHeader>
+            <CCardBody>
+              <CCol xs={12}>
+                <CRow className="row g-3 px-3 mt-1 mb-5">
+                  <ValidationAlert
+                    validate={{ visible: validationAlert, errorObjData }}
+                  />
+                  {/* <fieldset className="row mb-1">
                         <legend className="col-form-label col-sm-2 pt-0">Item Type</legend>
                         <CCol sm={10} >
                           <CFormCheck inline type="radio" name="inlineRadioOptions" id="inlineCheckbox1" value="product" label="Product" {...register("type",{required:true})} />
@@ -533,31 +534,31 @@ const POS = () => {
                           {errors.type && <div className='invalid-validation-css'>This field is required</div>}
                         </CCol>
                       </fieldset> */}
-                <CCol md={8}>
-                  <CFormLabel
-                    htmlFor="exampleFormControlInput1"
-                    className="text-dark"
-                  >
-                    Customer
-                  </CFormLabel>
+                  <CCol md={8}>
+                    <CFormLabel
+                      htmlFor="exampleFormControlInput1"
+                      className="text-dark"
+                    >
+                      Customer
+                    </CFormLabel>
 
-                  <SelectAsync
-                    data={{
-                      options: customerOptions,
-                      selected: customerSelected,
-                    }}
-                    onSelect={(value) => {
-                      setValue("customer_id", value.value);
-                    }}
-                    {...register("customer_id", { required: true })}
-                  />
-                  {errors.customer_id && (
-                    <div className="invalid-validation-css">
-                      This field is required
-                    </div>
-                  )}
-                </CCol>
-                {/* <CCol md={6}>
+                    <SelectAsync
+                      data={{
+                        options: customerOptions,
+                        selected: customerSelected,
+                      }}
+                      onSelect={(value) => {
+                        setValue("customer_id", value.value);
+                      }}
+                      {...register("customer_id", { required: true })}
+                    />
+                    {errors.customer_id && (
+                      <div className="invalid-validation-css">
+                        This field is required
+                      </div>
+                    )}
+                  </CCol>
+                  {/* <CCol md={6}>
                   <CFormInput
                     type="text"
                     id="inputEmail4"
@@ -618,198 +619,199 @@ const POS = () => {
                   />
                 </CCol> */}
 
-                <h5>Items</h5>
-                {/* Product Info */}
-                <div className="container">
-                  <div className="row clearfix">
-                    <div className="col-md-12">
-                      <table
-                        className="table table-bordered table-hover"
-                        id="tab_logic"
-                      >
-                        <thead>
-                          <tr>
-                            <th className="text-center"> # </th>
-                            <th className="text-center"> Product </th>
-                            <th className="text-center"> Qty </th>
-                            <th className="text-center"> Price </th>
-                            <th className="text-center"> Total </th>
-                            <th className="text-center"> . </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {fields?.map((element, index) => {
-                            return (
-                              <tr id="addr0">
-                                <td>{index + 1}</td>
-                                <td>
-                                  <CFormSelect
-                                    className="form-control"
-                                    key={index}
-                                    id="inputState"
-                                    {...register(`items[${index}].product_id`)}
-                                    onChange={(e) => {
-                                      gerProductById(e.target.value, index);
-                                    }}
-                                  >
-                                    <option value="">
-                                      ... Select Product ...
-                                    </option>
-                                    {products.docs?.map((product, index) => {
-                                      return (
-                                        <option key={index} value={product._id}>
-                                          {product.name}
-                                        </option>
-                                      );
-                                    })}
-                                    ;
-                                  </CFormSelect>
-                                </td>
-                                <td>
-                                  <CFormInput
-                                    type="number"
-                                    id="inputPassword4"
-                                    {...register(`items[${index}].qty`)}
-                                    onChange={(e) => {
-                                      handleQtyChange(e.target.value, index);
-                                    }}
-                                  />
-                                </td>
-                                <td>
-                                  <CFormInput
-                                    type="number"
-                                    id="inputPassword4"
-                                    {...register(`items[${index}].rate`)}
-                                    readOnly
-                                  />
-                                </td>
-                                <td>
-                                  <CFormInput
-                                    type="number"
-                                    id="inputPassword4"
-                                    {...register(`items[${index}].amount`)}
-                                    readOnly
-                                  />
-                                </td>
-                                <td>
-                                  <CButton
-                                    type="button"
-                                    onClick={() => removeItem(index)}
-                                    className="me-md-2"
-                                    color="danger"
-                                  >
-                                    <CIcon size={"sm"} icon={cilTrash} />
-                                  </CButton>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                          <tr id="addr1"></tr>
-                        </tbody>
-                      </table>
+                  <h5>Items</h5>
+                  {/* Product Info */}
+                  <div className="container">
+                    <div className="row clearfix">
+                      <div className="col-md-12">
+                        <table
+                          className="table table-bordered table-hover"
+                          id="tab_logic"
+                        >
+                          <thead>
+                            <tr>
+                              <th className="text-center"> # </th>
+                              <th className="text-center"> Product </th>
+                              <th className="text-center"> Qty </th>
+                              <th className="text-center"> Price </th>
+                              <th className="text-center"> Total </th>
+                              <th className="text-center"> . </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {fields?.map((element, index) => {
+                              return (
+                                <tr id="addr0">
+                                  <td>{index + 1}</td>
+                                  <td>
+                                    <CFormSelect
+                                      className="form-control"
+                                      key={index}
+                                      id="inputState"
+                                      {...register(
+                                        `items[${index}].product_id`
+                                      )}
+                                      onChange={(e) => {
+                                        gerProductById(e.target.value, index);
+                                      }}
+                                    >
+                                      <option value="">
+                                        ... Select Product ...
+                                      </option>
+                                      {products.docs?.map((product, index) => {
+                                        return (
+                                          <option
+                                            key={index}
+                                            value={product._id}
+                                          >
+                                            {product.name}
+                                          </option>
+                                        );
+                                      })}
+                                      ;
+                                    </CFormSelect>
+                                  </td>
+                                  <td>
+                                    <CFormInput
+                                      type="number"
+                                      id="inputPassword4"
+                                      {...register(`items[${index}].qty`)}
+                                      onChange={(e) => {
+                                        handleQtyChange(e.target.value, index);
+                                      }}
+                                    />
+                                  </td>
+                                  <td>
+                                    <CFormInput
+                                      type="number"
+                                      id="inputPassword4"
+                                      {...register(`items[${index}].rate`)}
+                                      readOnly
+                                    />
+                                  </td>
+                                  <td>
+                                    <CFormInput
+                                      type="number"
+                                      id="inputPassword4"
+                                      {...register(`items[${index}].amount`)}
+                                      readOnly
+                                    />
+                                  </td>
+                                  <td>
+                                    <CButton
+                                      type="button"
+                                      onClick={() => removeItem(index)}
+                                      className="me-md-2"
+                                      color="danger"
+                                    >
+                                      <CIcon size={"sm"} icon={cilTrash} />
+                                    </CButton>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                            <tr id="addr1"></tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                  </div>
-                  <div className="row clearfix">
-                    <div className="col-md-12">
-                      <button
-                        id="add_row"
-                        type="button"
-                        onClick={() => {
-                          addRow();
-                        }}
-                        className="btn btn-default pull-left"
-                      >
-                        Add Row
-                      </button>
+                    <div className="row clearfix">
+                      <div className="col-md-12">
+                        <button
+                          id="add_row"
+                          type="button"
+                          onClick={() => {
+                            addRow();
+                          }}
+                          className="btn btn-default pull-left"
+                        >
+                          Add Row
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <div
-                    className="row clearfix"
-                    style={{ marginTop: "20px" }}
-                  >
-                    {" "}
-                    {/* style={"margin-top:20px"} */}
-                    <div className="col-md-4">
-                      <table
-                        className="table table-bordered table-hover"
-                        id="tab_logic_total"
-                      >
-                        <tbody>
-                          <tr>
-                            <th className="text-center">Sub Total</th>
-                            <td className="text-center">
-                              <input
-                                type="text"
-                                placeholder="0.00"
-                                className="form-control"
-                                id="sub_total"
-                                readOnly
-                                {...register(`sale_details.sub_total`)}
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <th className="text-center">Tax</th>
-                            <td className="text-center">
-                              <div className="input-group mb-2 mb-sm-0">
+                    <div className="row clearfix" style={{ marginTop: "20px" }}>
+                      {" "}
+                      {/* style={"margin-top:20px"} */}
+                      <div className="col-md-4">
+                        <table
+                          className="table table-bordered table-hover"
+                          id="tab_logic_total"
+                        >
+                          <tbody>
+                            <tr>
+                              <th className="text-center">Sub Total</th>
+                              <td className="text-center">
                                 <input
                                   type="text"
+                                  placeholder="0.00"
                                   className="form-control"
-                                  id="tax"
-                                  placeholder="0"
-                                  {...register(`sale_details.tax_id`)}
+                                  id="sub_total"
+                                  readOnly
+                                  {...register(`sale_details.sub_total`)}
                                 />
-                                <div className="input-group-addon">%</div>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <th className="text-center">Total Tax</th>
-                            <td className="text-center">
-                              <input
-                                type="text"
-                                {...register(`sale_details.tax_amount`)}
-                                id="tax_amount"
-                                placeholder="0.00"
-                                className="form-control"
-                                readOnly
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <th className="text-center">Grand Total</th>
-                            <td className="text-center">
-                              <input
-                                type="text"
-                                name="total_amount"
-                                id="total_amount"
-                                placeholder="0.00"
-                                className="form-control"
-                                readOnly
-                                {...register(`sale_details.total`)}
-                              />
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th className="text-center">Tax</th>
+                              <td className="text-center">
+                                <div className="input-group mb-2 mb-sm-0">
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="tax"
+                                    placeholder="0"
+                                    {...register(`sale_details.tax_id`)}
+                                  />
+                                  <div className="input-group-addon">%</div>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th className="text-center">Total Tax</th>
+                              <td className="text-center">
+                                <input
+                                  type="text"
+                                  {...register(`sale_details.tax_amount`)}
+                                  id="tax_amount"
+                                  placeholder="0.00"
+                                  className="form-control"
+                                  readOnly
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <th className="text-center">Grand Total</th>
+                              <td className="text-center">
+                                <input
+                                  type="text"
+                                  name="total_amount"
+                                  id="total_amount"
+                                  placeholder="0.00"
+                                  className="form-control"
+                                  readOnly
+                                  {...register(`sale_details.total`)}
+                                />
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <h5>Additional Information</h5>
+                  <h5>Additional Information</h5>
 
-                <CCol md={12}>
-                  <CFormTextarea
-                    id="cost_data"
-                    floatingLabel="Customer Notes"
-                    style={{ height: "100px" }}
-                    {...register("notes", options.notes)}
-                    rows="6"
-                  ></CFormTextarea>
-                </CCol>
-                
+                  <CCol md={12}>
+                    <CFormTextarea
+                      id="cost_data"
+                      floatingLabel="Customer Notes"
+                      style={{ height: "100px" }}
+                      {...register("notes", options.notes)}
+                      rows="6"
+                    ></CFormTextarea>
+                  </CCol>
 
-                {/* <CCol md={12}>
+                  {/* <CCol md={12}>
                   <CFormLabel
                     htmlFor="exampleFormControlInput1"
                     className="text-dark"
@@ -826,30 +828,306 @@ const POS = () => {
                     }}
                   />
                 </CCol> */}
-              </CRow>
-            </CCol>
-          </CCardBody>
-          <CCardFooter>
-            <CCol className="float-end">
-            <CButton type="submit" className="me-md-2">
-                    Submit
-                  </CButton>
-                  <CButton
-                    type="button"
-                    onClick={() => setVisibleXL(!visibleXL)}
-                    className="me-md-2"
-                    color="secondary"
-                    variant="ghost"
-                  >
-                    Close
-                  </CButton>
-            </CCol>
-          </CCardFooter>
-        </CCard>
+                </CRow>
+              </CCol>
+            </CCardBody>
+            <CCardFooter>
+              <CCol className="float-end">
+                <CButton type="submit" className="me-md-2">
+                  Submit
+                </CButton>
+                <CButton
+                  type="button"
+                  onClick={() => setVisibleXL(!visibleXL)}
+                  className="me-md-2"
+                  color="secondary"
+                  variant="ghost"
+                >
+                  Close
+                </CButton>
+              </CCol>
+            </CCardFooter>
+          </CCard>
         </CForm>
       </CCol>
 
       {/* POS */}
+
+      <CModal
+        size="xl"
+        visible={visibleXL}
+        onClose={() => setVisibleXL(false)}
+        backdrop="static"
+      >
+        <CForm onSubmit={handleSubmit(onFormSubmit, onErrors)}>
+          <CModalHeader>
+            <CModalTitle> Invoice</CModalTitle>
+          </CModalHeader>
+          <CModalBody>
+            <CCol xs={12}>
+              {/* <CRow className="row g-3 px-3 mx-2 py-5">
+                <fieldset className="row mb-1">
+                  <legend className="col-form-label col-sm-2 pt-0">
+                    Payment In
+                  </legend>
+                </fieldset>
+                <CCol md={6}>
+                  <CFormInput
+                    type="text"
+                    id="inputEmail4"
+                    floatingLabel="Payment No#"
+                    {...register("payment_no")}
+                  />
+                  {errors.shipment_no && (
+                    <div className="invalid-validation-css">
+                      This field is required
+                    </div>
+                  )}
+                </CCol>
+                <CCol md={6}>
+                  <CFormSelect
+                    id="inputState"
+                    floatingLabel="Payment Mode"
+                    {...register("payment_mode")}
+                  >
+                    <option value="">...</option>
+                    <option>Cash</option>
+                    <option>Bank Transfer</option>
+                    <option>Cheque</option>
+                  </CFormSelect>
+                </CCol>
+                <CCol md={6}>
+                  <CFormInput
+                    type="text"
+                    id="inputEmail4"
+                    floatingLabel="Reference No#"
+                    {...register("reference")}
+                  />
+                  {errors.tracking_no && (
+                    <div className="invalid-validation-css">
+                      This field is required
+                    </div>
+                  )}
+                </CCol>
+                <CCol md={6}>
+                  <CFormInput
+                    type="text"
+                    id="inputAmount"
+                    readOnly
+                    floatingLabel="Amount"
+                    {...register("amount")}
+                  />
+                  {errors.tracking_no && (
+                    <div className="invalid-validation-css">
+                      This field is required
+                    </div>
+                  )}
+                </CCol>
+                <CCol md={6}>
+                  <CFormInput
+                    type="date"
+                    id="inputPassword4"
+                    floatingLabel="Payment Date"
+                    {...register("payment_date")}
+                  />
+                </CCol>
+                `
+                <CCol md={6}>
+                  <CFormSelect
+                    id="inputState"
+                    floatingLabel="Payment Deposit to"
+                    {...register("deposit_to")}
+                  >
+                    <option value="">...</option>
+                    <option>Petty Cash</option>
+                    <option>Undeposited Funds</option>
+                    <option>Other Expense</option>
+                  </CFormSelect>
+                </CCol>
+                <CCol md={6}>
+                  <CFormSelect
+                    id="inputState"
+                    floatingLabel="Payment Status"
+                    {...register("status")}
+                  >
+                    <option value="">...</option>
+                    <option>Completed</option>
+                    <option>On-Hold</option>
+                    <option>Cancelled</option>
+                    <option>Refunded</option>
+                  </CFormSelect>
+                </CCol>
+                <h5>Additional Information</h5>
+                <CCol md={12}>
+                  <CFormTextarea
+                    id="cost_data"
+                    floatingLabel="Notes"
+                    style={{ height: "100px" }}
+                    {...register("notes")}
+                    rows="6"
+                  ></CFormTextarea>
+                </CCol>
+                <CCol md={12} className="mt-4">
+                  <div className="float-end">
+                    <input type="hidden" {...register("invoice")}></input>
+                    <input type="hidden" {...register("_id")}></input>
+                    <CButton type="submit" className="me-md-2">
+                      Save & Continue{" "}
+                    </CButton>
+                    <CButton
+                      type="button"
+                      onClick={() => setVisibleXL(!visibleXL)}
+                      className="me-md-2"
+                      color="secondary"
+                      variant="ghost"
+                    >
+                      Close
+                    </CButton>
+                  </div>
+                </CCol>
+              </CRow> */}
+              <div className="card">
+                <div className="card-body">
+                  <div id="invoice">
+                    <div className="toolbar hidden-print">
+                      <div className="text-end">
+                        <button type="button" className="btn btn-dark mx-2">
+                          <i className="fa fa-print"></i> Print{" "}
+                        </button>
+                        <button type="button" className="btn btn-danger">
+                          <i className="fa fa-file-pdf-o"></i> Export as PDF
+                        </button>
+                      </div>
+                      <hr />
+                    </div>
+                    <div className="invoice overflow-auto">
+                      <div style={{ "min-width": "600px" }}>
+                        <header>
+                          <div className="row">
+                            <div className="col">
+                              <a href="javascript:;">
+                                <img
+                                  src="assets/images/logo-icon.png"
+                                  width="80"
+                                  alt=""
+                                />
+                              </a>
+                            </div>
+                            <div className="col company-details">
+                              <h2 className="name">
+                                <a target="_blank" href="javascript:;">
+                                  Dcodelabs
+                                </a>
+                              </h2>
+                              <div>455 Foggy Heights, AZ 85004, US</div>
+                              <div>(123) 456-789</div>
+                              <div>company@example.com</div>
+                            </div>
+                          </div>
+                        </header>
+                        <main>
+                          <div className="row contacts">
+                            <div className="col invoice-to">
+                              <div className="text-gray-light">INVOICE TO:</div>
+                              <h2 className="to">
+                                {customer?.name}
+                              </h2>
+                              <div className="email">
+                                <a href="mailto:john@example.com">
+                                  {customer?.email}
+                                </a>
+                                <div className="address">
+                                  {
+                                    customer?.address?.address_line1
+                                  }{" "}
+                                  {
+                                    customer?.address?.address_line2
+                                  }
+                                </div>
+                                <div className="address">
+                                  {customer?.address?.city}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="col invoice-details">
+                              <h1 className="invoice-id">
+                                {invoiceData?.invoice_no}
+                              </h1>
+                              <div className="date">
+                                Date of Invoice: {invoiceData?.invoice_date}
+                              </div>
+                              <div className="date">
+                                Due Date: {invoiceData?.due_date}
+                              </div>
+                            </div>
+                          </div>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>#</th>
+                                <th className="text-left">
+                                  ITEMS & DESCRIPTION
+                                </th>
+                                <th className="text-right">Qty</th>
+                                <th className="text-right">Rate</th>
+                                <th className="text-right">TOTAL</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {invoiceData?.items?.map((item, index) => {
+                                return (
+                                  <tr key={index}>
+                                    <td className="no">{index + 1}</td>
+                                    <td className="text-left">
+                                      <h3>{item.product_id?.name}</h3>
+                                      <p>{item.product_id?.description}</p>
+                                    </td>
+                                    <td className="unit">{item.qty}</td>
+                                    <td className="qty">${item.rate}</td>
+                                    <td className="total">${item.amount}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                            <tfoot>
+                              <tr>
+                                <td colSpan="2"></td>
+                                <td colSpan="2">SUBTOTAL</td>
+                                <td>${invoiceData?.sale_details?.sub_total}</td>
+                              </tr>
+                              <tr>
+                                <td colSpan="2"></td>
+                                <td colSpan="2">TAX {/* 25% */}</td>
+                                <td>${invoiceData?.sale_details?.tax}</td>
+                              </tr>
+                              <tr>
+                                <td colSpan="2"></td>
+                                <td colSpan="2">GRAND TOTAL</td>
+                                <td>${invoiceData?.sale_details?.total}</td>
+                              </tr>
+                            </tfoot>
+                          </table>
+                          <div className="thanks">Thank you!</div>
+                          <div className="notices">
+                            <div>NOTICE:</div>
+                            <div className="notice">{invoiceData?.notes}</div>
+                          </div>
+                        </main>
+                        <footer>
+                          Invoice was created on a computer and is valid without
+                          the signature and seal.
+                        </footer>
+                      </div>
+                      {/* <!--DO NOT DELETE THIS div. IT is responsible for showing footer always at the bottom--> */}
+                      <div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CCol>
+          </CModalBody>
+        </CForm>
+      </CModal>
     </CRow>
   );
 };
