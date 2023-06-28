@@ -133,11 +133,11 @@ const DropzoneHandler = (props) => {
     <div style={thumb} key={file.name}>
       <div className="img-container" style={thumbInner}>
         <img
-          src={file.full_url}
+          src={file?.full_url}
           style={img}
           // Revoke data uri after image is loaded
           onLoad={() => {
-            URL.revokeObjectURL(file.full_url);
+            URL.revokeObjectURL(file?.full_url);
           }}
         />
         <div class="overlay">

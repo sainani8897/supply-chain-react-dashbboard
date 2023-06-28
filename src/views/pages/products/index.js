@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import ValidationAlert from "../../../components/Alerts/ValidationAlert";
 import Pagination from "react-bootstrap-4-pagination";
 import { useSearchParams } from "react-router-dom";
+import DropzoneHandler from "../../../components/Dropzone";
 
 import {
   CCard,
@@ -79,6 +80,7 @@ const Product = () => {
   const [validationAlert, setValidationAlert] = useState(false);
   const [searchParams] = useSearchParams();
   const [filterSelect, setFilterSelect] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const addForm = () => {
     resetForm();
@@ -286,6 +288,10 @@ const Product = () => {
       });
   };
 
+  function pluck(array, key) {
+    return array.map((o) => o[key]);
+  }
+
   /* Edit Form */
   const onEdit = (data) => {
     resetForm();
@@ -325,6 +331,7 @@ const Product = () => {
       label: data.category_id?.category_name,
       value: data.category_id?._id,
     });
+    setUploadedFiles(data.files ?? []);
   };
 
   /* Delete  */
@@ -905,6 +912,26 @@ const Product = () => {
                       <CCol md={6}>
                         <CFormInput id="inputCity" floatingLabel="Units" />
                       </CCol>
+
+                      <h5>Additional Information</h5>
+                      <CCol md={12}>
+                        <CFormLabel
+                          htmlFor="exampleFormControlInput1"
+                          className="text-dark"
+                        >
+                          Attachment's
+                        </CFormLabel>
+                        <DropzoneHandler
+                          options={{
+                            multiple: true,
+                            uploadedFile: uploadedFiles,
+                          }}
+                          onFileUpload={(value) => {
+                            setValue("files[]", pluck(value, "_id"));
+                          }}
+                        />
+                      </CCol>
+
                     </CRow>
                   </CCol>
                 </CModalBody>

@@ -19,7 +19,9 @@ import {
   cilTags,
   cilLockLocked,
   cilShieldAlt,
-  cilSettings
+  cilSettings,
+  cilCash,
+  cilPlus
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -55,6 +57,28 @@ const new_nav = [
     name: 'Inventory',
     to: '/500',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Customer Purchase',
+  },
+  {
+    component: CNavGroup,
+    name: 'POS',
+    to: '/base',
+    icon: <CIcon icon={cilCash} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Add Sale',
+        to: '/pos/add-sale',
+      },
+      {
+        component: CNavItem,
+        name: 'All Sales',
+        to: '/pos/all-sales',
+      },
+    ],
   },
   {
     component: CNavTitle,
