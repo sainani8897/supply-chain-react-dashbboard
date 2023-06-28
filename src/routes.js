@@ -109,6 +109,7 @@ const Profile = React.lazy(() => import("./views/pages/profile"));
 
 /** POS */
 const POS = React.lazy(() => import("./views/pages/POS"));
+const POSList = React.lazy(() => import("./views/pages/POS/list"));
 
 
 const routes = [
@@ -338,9 +339,20 @@ const routes = [
   },
   { path: "/payments-made", name: "Payments Made", element: PaymentsMade },
   {
-    path: "/pos",
+    path: "/pos/add-sale",
     name: "POS",
     element: POS,
+    canPermissions: [
+      "read_users",
+      "create_users",
+      "update_users",
+      "delete_users",
+    ],
+  },
+  {
+    path: "/pos/all-sales",
+    name: "POS",
+    element: POSList,
     canPermissions: [
       "read_users",
       "create_users",
